@@ -17,3 +17,6 @@ dependencyResolutionManagement {
 rootProject.name = "Dowel"
 
 include ':app'
+
+include ':dowel-annotation'
+include ':dowel-processor'
