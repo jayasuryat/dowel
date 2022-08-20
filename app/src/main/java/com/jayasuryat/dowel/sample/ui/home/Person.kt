@@ -6,4 +6,5 @@ import com.jayasuryat.dowel.annotation.Dowel
 data class Person(
     val name: String,
     val age: Int,
+    val id: Long = 2,
 )

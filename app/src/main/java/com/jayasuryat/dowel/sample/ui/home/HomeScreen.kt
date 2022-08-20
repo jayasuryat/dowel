@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -79,15 +80,17 @@ private fun ItemPerson(
 }
 
 @Preview(
-    name = "Home screen",
+    name = "Item person",
     showBackground = true,
 )
 @Composable
 private fun Preview(
-    people: List<Person> = People,
+    @PreviewParameter(PersonPreviewParamProvider::class) person: Person,
 ) {
-    HomeScreen(
-        modifier = Modifier.fillMaxSize(),
-        people = people,
+    ItemPerson(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        person = person,
     )
 }

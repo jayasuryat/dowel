@@ -4,7 +4,7 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 
-class DowelSymbolProcessorProvider : SymbolProcessorProvider {
+public class DowelSymbolProcessorProvider : SymbolProcessorProvider {
 
     override fun create(
         environment: SymbolProcessorEnvironment,
@@ -12,6 +12,7 @@ class DowelSymbolProcessorProvider : SymbolProcessorProvider {
 
         return DowelSymbolProcessor(
             logger = environment.logger,
+            codeGenerator = environment.codeGenerator,
         )
     }
 }
