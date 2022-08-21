@@ -1,0 +1,26 @@
+apply {
+    plugin("com.diffplug.spotless")
+}
+
+spotless {
+
+    format("misc") {
+        target("**/*.gradle", "**/*.md", "**/.gitignore")
+        indentWithSpaces()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+    kotlin {
+        target("**/*.kt")
+        targetExclude(
+                "$buildDir/**/*.kt",
+                "bin/**/*.kt",
+                "buildSrc/**/*.kt",
+        )
+        ktlint("0.41.0").userData(["disabled_rules": "no-wildcard-imports"])
+        indentWithSpaces()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
