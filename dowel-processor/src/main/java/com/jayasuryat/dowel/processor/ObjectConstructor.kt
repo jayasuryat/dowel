@@ -32,7 +32,6 @@ internal class ObjectConstructor(
                 constructor.parameters.forEach { parameter ->
                     addStatement("${parameter.assignment(classDeclaration = classDeclaration)},")
                 }
-
             }.addStatement("),")
 
         return codeBlock.build()
