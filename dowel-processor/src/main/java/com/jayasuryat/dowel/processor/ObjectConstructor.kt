@@ -4,6 +4,7 @@ import com.google.devtools.ksp.processing.KSBuiltIns
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.jayasuryat.dowel.processor.annotation.FloatRange
 import com.jayasuryat.dowel.processor.annotation.IntRange
@@ -43,10 +44,12 @@ internal class ObjectConstructor(
         classDeclaration: KSClassDeclaration,
     ): String {
 
-        val prop = this
-        val type = prop.type.resolve()
+        val prop: KSValueParameter = this
+        val type: KSType = prop.type.resolve()
 
         val value: String = when {
+
+            // Primitives
             type.isAssignableFrom(builtIns.intType) -> prop.getIntAssigner()
             type.isAssignableFrom(builtIns.longType) -> prop.getLongAssigner()
             type.isAssignableFrom(builtIns.floatType) -> prop.getFloatAssigner()
@@ -54,6 +57,12 @@ internal class ObjectConstructor(
             type.isAssignableFrom(builtIns.booleanType) -> prop.getBoolAssigner()
             type.isAssignableFrom(builtIns.charType) -> prop.getCharAssigner()
             type.isAssignableFrom(builtIns.stringType) -> prop.getStringAssigner()
+
+            // High-order functions
+            type.isFunctionType || type.isSuspendFunctionType -> prop.getFunctionAssigner(
+                ksType = type,
+            )
+
             else -> {
                 logger.error(
                     message = "Dowel does not support generating preview param providers for the type ${type.toTypeName()} (${classDeclaration.simpleName.asString()}.${this.name!!.asString()}).",
@@ -164,6 +173,30 @@ internal class ObjectConstructor(
             .toString()
 
         return if (value.length < 30) "\"$value\"" else "\"\"\"$value\"\"\""
+    }
+
+    private fun KSValueParameter.getFunctionAssigner(
+        ksType: KSType,
+    ): String {
+
+        val argsSize = ksType.arguments.size
+        if (argsSize == 1) return "{}"
+
+        val returnType: KSType = ksType.arguments.last().type!!.resolve()
+        val isReturnTypeUnit: Boolean = returnType.isAssignableFrom(builtIns.unitType)
+
+        val builder = StringBuilder("{")
+
+        // Generating a string like : { _, _ -> TODO() }
+        with(builder) {
+            repeat(argsSize - 1) { append(" _,") }
+            deleteCharAt(builder.length - 1)
+            append(" ->")
+            if (!isReturnTypeUnit) append(" TODO()")
+            append(" }")
+        }
+
+        return builder.toString()
     }
 
     private fun Long.toSafeRangeInt(): Int {

@@ -14,4 +14,5 @@ data class Person(
     val height: Double,
     val isAlien: Boolean,
     val title: Char,
+    val onClick: suspend (a: Person, b: Int) -> Unit,
 )
