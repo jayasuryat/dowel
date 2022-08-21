@@ -1,5 +1,6 @@
 package com.jayasuryat.dowel.sample.ui.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,6 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -58,10 +61,19 @@ private fun ItemPerson(
             .padding(8.dp)
             .clip(RoundedCornerShape(100f))
             .background(color = Color.Gray.copy(alpha = 0.3f))
-            .padding(vertical = 8.dp)
-            .padding(start = 16.dp, end = 8.dp),
+            .padding(all = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+
+        Image(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(color = Color.Gray.copy(alpha = 0.8f)),
+            painter = painterResource(id = person.avatar),
+            contentDescription = "Person avatar",
+        )
 
         Text(
             modifier = Modifier.weight(1f),
@@ -75,6 +87,7 @@ private fun ItemPerson(
                 .background(color = Color.Gray.copy(alpha = 0.8f))
                 .padding(8.dp),
             text = person.age.toString(),
+            textAlign = TextAlign.Center,
         )
     }
 }

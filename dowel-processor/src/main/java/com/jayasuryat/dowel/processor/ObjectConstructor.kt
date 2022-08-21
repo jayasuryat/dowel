@@ -30,7 +30,9 @@ internal class ObjectConstructor(
             .withIndent {
 
                 constructor.parameters.forEach { parameter ->
-                    addStatement("${parameter.assignment(classDeclaration = classDeclaration)},")
+                    if (!parameter.hasDefault) {
+                        addStatement("${parameter.assignment(classDeclaration = classDeclaration)},")
+                    }
                 }
             }.addStatement("),")
 
