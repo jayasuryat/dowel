@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    people: List<Person> = People,
+    people: List<Person>,
 ) {
 
     Box(

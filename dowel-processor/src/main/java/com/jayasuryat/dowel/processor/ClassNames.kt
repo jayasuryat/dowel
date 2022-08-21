@@ -8,4 +8,19 @@ internal object ClassNames {
         packageName = "androidx.compose.ui.tooling.preview",
         "PreviewParameterProvider"
     )
+
+    val intRangeName: ClassName = ClassName(
+        packageName = "androidx.annotation",
+        "IntRange"
+    )
+
+    val floatRangeName: ClassName = ClassName(
+        packageName = "androidx.annotation",
+        "FloatRange"
+    )
+
+    val sizeName: ClassName = ClassName(
+        packageName = "androidx.annotation",
+        "Size"
+    )
 }
