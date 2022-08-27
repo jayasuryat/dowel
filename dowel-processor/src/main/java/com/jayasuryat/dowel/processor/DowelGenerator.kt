@@ -2,8 +2,8 @@ package com.jayasuryat.dowel.processor
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
-import com.google.devtools.ksp.processing.KSBuiltIns
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -11,14 +11,14 @@ import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
 
 internal class DowelGenerator(
-    private val builtIns: KSBuiltIns,
+    private val resolver: Resolver,
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
 ) {
 
     private val objectConstructor: ObjectConstructor by lazy {
         ObjectConstructor(
-            builtIns = builtIns,
+            resolver = resolver,
             logger = logger,
         )
     }
@@ -92,8 +92,8 @@ internal class DowelGenerator(
         val classDeclaration = this
 
         val propertyInitializer = CodeBlock.builder()
+            .addStatement("sequenceOf(")
             .withIndent {
-                addStatement("sequenceOf(")
                 repeat(instanceCount) {
                     val constructed = objectConstructor.constructObjectFor(classDeclaration)
                     add(constructed)

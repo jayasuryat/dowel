@@ -17,7 +17,7 @@ internal class DowelSymbolProcessor(
 
     private val dowelGenerator: DowelGenerator by lazy {
         DowelGenerator(
-            builtIns = resolver.builtIns,
+            resolver = resolver,
             codeGenerator = codeGenerator,
             logger = logger,
         )

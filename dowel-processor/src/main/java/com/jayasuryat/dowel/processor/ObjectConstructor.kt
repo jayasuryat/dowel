@@ -2,6 +2,7 @@ package com.jayasuryat.dowel.processor
 
 import com.google.devtools.ksp.processing.KSBuiltIns
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.*
 import com.jayasuryat.dowel.processor.annotation.FloatRange
 import com.jayasuryat.dowel.processor.annotation.IntRange
@@ -13,9 +14,11 @@ import java.util.*
 import kotlin.random.Random
 
 internal class ObjectConstructor(
-    private val builtIns: KSBuiltIns,
+    private val resolver: Resolver,
     private val logger: KSPLogger,
 ) {
+
+    private val builtIns: KSBuiltIns = resolver.builtIns
 
     fun constructObjectFor(
         classDeclaration: KSClassDeclaration,
@@ -217,6 +220,12 @@ internal class ObjectConstructor(
         else if (this > Float.MAX_VALUE) Float.MAX_VALUE
         else this.toFloat()
     }
+
+    private val Resolver.listType: KSType
+        get() {
+            val name = this.getKSNameFromString(List::class.qualifiedName!!)
+            return getClassDeclarationByName(name)!!.asStarProjectedType()
+        }
 
     private companion object {
 
