@@ -10,9 +10,14 @@ data class Person(
     val age: Int,
     @DrawableRes val avatar: Int = R.drawable.ic_launcher_foreground,
     val count: Long,
+    val status: Status,
     val weight: Float,
     val height: Double,
     val isAlien: Boolean,
     val title: Char,
     val onClick: suspend (a: Person, b: Int) -> Unit,
 )
+
+enum class Status {
+    Active, InActive, PendingActivation, Deleted, Archived
+}

@@ -2,10 +2,7 @@ package com.jayasuryat.dowel.processor
 
 import com.google.devtools.ksp.processing.KSBuiltIns
 import com.google.devtools.ksp.processing.KSPLogger
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSType
-import com.google.devtools.ksp.symbol.KSValueParameter
+import com.google.devtools.ksp.symbol.*
 import com.jayasuryat.dowel.processor.annotation.FloatRange
 import com.jayasuryat.dowel.processor.annotation.IntRange
 import com.jayasuryat.dowel.processor.annotation.Size
@@ -46,6 +43,7 @@ internal class ObjectConstructor(
 
         val prop: KSValueParameter = this
         val type: KSType = prop.type.resolve()
+        val declaration: KSDeclaration = type.declaration
 
         val value: String = when {
 
@@ -63,12 +61,15 @@ internal class ObjectConstructor(
                 ksType = type,
             )
 
+            // Enum classes
+            declaration is KSClassDeclaration && declaration.classKind == ClassKind.ENUM_CLASS ->
+                prop.getEnumAssigner(declaration = declaration)
+
             else -> {
-                logger.error(
-                    message = "Dowel does not support generating preview param providers for the type ${type.toTypeName()} (${classDeclaration.simpleName.asString()}.${this.name!!.asString()}).",
-                    symbol = classDeclaration,
-                )
-                ""
+                val message =
+                    "Dowel does not support generating preview param providers for the type ${type.toTypeName()} (${classDeclaration.simpleName.asString()}.${this.name!!.asString()})."
+                logger.error(message = message, symbol = classDeclaration)
+                error(message)
             }
         }
 
@@ -197,6 +198,12 @@ internal class ObjectConstructor(
         }
 
         return builder.toString()
+    }
+
+    private fun KSValueParameter.getEnumAssigner(
+        declaration: KSClassDeclaration,
+    ): String {
+        return "${declaration.simpleName.asString()}.values().random()"
     }
 
     private fun Long.toSafeRangeInt(): Int {
