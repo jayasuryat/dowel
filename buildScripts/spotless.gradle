@@ -22,5 +22,6 @@ spotless {
         indentWithSpaces()
         trimTrailingWhitespace()
         endWithNewline()
+        licenseHeaderFile(rootProject.file("buildScripts/copyright.txt"))
     }
 }
