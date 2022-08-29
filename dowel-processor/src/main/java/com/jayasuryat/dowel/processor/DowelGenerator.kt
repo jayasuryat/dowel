@@ -20,6 +20,8 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.jayasuryat.dowel.processor.model.ClassRepresentation
+import com.jayasuryat.dowel.processor.model.ClassRepresentationMapper
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import java.io.OutputStreamWriter
@@ -31,12 +33,13 @@ internal class DowelGenerator(
     private val logger: KSPLogger,
 ) {
 
-    private val objectConstructor: ObjectConstructor by lazy {
-        ObjectConstructor(
+    private val mapper: ClassRepresentationMapper by lazy {
+        ClassRepresentationMapper(
             resolver = resolver,
             logger = logger,
         )
     }
+    private val objectConstructor: ObjectConstructor by lazy { ObjectConstructor() }
 
     fun generatePreviewParameterProviderFor(
         classDeclaration: KSClassDeclaration,
@@ -110,7 +113,9 @@ internal class DowelGenerator(
             .addStatement("sequenceOf(")
             .withIndent {
                 repeat(instanceCount) {
-                    val constructed = objectConstructor.constructObjectFor(classDeclaration)
+                    val representation: ClassRepresentation = mapper.map(classDeclaration)
+                    val constructed: CodeBlock =
+                        objectConstructor.constructObjectFor(representation)
                     add(constructed)
                 }
             }

@@ -27,6 +27,8 @@ internal data class Size(
 
     companion object {
 
+        // TODO: Values of this annotation are never null, so there should be better way to handle defaults
+
         fun find(
             annotations: List<KSAnnotation>,
             defaultValue: Long,

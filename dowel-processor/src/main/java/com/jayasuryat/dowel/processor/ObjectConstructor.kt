@@ -15,169 +15,113 @@
  */
 package com.jayasuryat.dowel.processor
 
-import com.google.devtools.ksp.processing.KSBuiltIns
-import com.google.devtools.ksp.processing.KSPLogger
-import com.google.devtools.ksp.processing.Resolver
-import com.google.devtools.ksp.symbol.*
-import com.jayasuryat.dowel.processor.annotation.FloatRange
-import com.jayasuryat.dowel.processor.annotation.IntRange
-import com.jayasuryat.dowel.processor.annotation.Size
+import com.jayasuryat.dowel.processor.model.ClassRepresentation
+import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.*
 import com.squareup.kotlinpoet.CodeBlock
-import com.squareup.kotlinpoet.ksp.toTypeName
+import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.withIndent
 import java.util.*
 import kotlin.random.Random
 
-internal class ObjectConstructor(
-    private val resolver: Resolver,
-    private val logger: KSPLogger,
-) {
-
-    private val builtIns: KSBuiltIns = resolver.builtIns
+internal class ObjectConstructor {
 
     fun constructObjectFor(
-        classDeclaration: KSClassDeclaration,
+        representation: ClassRepresentation,
     ): CodeBlock {
 
-        val constructor: KSFunctionDeclaration = classDeclaration.primaryConstructor!!
+        val className = representation.declaration.simpleName.asString()
 
         val codeBlock = CodeBlock.builder()
-            .addStatement("${classDeclaration.simpleName.asString()}(")
+            .addStatement("$className(")
             .withIndent {
-
-                constructor.parameters.forEach { parameter ->
-                    if (!parameter.hasDefault) {
-                        addStatement("${parameter.assignment(classDeclaration = classDeclaration)},")
+                representation.parameters
+                    .filter { parameter -> !parameter.hasDefault }
+                    .forEach { parameter ->
+                        val block = buildCodeBlock {
+                            add("%L = %L,\n", parameter.name, parameter.spec.getAssigner())
+                        }
+                        add(block)
                     }
-                }
             }.addStatement("),")
 
         return codeBlock.build()
     }
 
-    private fun KSValueParameter.assignment(
-        classDeclaration: KSClassDeclaration,
-    ): String {
+    private fun ClassRepresentation.ParameterSpec.getAssigner(): CodeBlock {
 
-        val prop: KSValueParameter = this
-        val type: KSType = prop.type.resolve()
-        val declaration: KSDeclaration = type.declaration
+        val assignment: CodeBlock = when (val spec = this) {
 
-        val value: String = when {
+            is IntSpec -> spec.getIntAssigner()
+            is LongSpec -> spec.getLongAssigner()
+            is FloatSpec -> spec.getFloatAssigner()
+            is DoubleSpec -> spec.getDoubleAssigner()
+            is CharSpec -> spec.getCharAssigner()
+            is BooleanSpec -> spec.getBoolAssigner()
+            is StringSpec -> spec.getStringAssigner()
 
-            // Primitives
-            type.isAssignableFrom(builtIns.intType) -> prop.getIntAssigner()
-            type.isAssignableFrom(builtIns.longType) -> prop.getLongAssigner()
-            type.isAssignableFrom(builtIns.floatType) -> prop.getFloatAssigner()
-            type.isAssignableFrom(builtIns.doubleType) -> prop.getDoubleAssigner()
-            type.isAssignableFrom(builtIns.booleanType) -> prop.getBoolAssigner()
-            type.isAssignableFrom(builtIns.charType) -> prop.getCharAssigner()
-            type.isAssignableFrom(builtIns.stringType) -> prop.getStringAssigner()
-
-            // High-order functions
-            type.isFunctionType || type.isSuspendFunctionType -> prop.getFunctionAssigner(
-                ksType = type,
-            )
-
-            // Enum classes
-            declaration is KSClassDeclaration && declaration.classKind == ClassKind.ENUM_CLASS ->
-                prop.getEnumAssigner(declaration = declaration)
-
-            else -> {
-                val message =
-                    "Dowel does not support generating preview param providers for the type ${type.toTypeName()} (${classDeclaration.simpleName.asString()}.${this.name!!.asString()})."
-                logger.error(message = message, symbol = classDeclaration)
-                error(message)
-            }
+            is ListSpec -> spec.getListAssigner() // This would be a recursive call
+            is FunctionSpec -> spec.getFunctionAssigner()
+            is EnumSpec -> spec.getEnumAssigner()
         }
 
-        return "${prop.name!!.asString()} = $value"
+        return assignment
     }
 
-    private fun KSValueParameter.getIntAssigner(): String {
-
-        val limit = IntRange.find(
-            annotations = annotations.toList(),
-            defaultStart = DefaultRange.DEFAULT_INT_MIN,
-            defaultEnd = DefaultRange.DEFAULT_INT_MAX,
-        )
+    private fun IntSpec.getIntAssigner(): CodeBlock {
 
         val value: Int = Random.nextInt(
-            from = limit.start.toSafeRangeInt(),
-            until = limit.end.toSafeRangeInt(),
+            from = range.start.toSafeRangeInt(),
+            until = range.end.toSafeRangeInt(),
         )
 
-        return "$value"
+        return buildCodeBlock { add("%L", value) }
     }
 
-    private fun KSValueParameter.getLongAssigner(): String {
-
-        val limit = IntRange.find(
-            annotations = annotations.toList(),
-            defaultStart = DefaultRange.DEFAULT_LONG_MIN,
-            defaultEnd = DefaultRange.DEFAULT_LONG_MAX,
-        )
+    private fun LongSpec.getLongAssigner(): CodeBlock {
 
         val value: Long = Random.nextLong(
-            from = limit.start,
-            until = limit.end,
+            from = range.start,
+            until = range.end,
         )
 
-        return "$value"
+        return buildCodeBlock { add("%LL", value) }
     }
 
-    private fun KSValueParameter.getFloatAssigner(): String {
+    private fun FloatSpec.getFloatAssigner(): CodeBlock {
 
-        val limit = FloatRange.find(
-            annotations = annotations.toList(),
-            defaultStart = DefaultRange.DEFAULT_FLOAT_MIN,
-            defaultEnd = DefaultRange.DEFAULT_FLOAT_MAX,
-        )
-
-        val start = limit.start.toSafeRangeFloat()
-        val end = limit.end.toSafeRangeFloat()
+        val start = range.start.toSafeRangeFloat()
+        val end = range.end.toSafeRangeFloat()
 
         val backingValue: Double = start + ((end - start) * Random.nextDouble())
         val value: Float = backingValue.toSafeRangeFloat()
 
-        return "${value}f"
+        return buildCodeBlock { add("%Lf", value) }
     }
 
-    private fun KSValueParameter.getDoubleAssigner(): String {
+    private fun DoubleSpec.getDoubleAssigner(): CodeBlock {
 
-        val limit = FloatRange.find(
-            annotations = annotations.toList(),
-            defaultStart = DefaultRange.DEFAULT_DOUBLE_MIN,
-            defaultEnd = DefaultRange.DEFAULT_DOUBLE_MAX,
-        )
-
-        val value: Double = limit.start + ((limit.end - limit.start) * Random.nextDouble())
-        return "$value"
+        val value: Double = range.start + ((range.end - range.start) * Random.nextDouble())
+        return buildCodeBlock { add("%L", value) }
     }
 
-    private fun KSValueParameter.getBoolAssigner(): String {
-        return "${Random.nextBoolean()}"
-    }
-
-    private fun KSValueParameter.getCharAssigner(): String {
+    @Suppress("unused")
+    private fun CharSpec.getCharAssigner(): CodeBlock {
         val range = 'a'..'z'
-        return "\'${range.random()}\'"
+        return buildCodeBlock { add("\'%L\'", range.random()) }
     }
 
-    private fun KSValueParameter.getStringAssigner(): String {
+    @Suppress("unused")
+    private fun BooleanSpec.getBoolAssigner(): CodeBlock {
+        return buildCodeBlock { add("%L", Random.nextBoolean()) }
+    }
 
-        val limit = Size.find(
-            annotations = annotations.toList(),
-            defaultValue = DefaultRange.DEFAULT_STRING_LEN_VALUE,
-            defaultMin = DefaultRange.DEFAULT_STRING_LEN_MIN,
-            defaultMax = DefaultRange.DEFAULT_STRING_LEN_MAX,
-        )
+    private fun StringSpec.getStringAssigner(): CodeBlock {
 
-        val length: Int = if (limit.value == -1L) {
-            val min = maxOf(limit.min.toSafeRangeInt(), 0)
-            val max = minOf(limit.max.toSafeRangeInt(), MAX_GENERATED_STRING_LENGTH)
+        val length: Int = if (size.value == -1L) {
+            val min = maxOf(size.min.toSafeRangeInt(), 0)
+            val max = minOf(size.max.toSafeRangeInt(), MAX_GENERATED_STRING_LENGTH)
             Random.nextInt(from = min, until = max)
-        } else limit.value.toSafeRangeInt()
+        } else size.value.toSafeRangeInt()
 
         val firstWord = StringSource.getRandomWord()
             .replaceFirstChar { char -> char.titlecase(Locale.getDefault()) }
@@ -191,37 +135,54 @@ internal class ObjectConstructor(
             .take(length)
             .toString()
 
-        return if (value.length < 30) "\"$value\"" else "\"\"\"$value\"\"\""
+        return buildCodeBlock { add("%S", value) }
     }
 
-    private fun KSValueParameter.getFunctionAssigner(
-        ksType: KSType,
-    ): String {
+    private fun ListSpec.getListAssigner(): CodeBlock {
 
-        val argsSize = ksType.arguments.size
-        if (argsSize == 1) return "{}"
+        val spec = this
 
-        val returnType: KSType = ksType.arguments.last().type!!.resolve()
-        val isReturnTypeUnit: Boolean = returnType.isAssignableFrom(builtIns.unitType)
+        val listSize = spec.size.value.toSafeRangeInt()
 
-        val builder = StringBuilder("{")
-
-        // Generating a string like : { _, _ -> TODO() }
-        with(builder) {
-            repeat(argsSize - 1) { append(" _,") }
-            deleteCharAt(builder.length - 1)
-            append(" ->")
-            if (!isReturnTypeUnit) append(" TODO()")
-            append(" }")
+        if (listSize == 0) {
+            return buildCodeBlock { add("listOf()") }
         }
 
-        return builder.toString()
+        val modListSize: Int = if (listSize != -1) listSize
+        else Random.nextLong(
+            from = spec.size.min,
+            until = spec.size.max,
+        ).toSafeRangeInt()
+
+        return buildCodeBlock {
+            add("listOf(\n")
+            withIndent {
+                repeat(modListSize) {
+                    add("%L,\n", spec.elementSpec.getAssigner())
+                }
+            }
+            add(")")
+        }
     }
 
-    private fun KSValueParameter.getEnumAssigner(
-        declaration: KSClassDeclaration,
-    ): String {
-        return "${declaration.simpleName.asString()}.values().random()"
+    private fun FunctionSpec.getFunctionAssigner(): CodeBlock {
+
+        if (argumentsSize == 0 && isReturnTypeUnit)
+            return buildCodeBlock { add("{}") }
+
+        return buildCodeBlock {
+            add("{")
+            repeat(argumentsSize) { add(" _,") }
+            add(" ->")
+            if (!isReturnTypeUnit) add(" TODO()")
+            add(" }")
+        }
+    }
+
+    private fun EnumSpec.getEnumAssigner(): CodeBlock {
+        return buildCodeBlock {
+            add("%L.values().random()", enumDeclaration.simpleName.asString())
+        }
     }
 
     private fun Long.toSafeRangeInt(): Int {
@@ -235,12 +196,6 @@ internal class ObjectConstructor(
         else if (this > Float.MAX_VALUE) Float.MAX_VALUE
         else this.toFloat()
     }
-
-    private val Resolver.listType: KSType
-        get() {
-            val name = this.getKSNameFromString(List::class.qualifiedName!!)
-            return getClassDeclarationByName(name)!!.asStarProjectedType()
-        }
 
     private companion object {
 

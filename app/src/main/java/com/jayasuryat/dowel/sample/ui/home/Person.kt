@@ -16,12 +16,13 @@
 package com.jayasuryat.dowel.sample.ui.home
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.Size
 import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.sample.R
 
 @Dowel
 data class Person(
-    val name: String,
+    @Size(value = 5) val name: String,
     val age: Int,
     @DrawableRes val avatar: Int = R.drawable.ic_launcher_foreground,
     val count: Long,
@@ -30,6 +31,7 @@ data class Person(
     val height: Double,
     val isAlien: Boolean,
     val title: Char,
+    @Size(min = 10) val interests: List<Float>,
     val onClick: suspend (a: Person, b: Int) -> Unit,
 )
 
