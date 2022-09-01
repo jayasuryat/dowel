@@ -17,6 +17,7 @@ package com.jayasuryat.dowel.processor
 
 import com.jayasuryat.dowel.processor.model.ClassRepresentation
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.*
+import com.jayasuryat.dowel.processor.util.dowelListPropertyName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.withIndent
@@ -62,6 +63,7 @@ internal class ObjectConstructor {
             is ListSpec -> spec.getListAssigner() // This would be a recursive call
             is FunctionSpec -> spec.getFunctionAssigner()
             is EnumSpec -> spec.getEnumAssigner()
+            is DowelSpec -> spec.getDowelAssigner()
         }
 
         return assignment
@@ -182,6 +184,16 @@ internal class ObjectConstructor {
     private fun EnumSpec.getEnumAssigner(): CodeBlock {
         return buildCodeBlock {
             add("%L.values().random()", enumDeclaration.simpleName.asString())
+        }
+    }
+
+    private fun DowelSpec.getDowelAssigner(): CodeBlock {
+
+        val spec = this
+
+        return buildCodeBlock {
+            val propName = spec.declaration.dowelListPropertyName
+            add("$propName.random()")
         }
     }
 

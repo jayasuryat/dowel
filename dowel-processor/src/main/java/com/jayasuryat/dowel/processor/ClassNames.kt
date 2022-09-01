@@ -38,4 +38,11 @@ internal object ClassNames {
         packageName = "androidx.annotation",
         "Size"
     )
+
+    val sequenceName: ClassName = ClassName(
+        packageName = "kotlin.sequences",
+        "Sequence"
+    )
+
+    const val dowelClassNameSuffix: String = "PreviewParamProvider"
 }

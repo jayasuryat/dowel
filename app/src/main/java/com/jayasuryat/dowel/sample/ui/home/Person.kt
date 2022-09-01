@@ -28,11 +28,19 @@ data class Person(
     val count: Long,
     val status: Status,
     val weight: Float,
+    val location: Location,
+    @Size(value = 2) val locations: List<Location>,
     val height: Double,
     val isAlien: Boolean,
     val title: Char,
-    @Size(min = 10) val interests: List<Float>,
+    @Size(value = 1) val interests: List<Float>,
     val onClick: suspend (a: Person, b: Int) -> Unit,
+)
+
+@Dowel
+data class Location(
+    val lat: Long,
+    val lon: Long,
 )
 
 enum class Status {

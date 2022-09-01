@@ -72,5 +72,9 @@ internal data class ClassRepresentation(
         data class EnumSpec(
             val enumDeclaration: KSClassDeclaration,
         ) : ParameterSpec
+
+        data class DowelSpec(
+            val declaration: KSClassDeclaration,
+        ) : ParameterSpec
     }
 }

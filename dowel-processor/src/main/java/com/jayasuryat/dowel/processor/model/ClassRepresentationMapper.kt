@@ -19,6 +19,7 @@ import com.google.devtools.ksp.processing.KSBuiltIns
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.*
+import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.processor.DefaultRange
 import com.jayasuryat.dowel.processor.annotation.FloatRange
 import com.jayasuryat.dowel.processor.annotation.IntRange
@@ -89,8 +90,10 @@ internal class ClassRepresentationMapper(
 
             // Enum classes
             propTypeDeclaration is KSClassDeclaration &&
-                propTypeDeclaration.classKind == ClassKind.ENUM_CLASS ->
-                propTypeDeclaration.getEnumSpec()
+                propTypeDeclaration.classKind == ClassKind.ENUM_CLASS -> propTypeDeclaration.getEnumSpec()
+
+            // Class annotated with @Dowel annotation
+            propTypeDeclaration.isDowelClass() -> propTypeDeclaration.getDowelSpec()
 
             else -> {
                 // TODO: Fix message
@@ -229,8 +232,6 @@ internal class ClassRepresentationMapper(
             defaultMax = DefaultRange.DEFAULT_LIST_LEN_MAX,
         )
 
-        logger.warn("size = $size")
-
         require(this.arguments.size == 1) { "List should have only one type argument. Current size = ${this.arguments.size}" }
 
         val arg = this.arguments.first()
@@ -244,5 +245,21 @@ internal class ClassRepresentationMapper(
             size = size,
             elementSpec = spec,
         )
+    }
+
+    private fun KSDeclaration.getDowelSpec(): DowelSpec {
+
+        val declaration = this as KSClassDeclaration
+
+        return DowelSpec(
+            declaration = declaration,
+        )
+    }
+
+    private fun KSDeclaration.isDowelClass(): Boolean {
+        val declaration = this as? KSClassDeclaration ?: return false
+        val dowelName = Dowel::class.java.simpleName
+        val annotation = declaration.annotations.find { it.shortName.asString() == dowelName }
+        return annotation != null
     }
 }
