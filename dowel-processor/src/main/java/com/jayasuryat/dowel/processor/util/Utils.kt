@@ -16,9 +16,7 @@
 package com.jayasuryat.dowel.processor.util
 
 import com.google.devtools.ksp.processing.KSPLogger
-import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSNode
-import com.jayasuryat.dowel.processor.ClassNames
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun KSPLogger.logError(
@@ -34,11 +32,3 @@ internal fun <T> unsafeLazy(initializer: () -> T): Lazy<T> =
         mode = LazyThreadSafetyMode.NONE,
         initializer = initializer,
     )
-
-internal val KSClassDeclaration.dowelClassName: String
-    get() = "${this.simpleName.asString()}${ClassNames.dowelClassNameSuffix}"
-
-internal val KSClassDeclaration.dowelListPropertyName: String
-    get() {
-        return this.simpleName.asString().replaceFirstChar { char -> char.lowercaseChar() } + "List"
-    }

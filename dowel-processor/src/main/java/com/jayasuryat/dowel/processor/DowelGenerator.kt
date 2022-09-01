@@ -22,8 +22,7 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.jayasuryat.dowel.processor.model.ClassRepresentation
 import com.jayasuryat.dowel.processor.model.ClassRepresentationMapper
-import com.jayasuryat.dowel.processor.util.dowelClassName
-import com.jayasuryat.dowel.processor.util.dowelListPropertyName
+import com.jayasuryat.dowel.processor.util.unsafeLazy
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import java.io.OutputStreamWriter
@@ -35,13 +34,13 @@ internal class DowelGenerator(
     private val logger: KSPLogger,
 ) {
 
-    private val mapper: ClassRepresentationMapper by lazy {
+    private val mapper: ClassRepresentationMapper by unsafeLazy {
         ClassRepresentationMapper(
             resolver = resolver,
             logger = logger,
         )
     }
-    private val objectConstructor: ObjectConstructor by lazy { ObjectConstructor() }
+    private val objectConstructor: ObjectConstructor by unsafeLazy { ObjectConstructor() }
 
     fun generatePreviewParameterProviderFor(
         classDeclaration: KSClassDeclaration,
@@ -77,7 +76,7 @@ internal class DowelGenerator(
         )
 
         // Super-type of the generated class
-        val outputSuperType = ClassNames.previewParamProvider.parameterizedBy(declarationClassName)
+        val outputSuperType = Names.previewParamProvider.parameterizedBy(declarationClassName)
 
         val representation: ClassRepresentation = mapper.map(classDeclaration)
 
@@ -156,7 +155,7 @@ internal class DowelGenerator(
             declaration.simpleName.asString()
         )
 
-        val propertyType = ClassNames.sequenceName.parameterizedBy(declarationClassName)
+        val propertyType = Names.sequenceName.parameterizedBy(declarationClassName)
 
         val initializer: CodeBlock = CodeBlock.builder()
             .addStatement("sequenceOf(")

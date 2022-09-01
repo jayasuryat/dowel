@@ -17,7 +17,6 @@ package com.jayasuryat.dowel.processor
 
 import com.jayasuryat.dowel.processor.model.ClassRepresentation
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.*
-import com.jayasuryat.dowel.processor.util.dowelListPropertyName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.withIndent

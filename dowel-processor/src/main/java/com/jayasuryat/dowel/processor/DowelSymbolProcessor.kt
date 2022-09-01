@@ -22,6 +22,7 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.validate
 import com.jayasuryat.dowel.annotation.Dowel
+import com.jayasuryat.dowel.processor.util.unsafeLazy
 
 internal class DowelSymbolProcessor(
     private val logger: KSPLogger,
@@ -30,14 +31,14 @@ internal class DowelSymbolProcessor(
 
     private lateinit var resolver: Resolver
 
-    private val dowelGenerator: DowelGenerator by lazy {
+    private val dowelGenerator: DowelGenerator by unsafeLazy {
         DowelGenerator(
             resolver = resolver,
             codeGenerator = codeGenerator,
             logger = logger,
         )
     }
-    private val visitor: KSVisitorVoid by lazy {
+    private val visitor: KSVisitorVoid by unsafeLazy {
         DowelAnnotationVisitor(
             logger = logger,
             dowelGenerator = dowelGenerator,

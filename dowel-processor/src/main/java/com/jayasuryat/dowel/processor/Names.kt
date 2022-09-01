@@ -15,9 +15,10 @@
  */
 package com.jayasuryat.dowel.processor
 
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.ClassName
 
-internal object ClassNames {
+internal object Names {
 
     val previewParamProvider: ClassName = ClassName(
         packageName = "androidx.compose.ui.tooling.preview",
@@ -46,3 +47,9 @@ internal object ClassNames {
 
     const val dowelClassNameSuffix: String = "PreviewParamProvider"
 }
+
+internal val KSClassDeclaration.dowelClassName: String
+    get() = "${this.simpleName.asString()}${Names.dowelClassNameSuffix}"
+
+internal val KSClassDeclaration.dowelListPropertyName: String
+    get() = this.simpleName.asString().replaceFirstChar { char -> char.lowercaseChar() } + "List"

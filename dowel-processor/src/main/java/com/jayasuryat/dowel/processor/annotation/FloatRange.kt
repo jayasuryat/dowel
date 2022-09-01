@@ -16,7 +16,7 @@
 package com.jayasuryat.dowel.processor.annotation
 
 import com.google.devtools.ksp.symbol.KSAnnotation
-import com.jayasuryat.dowel.processor.ClassNames
+import com.jayasuryat.dowel.processor.Names
 
 internal data class FloatRange(
     val start: Double,
@@ -37,7 +37,7 @@ internal data class FloatRange(
             )
 
             val validAnnotation = annotations.firstOrNull { annotation ->
-                annotation.shortName.asString() == ClassNames.floatRangeName.simpleName
+                annotation.shortName.asString() == Names.floatRangeName.simpleName
             }
 
             return validAnnotation?.asFloatLimit(

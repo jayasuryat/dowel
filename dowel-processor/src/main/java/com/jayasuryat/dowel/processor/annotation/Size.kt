@@ -16,7 +16,7 @@
 package com.jayasuryat.dowel.processor.annotation
 
 import com.google.devtools.ksp.symbol.KSAnnotation
-import com.jayasuryat.dowel.processor.ClassNames
+import com.jayasuryat.dowel.processor.Names
 
 internal data class Size(
     val value: Long,
@@ -45,7 +45,7 @@ internal data class Size(
             )
 
             val validAnnotation = annotations.firstOrNull { annotation ->
-                annotation.shortName.asString() == ClassNames.sizeName.simpleName
+                annotation.shortName.asString() == Names.sizeName.simpleName
             }
 
             return validAnnotation?.asSize(
