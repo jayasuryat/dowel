@@ -62,6 +62,7 @@ internal class ObjectConstructor {
 
             is StateSpec -> spec.getStateAssigner() // This would be a recursive call
             is ListSpec -> spec.getListAssigner() // This would be a recursive call
+            is FlowSpec -> spec.getFlowAssigner() // This would be a recursive call
             is FunctionSpec -> spec.getFunctionAssigner()
             is EnumSpec -> spec.getEnumAssigner()
             is DowelSpec -> spec.getDowelAssigner()
@@ -175,6 +176,16 @@ internal class ObjectConstructor {
                 }
             }
             add(")")
+        }
+    }
+
+    private fun FlowSpec.getFlowAssigner(): CodeBlock {
+
+        val spec = this
+
+        return buildCodeBlock {
+            val mutableStateOf = MemberName("kotlinx.coroutines.flow", "flowOf")
+            add("%M(%L)", mutableStateOf, spec.elementSpec.getAssigner())
         }
     }
 

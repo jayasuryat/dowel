@@ -68,6 +68,10 @@ internal data class ClassRepresentation(
             val elementSpec: ParameterSpec,
         ) : ParameterSpec
 
+        data class FlowSpec(
+            val elementSpec: ParameterSpec,
+        ) : ParameterSpec
+
         data class FunctionSpec(
             val argumentsSize: Int,
             val isReturnTypeUnit: Boolean,

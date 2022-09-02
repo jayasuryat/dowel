@@ -20,6 +20,7 @@ import androidx.annotation.Size
 import androidx.compose.runtime.State
 import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.sample.R
+import kotlinx.coroutines.flow.Flow
 
 @Dowel
 data class Person(
@@ -30,6 +31,7 @@ data class Person(
     val status: Status,
     val weight: Float,
     val location: Location,
+    val liveLocation: Flow<Location>,
     @Size(value = 2) val locations: List<Location>,
     val isExpanded: State<Boolean>,
     val height: Double,

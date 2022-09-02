@@ -47,6 +47,10 @@ internal class ClassRepresentationMapper(
         val stateKsName = resolver.getKSNameFromString(Names.stateName.canonicalName)
         resolver.getClassDeclarationByName(stateKsName)!!.asStarProjectedType()
     }
+    private val flowDeclaration: KSType by unsafeLazy {
+        val stateKsName = resolver.getKSNameFromString(Names.flowName.canonicalName)
+        resolver.getClassDeclarationByName(stateKsName)!!.asStarProjectedType()
+    }
 
     fun map(
         classDeclaration: KSClassDeclaration,
@@ -96,6 +100,9 @@ internal class ClassRepresentationMapper(
 
             // List
             listDeclaration.isAssignableFrom(propType) -> propType.getListSpec(annotations)
+
+            // Flow
+            flowDeclaration.isAssignableFrom(propType) -> propType.getFlowSpec()
 
             // High-order functions
             propType.isFunctionType || propType.isSuspendFunctionType -> propType.getFunctionSpec()
@@ -227,26 +234,6 @@ internal class ClassRepresentationMapper(
         )
     }
 
-    private fun KSType.getFunctionSpec(): FunctionSpec {
-
-        val ksType = this
-
-        val returnType: KSType = ksType.arguments.last().type!!.resolve()
-        val isReturnTypeUnit: Boolean = returnType.isAssignableFrom(resolver.builtIns.unitType)
-
-        return FunctionSpec(
-            argumentsSize = ksType.arguments.size - 1,
-            isReturnTypeUnit = isReturnTypeUnit
-        )
-    }
-
-    private fun KSClassDeclaration.getEnumSpec(): EnumSpec {
-
-        return EnumSpec(
-            enumDeclaration = this
-        )
-    }
-
     private fun KSType.getListSpec(
         annotations: List<KSAnnotation>,
     ): ListSpec {
@@ -270,6 +257,40 @@ internal class ClassRepresentationMapper(
         return ListSpec(
             size = size,
             elementSpec = spec,
+        )
+    }
+
+    private fun KSType.getFlowSpec(): FlowSpec {
+
+        val arg = this.arguments.first()
+
+        val resolvedType = arg.type!!.resolve()
+        val spec: ClassRepresentation.ParameterSpec = resolvedType.getSpec(
+            annotations = arg.annotations.toList(),
+        )
+
+        return FlowSpec(
+            elementSpec = spec
+        )
+    }
+
+    private fun KSType.getFunctionSpec(): FunctionSpec {
+
+        val ksType = this
+
+        val returnType: KSType = ksType.arguments.last().type!!.resolve()
+        val isReturnTypeUnit: Boolean = returnType.isAssignableFrom(resolver.builtIns.unitType)
+
+        return FunctionSpec(
+            argumentsSize = ksType.arguments.size - 1,
+            isReturnTypeUnit = isReturnTypeUnit
+        )
+    }
+
+    private fun KSClassDeclaration.getEnumSpec(): EnumSpec {
+
+        return EnumSpec(
+            enumDeclaration = this
         )
     }
 

@@ -45,6 +45,11 @@ internal object Names {
         "State"
     )
 
+    val flowName: ClassName = ClassName(
+        packageName = "kotlinx.coroutines.flow",
+        "Flow"
+    )
+
     val sequenceName: ClassName = ClassName(
         packageName = "kotlin.sequences",
         "Sequence"
