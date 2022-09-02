@@ -40,6 +40,11 @@ internal object Names {
         "Size"
     )
 
+    val stateName: ClassName = ClassName(
+        packageName = "androidx.compose.runtime",
+        "State"
+    )
+
     val sequenceName: ClassName = ClassName(
         packageName = "kotlin.sequences",
         "Sequence"

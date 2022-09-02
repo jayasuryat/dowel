@@ -18,6 +18,7 @@ package com.jayasuryat.dowel.processor
 import com.jayasuryat.dowel.processor.model.ClassRepresentation
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.*
 import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.buildCodeBlock
 import com.squareup.kotlinpoet.withIndent
 import java.util.*
@@ -59,6 +60,7 @@ internal class ObjectConstructor {
             is BooleanSpec -> spec.getBoolAssigner()
             is StringSpec -> spec.getStringAssigner()
 
+            is StateSpec -> spec.getStateAssigner() // This would be a recursive call
             is ListSpec -> spec.getListAssigner() // This would be a recursive call
             is FunctionSpec -> spec.getFunctionAssigner()
             is EnumSpec -> spec.getEnumAssigner()
@@ -137,6 +139,16 @@ internal class ObjectConstructor {
             .toString()
 
         return buildCodeBlock { add("%S", value) }
+    }
+
+    private fun StateSpec.getStateAssigner(): CodeBlock {
+
+        val spec = this
+
+        return buildCodeBlock {
+            val mutableStateOf = MemberName("androidx.compose.runtime", "mutableStateOf")
+            add("%M(%L)", mutableStateOf, spec.elementSpec.getAssigner())
+        }
     }
 
     private fun ListSpec.getListAssigner(): CodeBlock {

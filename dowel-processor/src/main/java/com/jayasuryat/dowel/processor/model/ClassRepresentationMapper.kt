@@ -21,6 +21,7 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.*
 import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.processor.DefaultRange
+import com.jayasuryat.dowel.processor.Names
 import com.jayasuryat.dowel.processor.annotation.FloatRange
 import com.jayasuryat.dowel.processor.annotation.IntRange
 import com.jayasuryat.dowel.processor.annotation.Size
@@ -69,8 +70,13 @@ internal class ClassRepresentationMapper(
         val propType: KSType = this
         val propTypeDeclaration: KSDeclaration = propType.declaration
 
+        // TODO : Move resolving calls out of this method
         val listKsName = resolver.getKSNameFromString(List::class.qualifiedName!!)
         val listDeclaration = resolver.getClassDeclarationByName(listKsName)!!.asStarProjectedType()
+
+        val stateKsName = resolver.getKSNameFromString(Names.stateName.canonicalName)
+        val stateDeclaration =
+            resolver.getClassDeclarationByName(stateKsName)!!.asStarProjectedType()
 
         val paramSpec: ClassRepresentation.ParameterSpec = when {
 
@@ -83,6 +89,10 @@ internal class ClassRepresentationMapper(
             propType.isAssignableFrom(builtIns.booleanType) -> getBooleanSpec()
             propType.isAssignableFrom(builtIns.stringType) -> getStringSpec(annotations)
 
+            // State
+            stateDeclaration.isAssignableFrom(propType) -> propType.getStateSpec()
+
+            // List
             listDeclaration.isAssignableFrom(propType) -> propType.getListSpec(annotations)
 
             // High-order functions
@@ -198,6 +208,20 @@ internal class ClassRepresentationMapper(
 
         return StringSpec(
             size = size,
+        )
+    }
+
+    private fun KSType.getStateSpec(): StateSpec {
+
+        val arg = this.arguments.first()
+
+        val resolvedType = arg.type!!.resolve()
+        val spec: ClassRepresentation.ParameterSpec = resolvedType.getSpec(
+            annotations = arg.annotations.toList(),
+        )
+
+        return StateSpec(
+            elementSpec = spec
         )
     }
 

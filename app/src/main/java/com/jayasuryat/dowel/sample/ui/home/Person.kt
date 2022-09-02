@@ -17,6 +17,7 @@ package com.jayasuryat.dowel.sample.ui.home
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.Size
+import androidx.compose.runtime.State
 import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.sample.R
 
@@ -30,6 +31,7 @@ data class Person(
     val weight: Float,
     val location: Location,
     @Size(value = 2) val locations: List<Location>,
+    val isExpanded: State<Boolean>,
     val height: Double,
     val isAlien: Boolean,
     val title: Char,

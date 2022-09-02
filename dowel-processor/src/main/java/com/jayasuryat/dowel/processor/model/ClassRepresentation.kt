@@ -59,6 +59,10 @@ internal data class ClassRepresentation(
         ) : ParameterSpec
         // endregion
 
+        data class StateSpec(
+            val elementSpec: ParameterSpec,
+        ) : ParameterSpec
+
         data class ListSpec(
             val size: Size,
             val elementSpec: ParameterSpec,
