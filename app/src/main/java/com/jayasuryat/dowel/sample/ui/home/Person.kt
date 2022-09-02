@@ -32,6 +32,7 @@ data class Person(
     val weight: Float,
     val location: Location,
     val liveLocation: Flow<Location>,
+    val latLon: Pair<Long, Long>,
     @Size(value = 2) val locations: List<Location>,
     val isExpanded: State<Boolean>,
     val height: Double,

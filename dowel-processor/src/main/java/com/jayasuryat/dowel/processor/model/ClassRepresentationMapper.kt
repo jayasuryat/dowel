@@ -40,16 +40,20 @@ internal class ClassRepresentationMapper(
     private val builtIns: KSBuiltIns = resolver.builtIns
 
     private val listDeclaration: KSType by unsafeLazy {
-        val listKsName = resolver.getKSNameFromString(List::class.qualifiedName!!)
-        resolver.getClassDeclarationByName(listKsName)!!.asStarProjectedType()
+        val ksName = resolver.getKSNameFromString(List::class.qualifiedName!!)
+        resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
     }
     private val stateDeclaration: KSType by unsafeLazy {
-        val stateKsName = resolver.getKSNameFromString(Names.stateName.canonicalName)
-        resolver.getClassDeclarationByName(stateKsName)!!.asStarProjectedType()
+        val ksName = resolver.getKSNameFromString(Names.stateName.canonicalName)
+        resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
     }
     private val flowDeclaration: KSType by unsafeLazy {
-        val stateKsName = resolver.getKSNameFromString(Names.flowName.canonicalName)
-        resolver.getClassDeclarationByName(stateKsName)!!.asStarProjectedType()
+        val ksName = resolver.getKSNameFromString(Names.flowName.canonicalName)
+        resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
+    }
+    private val pairDeclaration: KSType by unsafeLazy {
+        val ksName = resolver.getKSNameFromString(Pair::class.qualifiedName!!)
+        resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
     }
 
     fun map(
@@ -103,6 +107,9 @@ internal class ClassRepresentationMapper(
 
             // Flow
             flowDeclaration.isAssignableFrom(propType) -> propType.getFlowSpec()
+
+            // Pair
+            pairDeclaration.isAssignableFrom(propType) -> propType.getPairSpec()
 
             // High-order functions
             propType.isFunctionType || propType.isSuspendFunctionType -> propType.getFunctionSpec()
@@ -271,6 +278,24 @@ internal class ClassRepresentationMapper(
 
         return FlowSpec(
             elementSpec = spec
+        )
+    }
+
+    private fun KSType.getPairSpec(): PairSpec {
+
+        fun KSTypeArgument.getSpec(): ClassRepresentation.ParameterSpec {
+            val resolvedType = this.type!!.resolve()
+            return resolvedType.getSpec(
+                annotations = this.annotations.toList(),
+            )
+        }
+
+        val left = this.arguments[0].getSpec()
+        val right = this.arguments[1].getSpec()
+
+        return PairSpec(
+            leftElementSpec = left,
+            rightElementSpec = right,
         )
     }
 

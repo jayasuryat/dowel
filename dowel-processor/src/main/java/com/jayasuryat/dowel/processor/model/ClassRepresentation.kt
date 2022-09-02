@@ -72,6 +72,11 @@ internal data class ClassRepresentation(
             val elementSpec: ParameterSpec,
         ) : ParameterSpec
 
+        data class PairSpec(
+            val leftElementSpec: ParameterSpec,
+            val rightElementSpec: ParameterSpec,
+        ) : ParameterSpec
+
         data class FunctionSpec(
             val argumentsSize: Int,
             val isReturnTypeUnit: Boolean,
