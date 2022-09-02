@@ -27,6 +27,7 @@ import com.jayasuryat.dowel.processor.annotation.IntRange
 import com.jayasuryat.dowel.processor.annotation.Size
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.*
 import com.jayasuryat.dowel.processor.util.logError
+import com.jayasuryat.dowel.processor.util.unsafeLazy
 import com.squareup.kotlinpoet.ksp.toTypeName
 
 // TODO: Update mapping logic from IntRange, FloatRange, and Size. Can filter out default values here.
@@ -37,6 +38,15 @@ internal class ClassRepresentationMapper(
 ) {
 
     private val builtIns: KSBuiltIns = resolver.builtIns
+
+    private val listDeclaration: KSType by unsafeLazy {
+        val listKsName = resolver.getKSNameFromString(List::class.qualifiedName!!)
+        resolver.getClassDeclarationByName(listKsName)!!.asStarProjectedType()
+    }
+    private val stateDeclaration: KSType by unsafeLazy {
+        val stateKsName = resolver.getKSNameFromString(Names.stateName.canonicalName)
+        resolver.getClassDeclarationByName(stateKsName)!!.asStarProjectedType()
+    }
 
     fun map(
         classDeclaration: KSClassDeclaration,
@@ -69,14 +79,6 @@ internal class ClassRepresentationMapper(
 
         val propType: KSType = this
         val propTypeDeclaration: KSDeclaration = propType.declaration
-
-        // TODO : Move resolving calls out of this method
-        val listKsName = resolver.getKSNameFromString(List::class.qualifiedName!!)
-        val listDeclaration = resolver.getClassDeclarationByName(listKsName)!!.asStarProjectedType()
-
-        val stateKsName = resolver.getKSNameFromString(Names.stateName.canonicalName)
-        val stateDeclaration =
-            resolver.getClassDeclarationByName(stateKsName)!!.asStarProjectedType()
 
         val paramSpec: ClassRepresentation.ParameterSpec = when {
 
