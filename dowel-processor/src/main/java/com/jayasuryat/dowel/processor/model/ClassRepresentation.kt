@@ -68,6 +68,12 @@ internal data class ClassRepresentation(
             val elementSpec: ParameterSpec,
         ) : ParameterSpec
 
+        data class MapSpec(
+            val size: Size,
+            val keySpec: ParameterSpec,
+            val valueSpec: ParameterSpec,
+        ) : ParameterSpec
+
         data class FlowSpec(
             val elementSpec: ParameterSpec,
         ) : ParameterSpec

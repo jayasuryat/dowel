@@ -36,4 +36,8 @@ internal object DefaultRange {
     internal const val DEFAULT_LIST_LEN_MIN: Long = 5L
     internal const val DEFAULT_LIST_LEN_MAX: Long = 10L
     internal const val DEFAULT_LIST_LEN_VALUE: Long = 5L
+
+    internal const val DEFAULT_MAP_LEN_MIN: Long = 5L
+    internal const val DEFAULT_MAP_LEN_MAX: Long = 10L
+    internal const val DEFAULT_MAP_LEN_VALUE: Long = 5L
 }

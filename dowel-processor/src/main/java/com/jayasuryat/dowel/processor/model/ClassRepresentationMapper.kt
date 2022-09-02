@@ -43,6 +43,10 @@ internal class ClassRepresentationMapper(
         val ksName = resolver.getKSNameFromString(List::class.qualifiedName!!)
         resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
     }
+    private val mapDeclaration: KSType by unsafeLazy {
+        val ksName = resolver.getKSNameFromString(Map::class.qualifiedName!!)
+        resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
+    }
     private val stateDeclaration: KSType by unsafeLazy {
         val ksName = resolver.getKSNameFromString(Names.stateName.canonicalName)
         resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
@@ -104,6 +108,9 @@ internal class ClassRepresentationMapper(
 
             // List
             listDeclaration.isAssignableFrom(propType) -> propType.getListSpec(annotations)
+
+            // Map
+            mapDeclaration.isAssignableFrom(propType) -> propType.getMapSpec(annotations)
 
             // Flow
             flowDeclaration.isAssignableFrom(propType) -> propType.getFlowSpec()
@@ -264,6 +271,34 @@ internal class ClassRepresentationMapper(
         return ListSpec(
             size = size,
             elementSpec = spec,
+        )
+    }
+
+    private fun KSType.getMapSpec(
+        annotations: List<KSAnnotation>,
+    ): MapSpec {
+
+        fun KSTypeArgument.getSpec(): ClassRepresentation.ParameterSpec {
+            val resolvedType = this.type!!.resolve()
+            return resolvedType.getSpec(
+                annotations = this.annotations.toList(),
+            )
+        }
+
+        val size: Size = Size.find(
+            annotations = annotations.toList(),
+            defaultValue = DefaultRange.DEFAULT_MAP_LEN_VALUE,
+            defaultMin = DefaultRange.DEFAULT_MAP_LEN_MIN,
+            defaultMax = DefaultRange.DEFAULT_MAP_LEN_MAX,
+        )
+
+        val key = this.arguments[0].getSpec()
+        val value = this.arguments[1].getSpec()
+
+        return MapSpec(
+            size = size,
+            keySpec = key,
+            valueSpec = value,
         )
     }
 

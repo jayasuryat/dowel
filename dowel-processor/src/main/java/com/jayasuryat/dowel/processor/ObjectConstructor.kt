@@ -62,6 +62,7 @@ internal class ObjectConstructor {
 
             is StateSpec -> spec.getStateAssigner() // This would be a recursive call
             is ListSpec -> spec.getListAssigner() // This would be a recursive call
+            is MapSpec -> spec.getMapAssigner() // This would be a recursive call
             is FlowSpec -> spec.getFlowAssigner() // This would be a recursive call
             is PairSpec -> spec.getPairAssigner() // This would be a recursive call
 
@@ -175,6 +176,37 @@ internal class ObjectConstructor {
             withIndent {
                 repeat(modListSize) {
                     add("%L,\n", spec.elementSpec.getAssigner())
+                }
+            }
+            add(")")
+        }
+    }
+
+    private fun MapSpec.getMapAssigner(): CodeBlock {
+
+        val spec = this
+
+        val listSize = spec.size.value.toSafeRangeInt()
+
+        if (listSize == 0) {
+            return buildCodeBlock { add("mapOf()") }
+        }
+
+        val modSize: Int = if (listSize != -1) listSize
+        else Random.nextLong(
+            from = spec.size.min,
+            until = spec.size.max,
+        ).toSafeRangeInt()
+
+        return buildCodeBlock {
+            add("mapOf(\n")
+            withIndent {
+                repeat(modSize) {
+                    add(
+                        "%L to %L,\n",
+                        spec.keySpec.getAssigner(),
+                        spec.valueSpec.getAssigner(),
+                    )
                 }
             }
             add(")")
