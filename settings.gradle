@@ -18,5 +18,5 @@ rootProject.name = "Dowel"
 
 include ':app'
 
-include ':dowel-annotation'
+include ':dowel'
 include ':dowel-processor'

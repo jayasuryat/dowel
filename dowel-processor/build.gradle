@@ -15,7 +15,7 @@ kotlin {
 dependencies {
 
     // Dowel
-    implementation project(":dowel-annotation")
+    implementation project(":dowel")
 
     // KSP
     implementation("com.google.devtools.ksp:symbol-processing-api:1.7.0-1.0.6")

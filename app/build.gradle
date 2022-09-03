@@ -82,6 +82,6 @@ dependencies {
     implementation 'androidx.activity:activity-compose:1.5.1'
 
     // Dowel
-    implementation project(":dowel-annotation")
+    implementation project(":dowel")
     ksp project(":dowel-processor")
 }
