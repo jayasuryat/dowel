@@ -36,7 +36,7 @@ data class Person(
     val location: Location,
     val liveLocation: Flow<Location>,
     val latLon: Pair<Long, Long>,
-    val customType: UnsupportedType = UnsupportedType(value = true),
+    val customType: UnsupportedType?,
     @Size(value = 2) val locations: List<Location>,
     val isExpanded: State<Boolean>,
     @Size(value = 1) val preferences: Map<Long, Location>,

@@ -77,6 +77,8 @@ internal class ObjectConstructor {
             is FunctionSpec -> spec.getFunctionAssigner()
             is EnumSpec -> spec.getEnumAssigner()
             is DowelSpec -> spec.getDowelAssigner()
+
+            is UnsupportedNullableSpec -> spec.getUnsupportedNullableAssigner()
         }
 
         return assignment
@@ -274,6 +276,11 @@ internal class ObjectConstructor {
             val propName = spec.declaration.dowelListPropertyName
             add("$propName.random()")
         }
+    }
+
+    @Suppress("unused")
+    private fun UnsupportedNullableSpec.getUnsupportedNullableAssigner(): CodeBlock {
+        return buildCodeBlock { add("null") }
     }
 
     private fun Long.toSafeRangeInt(): Int {

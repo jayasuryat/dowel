@@ -131,6 +131,9 @@ internal class ClassRepresentationMapper(
             // Class annotated with @Dowel annotation
             propTypeDeclaration.isDowelClass() -> propTypeDeclaration.getDowelSpec()
 
+            // Unsupported types which are nullable
+            propType.isMarkedNullable -> getUnsupportedNullableSpec()
+
             else -> {
                 // TODO: Fix message
                 logger.logError(
@@ -366,6 +369,8 @@ internal class ClassRepresentationMapper(
             declaration = declaration,
         )
     }
+
+    private fun getUnsupportedNullableSpec(): UnsupportedNullableSpec = UnsupportedNullableSpec
 
     private fun KSDeclaration.isDowelClass(): Boolean {
         val declaration = this as? KSClassDeclaration ?: return false

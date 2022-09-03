@@ -95,5 +95,10 @@ internal data class ClassRepresentation(
         data class DowelSpec(
             val declaration: KSClassDeclaration,
         ) : ParameterSpec
+
+        /**
+         * Types which are not supported but are nullable
+         */
+        object UnsupportedNullableSpec : ParameterSpec
     }
 }
