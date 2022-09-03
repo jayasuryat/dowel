@@ -36,7 +36,6 @@ internal class ObjectConstructor {
             .addStatement("$className(")
             .withIndent {
                 representation.parameters
-                    .filter { parameter -> !parameter.hasDefault }
                     .forEach { parameter ->
 
                         val isNull = parameter.isNullable &&

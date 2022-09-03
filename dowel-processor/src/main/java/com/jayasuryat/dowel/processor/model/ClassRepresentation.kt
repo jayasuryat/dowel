@@ -28,7 +28,6 @@ internal data class ClassRepresentation(
     data class Parameter(
         val spec: ParameterSpec,
         val name: String,
-        val hasDefault: Boolean,
         val isNullable: Boolean,
     )
 

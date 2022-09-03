@@ -36,9 +36,10 @@ data class Person(
     val location: Location,
     val liveLocation: Flow<Location>,
     val latLon: Pair<Long, Long>,
+    val customType: UnsupportedType = UnsupportedType(value = true),
     @Size(value = 2) val locations: List<Location>,
     val isExpanded: State<Boolean>,
-    @Size(min = 10, max = 20) val preferences: Map<Long, Location>,
+    @Size(value = 1) val preferences: Map<Long, Location>,
     val title: Char,
     @Size(value = 1) val interests: List<Float>,
     val onClick: suspend (a: Person, b: Int) -> Unit,
@@ -48,6 +49,10 @@ data class Person(
 data class Location(
     val lat: Long?,
     val lon: Long?,
+)
+
+data class UnsupportedType(
+    val value: Boolean,
 )
 
 enum class Status {

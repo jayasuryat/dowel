@@ -67,18 +67,20 @@ internal class ClassRepresentationMapper(
         val constructor: KSFunctionDeclaration = classDeclaration.primaryConstructor!!
         val parameters: List<KSValueParameter> = constructor.parameters
 
-        val mappedParameters: List<ClassRepresentation.Parameter> = parameters.map { parameter ->
+        val mappedParameters: List<ClassRepresentation.Parameter> = parameters
+            .filter { !it.hasDefault }
+            .map { parameter ->
 
-            val resolvedType = parameter.type.resolve()
-            val spec: ClassRepresentation.ParameterSpec = resolvedType.getSpec(
-                annotations = parameter.annotations.toList(),
-            )
+                val resolvedType = parameter.type.resolve()
+                val spec: ClassRepresentation.ParameterSpec = resolvedType.getSpec(
+                    annotations = parameter.annotations.toList(),
+                )
 
-            parameter.mapToParameter(
-                spec = spec,
-                type = resolvedType,
-            )
-        }
+                parameter.mapToParameter(
+                    spec = spec,
+                    type = resolvedType,
+                )
+            }
 
         return ClassRepresentation(
             declaration = classDeclaration,
@@ -152,7 +154,6 @@ internal class ClassRepresentationMapper(
         return ClassRepresentation.Parameter(
             spec = spec,
             name = prop.name!!.asString(),
-            hasDefault = prop.hasDefault,
             isNullable = type.nullability == Nullability.NULLABLE,
         )
     }
