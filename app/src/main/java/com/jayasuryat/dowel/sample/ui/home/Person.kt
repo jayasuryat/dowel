@@ -44,10 +44,10 @@ data class Person(
     val onClick: suspend (a: Person, b: Int) -> Unit,
 )
 
-@Dowel(count = 2)
+@Dowel(count = 20)
 data class Location(
-    val lat: Long,
-    val lon: Long,
+    val lat: Long?,
+    val lon: Long?,
 )
 
 enum class Status {

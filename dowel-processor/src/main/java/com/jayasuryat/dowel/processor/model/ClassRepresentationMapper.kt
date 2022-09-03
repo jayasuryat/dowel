@@ -76,6 +76,7 @@ internal class ClassRepresentationMapper(
 
             parameter.mapToParameter(
                 spec = spec,
+                type = resolvedType,
             )
         }
 
@@ -143,6 +144,7 @@ internal class ClassRepresentationMapper(
 
     private fun KSValueParameter.mapToParameter(
         spec: ClassRepresentation.ParameterSpec,
+        type: KSType,
     ): ClassRepresentation.Parameter {
 
         val prop = this
@@ -151,6 +153,7 @@ internal class ClassRepresentationMapper(
             spec = spec,
             name = prop.name!!.asString(),
             hasDefault = prop.hasDefault,
+            isNullable = type.nullability == Nullability.NULLABLE,
         )
     }
 

@@ -38,9 +38,18 @@ internal class ObjectConstructor {
                 representation.parameters
                     .filter { parameter -> !parameter.hasDefault }
                     .forEach { parameter ->
+
+                        val isNull = parameter.isNullable &&
+                            Random.nextFloat() < NULL_VALUE_PROBABILITY
+
+                        val assignmentLiteral: CodeBlock =
+                            if (isNull) buildCodeBlock { add("null") }
+                            else parameter.spec.getAssigner()
+
                         val block = buildCodeBlock {
-                            add("%L = %L,\n", parameter.name, parameter.spec.getAssigner())
+                            add("%L = %L,\n", parameter.name, assignmentLiteral)
                         }
+
                         add(block)
                     }
             }.addStatement("),")
@@ -283,5 +292,7 @@ internal class ObjectConstructor {
     private companion object {
 
         private const val MAX_GENERATED_STRING_LENGTH: Int = 600
+
+        private const val NULL_VALUE_PROBABILITY: Float = 0.25f
     }
 }

@@ -29,6 +29,7 @@ internal data class ClassRepresentation(
         val spec: ParameterSpec,
         val name: String,
         val hasDefault: Boolean,
+        val isNullable: Boolean,
     )
 
     sealed interface ParameterSpec {
