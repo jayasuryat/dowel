@@ -15,6 +15,8 @@
  */
 package com.jayasuryat.dowel.annotation
 
+import com.jayasuryat.dowel.internal.DowelInternal
+
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.CLASS)
 public annotation class Dowel(
@@ -25,7 +27,7 @@ public annotation class Dowel(
 
         private const val DEFAULT_COUNT: Int = 5
 
-        // TODO: This could be internal with an @OptIn
+        @DowelInternal
         public const val COUNT_PROPERTY_NAME: String = "count"
     }
 }
