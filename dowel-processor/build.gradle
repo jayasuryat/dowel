@@ -12,6 +12,12 @@ kotlin {
     explicitApi()
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += '-Xopt-in=com.jayasuryat.dowel.internal.DowelInternal'
+    }
+}
+
 dependencies {
 
     // Dowel
