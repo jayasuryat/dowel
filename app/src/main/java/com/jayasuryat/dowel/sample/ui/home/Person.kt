@@ -36,7 +36,7 @@ data class Person(
     val location: Location,
     val liveLocation: Flow<Location?>,
     val latLon: Pair<Long, Long>,
-    val customType: UnsupportedType?,
+    val customType: UnsupportedType = UnsupportedType.SomeType,
     @Size(value = 2) val locations: List<Location>,
     val isExpanded: State<Boolean>,
     @Size(value = 1) val preferences: Map<Long, Location>,
@@ -51,9 +51,10 @@ data class Location(
     val lon: Long?,
 )
 
-data class UnsupportedType(
-    val value: Boolean,
-)
+sealed interface UnsupportedType {
+
+    object SomeType : UnsupportedType
+}
 
 enum class Status {
     Active, InActive, PendingActivation, Deleted, Archived
