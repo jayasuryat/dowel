@@ -17,6 +17,41 @@ package com.jayasuryat.dowel.annotation
 
 import com.jayasuryat.dowel.internal.DowelInternal
 
+/**
+ * Annotation class for triggering the generation of PreviewParameterProvider for the annotated class
+ * ([androidx.compose.ui.tooling.preview.PreviewParameterProvider]).
+ *
+ * The generated PreviewParameterProvider will have [count] number of objects in the sequence of
+ * values, and the objects would be constructed using the primary constructor of the annotated class.
+ * All properties with default values would be ignored, and nullable types would be null randomly.
+ *
+ * The annotated class must be a concrete class, and all of the properties listed in the primary
+ * constructor can only be of the following types:
+ * * Primitives ([Int], [Long], [Float], [Double], [Char], [Boolean], [String])
+ * * [androidx.compose.runtime.State]
+ * * [kotlinx.coroutines.flow.Flow]
+ * * Functional types (high-order functions)
+ * * @[Dowel] classes (@[Dowel] classes can be nested. A @[Dowel] annotated class can have
+ *   properties of type of classes which are annotated with @[Dowel])
+ * * [Enum]
+ * * [List]
+ * * [Map]
+ * * [Pair]
+ * * Nullable
+ *
+ * Properties with default values can have any type, as they are not considered for generation.
+ *
+ * Properties with unsupported types which are nullable are allowed, and the generated value would
+ * always be null. Properties with properly supported types which are nullable may have an appropriate
+ * value or a null value generated randomly.
+ *
+ * Types in the above mentioned list having generic type parameters (like [List] and [Map]) can only
+ * have @[Dowel] supported types as their type parameters.
+ * Like List&lt;String&gt;, Map&lt;String, @[Dowel] class&gt;.
+ *
+ * As far as a type is in this supported list, there are no practical limitations on how many times they may be nested.
+ * Like List&lt;List&lt;@[Dowel] class&gt;&gt;
+ */
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.CLASS)
 public annotation class Dowel(
