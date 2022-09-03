@@ -20,6 +20,7 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.processor.model.ClassRepresentation
 import com.jayasuryat.dowel.processor.model.ClassRepresentationMapper
 import com.jayasuryat.dowel.processor.util.unsafeLazy
@@ -80,6 +81,12 @@ internal class DowelGenerator(
 
         val representation: ClassRepresentation = mapper.map(classDeclaration)
 
+        val sequenceSize: Int = classDeclaration.annotations
+            .first { it.shortName.asString() == Dowel::class.java.simpleName }
+            .arguments
+            .first { it.name!!.asString() == Dowel.Companion.COUNT_PROPERTY_NAME }
+            .value as Int
+
         val classSpec: TypeSpec = TypeSpec
             .classBuilder(outputClassName)
             .addSuperinterface(outputSuperType)
@@ -87,7 +94,7 @@ internal class DowelGenerator(
             .addValuesProperty(
                 representation = representation,
                 objectConstructor = objectConstructor,
-                instanceCount = 5,
+                instanceCount = sequenceSize,
             ).build()
 
         this.addType(typeSpec = classSpec)
