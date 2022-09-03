@@ -22,15 +22,16 @@ import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.sample.R
 import kotlinx.coroutines.flow.Flow
 
-@Dowel
+@Dowel(count = 3)
 data class Person(
     @Size(value = 5) val name: String,
-    val age: Int,
+    @Size(value = 300) val bio: String?,
     @DrawableRes val avatar: Int = R.drawable.ic_launcher_foreground,
-    val count: Long,
+    val age: Int,
     val status: Status,
     val weight: Float,
     val height: Double,
+    val likes: Long,
     val isAlien: Boolean,
     val location: Location,
     val liveLocation: Flow<Location>,
@@ -43,7 +44,7 @@ data class Person(
     val onClick: suspend (a: Person, b: Int) -> Unit,
 )
 
-@Dowel
+@Dowel(count = 2)
 data class Location(
     val lat: Long,
     val lon: Long,
