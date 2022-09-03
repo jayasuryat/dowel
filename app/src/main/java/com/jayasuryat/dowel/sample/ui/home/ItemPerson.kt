@@ -44,9 +44,7 @@ internal fun ItemPerson(
     person: Person,
 ) {
 
-    val liveLocation: State<Location> = person.liveLocation.collectAsState(
-        Location(lat = 0, lon = 1)
-    )
+    val liveLocation: State<Location?> = person.liveLocation.collectAsState(null)
 
     Column(
         modifier = modifier
@@ -179,7 +177,7 @@ internal fun ItemPerson(
                 .fillMaxWidth()
                 .wrapContentHeight(),
             title = "Live Location",
-            location = liveLocation.value,
+            location = liveLocation.value ?: Location(lat = 0, lon = 1),
         )
     }
 }

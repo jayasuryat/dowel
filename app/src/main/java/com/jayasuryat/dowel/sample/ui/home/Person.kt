@@ -34,7 +34,7 @@ data class Person(
     val likes: Long,
     val isAlien: Boolean,
     val location: Location,
-    val liveLocation: Flow<Location>,
+    val liveLocation: Flow<Location?>,
     val latLon: Pair<Long, Long>,
     val customType: UnsupportedType?,
     @Size(value = 2) val locations: List<Location>,
