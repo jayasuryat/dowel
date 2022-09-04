@@ -17,6 +17,7 @@ package com.jayasuryat.dowel.processor
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.asTypeName
 
 internal object Names {
 
@@ -50,16 +51,19 @@ internal object Names {
         "Flow"
     )
 
-    val sequenceName: ClassName = ClassName(
-        packageName = "kotlin.sequences",
-        "Sequence"
-    )
+    val listName: ClassName = List::class.asTypeName()
+
+    val sequenceName: ClassName = Sequence::class.asTypeName()
 
     const val dowelClassNameSuffix: String = "PreviewParamProvider"
+    const val dowelListClassNameSuffix: String = "ListPreviewParamProvider"
 }
 
 internal val KSClassDeclaration.dowelClassName: String
     get() = "${this.simpleName.asString()}${Names.dowelClassNameSuffix}"
+
+internal val KSClassDeclaration.dowelListClassName: String
+    get() = "${this.simpleName.asString()}${Names.dowelListClassNameSuffix}"
 
 internal val KSClassDeclaration.dowelListPropertyName: String
     get() = this.simpleName.asString().replaceFirstChar { char -> char.lowercaseChar() } + "List"

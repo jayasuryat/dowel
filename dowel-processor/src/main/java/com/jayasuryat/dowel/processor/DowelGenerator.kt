@@ -24,10 +24,9 @@ import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.processor.model.ClassRepresentation
 import com.jayasuryat.dowel.processor.model.ClassRepresentationMapper
 import com.jayasuryat.dowel.processor.util.unsafeLazy
+import com.jayasuryat.dowel.processor.util.writeTo
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import java.io.OutputStreamWriter
-import java.nio.charset.StandardCharsets
 
 internal class DowelGenerator(
     private val resolver: Resolver,
@@ -186,14 +185,6 @@ internal class DowelGenerator(
         this.addProperty(valuesProperty)
 
         return this
-    }
-
-    private fun FileSpec.writeTo(
-        codeGenerator: CodeGenerator,
-        dependencies: Dependencies = Dependencies(false),
-    ) {
-        val file = codeGenerator.createNewFile(dependencies, packageName, name)
-        OutputStreamWriter(file, StandardCharsets.UTF_8).use(::writeTo)
     }
 
     companion object {

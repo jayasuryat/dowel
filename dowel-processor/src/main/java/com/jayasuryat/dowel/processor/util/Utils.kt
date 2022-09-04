@@ -15,8 +15,15 @@
  */
 package com.jayasuryat.dowel.processor.util
 
+import com.google.devtools.ksp.processing.CodeGenerator
+import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSNode
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.FileSpec
+import java.io.OutputStreamWriter
+import java.nio.charset.StandardCharsets
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun KSPLogger.logError(
@@ -32,3 +39,16 @@ internal fun <T> unsafeLazy(initializer: () -> T): Lazy<T> =
         mode = LazyThreadSafetyMode.NONE,
         initializer = initializer,
     )
+
+internal fun FileSpec.writeTo(
+    codeGenerator: CodeGenerator,
+    dependencies: Dependencies,
+) {
+    val file = codeGenerator.createNewFile(dependencies, packageName, name)
+    OutputStreamWriter(file, StandardCharsets.UTF_8).use(::writeTo)
+}
+
+internal fun KSClassDeclaration.asClassName(): ClassName = ClassName(
+    packageName = this.packageName.asString(),
+    this.simpleName.asString()
+)

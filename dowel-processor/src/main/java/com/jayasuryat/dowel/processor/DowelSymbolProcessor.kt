@@ -22,6 +22,7 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.validate
 import com.jayasuryat.dowel.annotation.Dowel
+import com.jayasuryat.dowel.annotation.DowelList
 import com.jayasuryat.dowel.processor.util.unsafeLazy
 
 internal class DowelSymbolProcessor(
@@ -38,10 +39,22 @@ internal class DowelSymbolProcessor(
             logger = logger,
         )
     }
-    private val visitor: KSVisitorVoid by unsafeLazy {
+    private val dowelListGenerator: DowelListGenerator by unsafeLazy {
+        DowelListGenerator(
+            codeGenerator = codeGenerator,
+        )
+    }
+
+    private val dowelVisitor: KSVisitorVoid by unsafeLazy {
         DowelAnnotationVisitor(
             logger = logger,
             dowelGenerator = dowelGenerator,
+        )
+    }
+    private val dowelListVisitor: KSVisitorVoid by unsafeLazy {
+        DowelListAnnotationVisitor(
+            logger = logger,
+            generator = dowelListGenerator,
         )
     }
 
@@ -49,16 +62,29 @@ internal class DowelSymbolProcessor(
 
         this.resolver = resolver
 
-        val symbolsWithAnnotation: Sequence<KSAnnotated> = resolver.getSymbolsWithAnnotation(
+        // region : Processing @Dowel annotation
+        val dowelSymbols: Sequence<KSAnnotated> = resolver.getSymbolsWithAnnotation(
             annotationName = Dowel::class.qualifiedName!!,
         )
 
-        val (validSymbols: List<KSAnnotated>, invalidSymbols: List<KSAnnotated>) = symbolsWithAnnotation
-            .partition { it.validate() }
+        val (validDowelSymbols: List<KSAnnotated>, invalidDowelSymbols: List<KSAnnotated>) =
+            dowelSymbols.partition { it.validate() }
 
-        validSymbols.forEach { symbol -> symbol.accept(visitor, Unit) }
+        validDowelSymbols.forEach { symbol -> symbol.accept(dowelVisitor, Unit) }
+        // endregion
 
-        return invalidSymbols
+        // region : Processing @DowelList annotation
+        val dowelListSymbols: Sequence<KSAnnotated> = resolver.getSymbolsWithAnnotation(
+            annotationName = DowelList::class.qualifiedName!!,
+        )
+
+        val (validListSymbols: List<KSAnnotated>, invalidListSymbols: List<KSAnnotated>) =
+            dowelListSymbols.partition { it.validate() }
+
+        validListSymbols.forEach { symbol -> symbol.accept(dowelListVisitor, Unit) }
+        // endregion
+
+        return invalidDowelSymbols + invalidListSymbols
     }
 
     private class DowelAnnotationVisitor(
@@ -97,6 +123,44 @@ internal class DowelSymbolProcessor(
             ) {
                 logger.error(
                     message = "@${Dowel::class.qualifiedName} annotation can't be applied to an abstract class",
+                    symbol = declaration,
+                )
+                return false
+            }
+
+            return true
+        }
+    }
+
+    private class DowelListAnnotationVisitor(
+        private val logger: KSPLogger,
+        private val generator: DowelListGenerator,
+    ) : KSVisitorVoid() {
+
+        override fun visitClassDeclaration(
+            classDeclaration: KSClassDeclaration,
+            data: Unit,
+        ) {
+
+            if (!classDeclaration.checkValidityAndLog(logger)) return
+
+            generator.generateListPreviewParameterProviderFor(
+                classDeclaration = classDeclaration,
+            )
+        }
+
+        private fun KSClassDeclaration.checkValidityAndLog(
+            logger: KSPLogger,
+        ): Boolean {
+
+            val declaration = this
+
+            val dowelAnnotation = declaration.annotations
+                .find { it.shortName.asString() == Dowel::class.java.simpleName }
+
+            if (dowelAnnotation == null) {
+                logger.error(
+                    message = "@${DowelList::class.qualifiedName} annotation can only be applied to classes already annotated with @${Dowel::class.qualifiedName} annotation.",
                     symbol = declaration,
                 )
                 return false

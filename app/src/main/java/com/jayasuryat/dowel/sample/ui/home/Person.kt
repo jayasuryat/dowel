@@ -19,9 +19,11 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.Size
 import androidx.compose.runtime.State
 import com.jayasuryat.dowel.annotation.Dowel
+import com.jayasuryat.dowel.annotation.DowelList
 import com.jayasuryat.dowel.sample.R
 import kotlinx.coroutines.flow.Flow
 
+@DowelList(count = 5)
 @Dowel(count = 3)
 data class Person(
     @Size(value = 5) val name: String,
