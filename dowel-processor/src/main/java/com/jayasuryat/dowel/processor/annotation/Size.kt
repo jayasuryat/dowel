@@ -18,6 +18,15 @@ package com.jayasuryat.dowel.processor.annotation
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.jayasuryat.dowel.processor.Names
 
+/**
+ * An adapter class to represent and hold values coming from the [androidx.annotation.Size]
+ * annotation.
+ * @param value represents the 'value' value of [androidx.annotation.Size]
+ * @param min represents the 'min' value of [androidx.annotation.Size]
+ * @param max represents the 'max' value of [androidx.annotation.Size]
+ * @param multiple represents the 'multiple' value of [androidx.annotation.Size]
+ */
+@Suppress("KDocUnresolvedReference")
 internal data class Size(
     val value: Long,
     val min: Long,
@@ -27,8 +36,11 @@ internal data class Size(
 
     companion object {
 
-        // TODO: Values of this annotation are never null, so there should be better way to handle defaults
-
+        /**
+         * Finds [androidx.annotation.Size] annotation from passed [annotations] and maps
+         * respective values to the [Size] holder class and returns it. In case the
+         * [androidx.annotation.Size] is not found, resorts to the passed default values.
+         */
         fun find(
             annotations: List<KSAnnotation>,
             defaultValue: Long,
@@ -48,12 +60,7 @@ internal data class Size(
                 annotation.shortName.asString() == Names.sizeName.simpleName
             }
 
-            return validAnnotation?.asSize(
-                defaultValue = defaultValue,
-                defaultMin = defaultMin,
-                defaultMax = defaultMax,
-                defaultMultiple = defaultMultiple,
-            ) ?: Size(
+            return validAnnotation?.asSize() ?: Size(
                 value = defaultValue,
                 min = defaultMin,
                 max = defaultMax,
@@ -61,34 +68,25 @@ internal data class Size(
             )
         }
 
-        private fun KSAnnotation.asSize(
-            defaultValue: Long,
-            defaultMin: Long,
-            defaultMax: Long,
-            defaultMultiple: Long,
-        ): Size {
+        private fun KSAnnotation.asSize(): Size {
 
             val annotation = this
 
             val value = annotation.arguments
-                .firstOrNull { it.name!!.asString() == "value" }
-                ?.value as? Long
-                ?: defaultValue
+                .first { it.name!!.asString() == "value" }
+                .value as Long
 
             val min = annotation.arguments
-                .firstOrNull { it.name!!.asString() == "min" }
-                ?.value as? Long
-                ?: defaultMin
+                .first { it.name!!.asString() == "min" }
+                .value as Long
 
             val max = annotation.arguments
-                .firstOrNull { it.name!!.asString() == "max" }
-                ?.value as? Long
-                ?: defaultMax
+                .first { it.name!!.asString() == "max" }
+                .value as Long
 
             val multiple = annotation.arguments
-                .firstOrNull { it.name!!.asString() == "multiple" }
-                ?.value as? Long
-                ?: defaultMultiple
+                .first { it.name!!.asString() == "multiple" }
+                .value as Long
 
             return Size(
                 value = value,

@@ -18,6 +18,13 @@ package com.jayasuryat.dowel.processor.annotation
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.jayasuryat.dowel.processor.Names
 
+/**
+ * An adapter class to represent and hold values coming from the [androidx.annotation.IntRange]
+ * annotation.
+ * @param start represents the 'from' value of [androidx.annotation.IntRange]
+ * @param end represents the 'to' value of [androidx.annotation.IntRange]
+ */
+@Suppress("KDocUnresolvedReference")
 internal data class IntRange(
     val start: Long,
     val end: Long,
@@ -25,6 +32,11 @@ internal data class IntRange(
 
     companion object {
 
+        /**
+         * Finds [androidx.annotation.IntRange] annotation from passed [annotations] and maps
+         * respective values to the [IntRange] holder class and returns it. In case the
+         * [androidx.annotation.IntRange] is not found, resorts to the passed default values.
+         */
         fun find(
             annotations: List<KSAnnotation>,
             defaultStart: Long,
@@ -40,31 +52,23 @@ internal data class IntRange(
                 annotation.shortName.asString() == Names.intRangeName.simpleName
             }
 
-            return validAnnotation?.asIntLimit(
-                defaultStart = defaultStart,
-                defaultEnd = defaultEnd,
-            ) ?: IntRange(
+            return validAnnotation?.asIntLimit() ?: IntRange(
                 start = defaultStart,
                 end = defaultEnd,
             )
         }
 
-        private fun KSAnnotation.asIntLimit(
-            defaultStart: Long,
-            defaultEnd: Long,
-        ): IntRange {
+        private fun KSAnnotation.asIntLimit(): IntRange {
 
             val annotation = this
 
             val start = annotation.arguments
-                .firstOrNull { it.name!!.asString() == "from" }
-                ?.value as? Long
-                ?: defaultStart
+                .first { it.name!!.asString() == "from" }
+                .value as Long
 
             val end = annotation.arguments
-                .firstOrNull { it.name!!.asString() == "to" }
-                ?.value as? Long
-                ?: defaultEnd
+                .first { it.name!!.asString() == "to" }
+                .value as Long
 
             return IntRange(
                 start = start,

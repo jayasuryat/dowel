@@ -18,6 +18,13 @@ package com.jayasuryat.dowel.processor.annotation
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.jayasuryat.dowel.processor.Names
 
+/**
+ * An adapter class to represent and hold values coming from the [androidx.annotation.FloatRange]
+ * annotation.
+ * @param start represents the 'from' value of [androidx.annotation.FloatRange]
+ * @param end represents the 'to' value of [androidx.annotation.FloatRange]
+ */
+@Suppress("KDocUnresolvedReference")
 internal data class FloatRange(
     val start: Double,
     val end: Double,
@@ -25,6 +32,11 @@ internal data class FloatRange(
 
     companion object {
 
+        /**
+         * Finds [androidx.annotation.FloatRange] annotation from passed [annotations] and maps
+         * respective values to the [FloatRange] holder class and returns it. In case the
+         * [androidx.annotation.FloatRange] is not found, resorts to the passed default values.
+         */
         fun find(
             annotations: List<KSAnnotation>,
             defaultStart: Double,
@@ -40,31 +52,23 @@ internal data class FloatRange(
                 annotation.shortName.asString() == Names.floatRangeName.simpleName
             }
 
-            return validAnnotation?.asFloatLimit(
-                defaultStart = defaultStart,
-                defaultEnd = defaultEnd,
-            ) ?: FloatRange(
+            return validAnnotation?.asFloatLimit() ?: FloatRange(
                 start = defaultStart,
                 end = defaultEnd,
             )
         }
 
-        private fun KSAnnotation.asFloatLimit(
-            defaultStart: Double,
-            defaultEnd: Double,
-        ): FloatRange {
+        private fun KSAnnotation.asFloatLimit(): FloatRange {
 
             val annotation = this
 
             val start = annotation.arguments
-                .firstOrNull { it.name!!.asString() == "from" }
-                ?.value as? Double
-                ?: defaultStart
+                .first { it.name!!.asString() == "from" }
+                .value as Double
 
             val end = annotation.arguments
-                .firstOrNull { it.name!!.asString() == "to" }
-                ?.value as? Double
-                ?: defaultEnd
+                .first { it.name!!.asString() == "to" }
+                .value as Double
 
             return FloatRange(
                 start = start,
