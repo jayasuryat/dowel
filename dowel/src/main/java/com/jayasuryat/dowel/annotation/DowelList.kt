@@ -18,11 +18,15 @@ package com.jayasuryat.dowel.annotation
 import com.jayasuryat.dowel.internal.DowelInternal
 
 /**
- * Generates a PreviewParameterProvider of type List&lt;T&gt; where T is the class annotated
- * with [DowelList] annotation. Rest of the behavior is same as @[Dowel] annotation.
+ * This annotation builds on top of what already @[Dowel] annotation is doing.
  *
- * Note : Only classes already annotated with @[Dowel] can be annotated with @[DowelList].
+ * Generates a PreviewParameterProvider of type List&lt;T&gt; where T is the class annotated
+ * with [DowelList] annotation. Rest of the behavior is same as the @[Dowel] annotation.
+ *
+ * **Note** : Only classes already annotated with @[Dowel] can be annotated with @[DowelList].
+ *
  * @param [count] Number of items in the generated sequence of type List&lt;T&gt;.
+ * @see [Dowel]
  */
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.CLASS)

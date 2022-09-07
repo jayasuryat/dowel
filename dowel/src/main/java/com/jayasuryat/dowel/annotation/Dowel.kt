@@ -37,11 +37,11 @@ import com.jayasuryat.dowel.internal.DowelInternal
  * * [List]
  * * [Map]
  * * [Pair]
- * * Nullable
+ * * Nullable types
  *
  * Properties with default values can have any type, as they are not considered for generation.
  *
- * Properties with unsupported types which are nullable are allowed, and the generated value would
+ * Properties with **unsupported** types which are nullable are allowed, and the generated value would
  * always be null. Properties with properly supported types which are nullable may have an appropriate
  * value or a null value generated randomly.
  *
@@ -50,8 +50,12 @@ import com.jayasuryat.dowel.internal.DowelInternal
  * Like List&lt;String&gt;, Map&lt;String, @[Dowel] class&gt;.
  *
  * As far as a type is in this supported list, there are no practical limitations on how many times they may be nested.
- * Like List&lt;List&lt;@[Dowel] class&gt;&gt;
+ * Like List&lt;Map&lt;String, List&lt;@[Dowel] class&gt;&gt;&gt;
+ *
+ * @param [count] Number of items in the generated sequence of items
+ * @see [DowelList]
  */
+@Suppress("KDocUnresolvedReference")
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.CLASS)
 public annotation class Dowel(
