@@ -20,6 +20,20 @@ import com.jayasuryat.dowel.processor.annotation.FloatRange
 import com.jayasuryat.dowel.processor.annotation.IntRange
 import com.jayasuryat.dowel.processor.annotation.Size
 
+/**
+ * [ClassRepresentation] represents a class with all of it's properties mapped to concrete sealed
+ * types to enable exhaustive checks while generating code.
+ * The intent of this class is to map a [KSClassDeclaration] once to [ClassRepresentation] and
+ * reuse it multiple times to generate code without having to resolve the type of a property
+ * multiple times.
+ *
+ * This also acts as a reference for what all types are supported by Dowel for code generation.
+ *
+ * @param declaration The original [KSClassDeclaration] from which this representation has been mapped
+ * @param parameters The list of all the properties of the represented class mapped to a concrete type
+ *
+ * @see [com.google.devtools.ksp.symbol.KSTypeReference.resolve]
+ */
 internal data class ClassRepresentation(
     val declaration: KSClassDeclaration,
     val parameters: List<Parameter>,
@@ -31,6 +45,10 @@ internal data class ClassRepresentation(
         val isNullable: Boolean,
     )
 
+    /**
+     * A representation class denoting the type of a class with a concrete sealed type and
+     * it's meta information like annotations, generic type parameters.
+     */
     sealed interface ParameterSpec {
 
         // region : Primitives
@@ -97,7 +115,7 @@ internal data class ClassRepresentation(
         ) : ParameterSpec
 
         /**
-         * Types which are not supported but are nullable
+         * Types which are not directly supported by Dowel for code generation, but are nullable
          */
         object UnsupportedNullableSpec : ParameterSpec
     }
