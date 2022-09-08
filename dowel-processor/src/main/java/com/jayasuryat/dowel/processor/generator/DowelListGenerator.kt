@@ -13,21 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jayasuryat.dowel.processor
+package com.jayasuryat.dowel.processor.generator
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.jayasuryat.dowel.annotation.DowelList
+import com.jayasuryat.dowel.processor.Names
+import com.jayasuryat.dowel.processor.dowelClassName
+import com.jayasuryat.dowel.processor.dowelListClassName
+import com.jayasuryat.dowel.processor.dowelListPropertyName
 import com.jayasuryat.dowel.processor.util.asClassName
 import com.jayasuryat.dowel.processor.util.writeTo
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
+/**
+ * Generates a file containing an implementation of
+ * [androidx.compose.ui.tooling.preview.PreviewParameterProvider] for List&lt;[KSClassDeclaration]&gt;.
+ * This class generates on top of what [DowelGenerator] is already generating.
+ *
+ * The generated file would have the same package as the [KSClassDeclaration]
+ * but would be in the generated sources. File name would be <Name of [KSClassDeclaration]>ListPreviewParamProvider.kt
+ *
+ * @see [DowelGenerator]
+ */
+@Suppress("KDocUnresolvedReference")
 internal class DowelListGenerator(
     private val codeGenerator: CodeGenerator,
 ) {
 
+    /**
+     * Generates an implementation of [androidx.compose.ui.tooling.preview.PreviewParameterProvider]
+     * for List&lt;[classDeclaration]&gt;.
+     */
     fun generateListPreviewParameterProviderFor(
         classDeclaration: KSClassDeclaration,
     ) {
@@ -40,6 +59,7 @@ internal class DowelListGenerator(
             .addPreviewParamProvider(classDeclaration = classDeclaration)
             .build()
 
+        // Creating a file with specified specs and flushing code into it
         fileSpec.writeTo(
             codeGenerator = codeGenerator,
             dependencies = Dependencies(
@@ -49,6 +69,10 @@ internal class DowelListGenerator(
         )
     }
 
+    /**
+     * Method responsible for generating all of the code inside the implementation of
+     * [androidx.compose.ui.tooling.preview.PreviewParameterProvider] for List&lt;[classDeclaration]&gt;.
+     */
     private fun FileSpec.Builder.addPreviewParamProvider(
         classDeclaration: KSClassDeclaration,
     ): FileSpec.Builder {
@@ -66,6 +90,7 @@ internal class DowelListGenerator(
         // Super-type of the generated class
         val outputSuperType = Names.previewParamProvider.parameterizedBy(listType)
 
+        // Number of objects to be generated as part of the "values" sequence property
         val sequenceSize: Int = classDeclaration.annotations
             .first { it.shortName.asString() == DowelList::class.java.simpleName }
             .arguments
@@ -86,6 +111,15 @@ internal class DowelListGenerator(
         return this
     }
 
+    /**
+     * Adds private properties inside the generated class which help in simplifying code generation.
+     *
+     * Instead of generating the instantiation code of list of objects by *hand*, their respective
+     * (generated) PreviewParameterProviders are reused to provide instances of those respective types.
+     *
+     * This method adds instances of such PreviewParameterProviders as private properties inside the
+     * generated class.
+     */
     private fun TypeSpec.Builder.addDowelListProperty(
         declaration: KSClassDeclaration,
     ): TypeSpec.Builder {
@@ -105,6 +139,10 @@ internal class DowelListGenerator(
         return this
     }
 
+    /**
+     * Adds the overridden "values" property of the [androidx.compose.ui.tooling.preview.PreviewParameterProvider]
+     * class with a [Sequence] of values of type represented by List&lt;[representation]&gt;.
+     */
     private fun TypeSpec.Builder.addValuesProperty(
         declaration: KSClassDeclaration,
         instanceCount: Int,
@@ -120,6 +158,7 @@ internal class DowelListGenerator(
             simpleName = "Random"
         )
 
+        // Building a sequence by extracting random values out of  PreviewParameterProvider
         val initializer: CodeBlock = CodeBlock.builder()
             .addStatement("sequence {")
             .withIndent {

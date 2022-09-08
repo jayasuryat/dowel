@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jayasuryat.dowel.processor
+package com.jayasuryat.dowel.processor.generator
 
+import com.jayasuryat.dowel.processor.StringSource
+import com.jayasuryat.dowel.processor.dowelListPropertyName
 import com.jayasuryat.dowel.processor.model.ClassRepresentation
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.*
 import com.squareup.kotlinpoet.CodeBlock
@@ -24,8 +26,14 @@ import com.squareup.kotlinpoet.withIndent
 import java.util.*
 import kotlin.random.Random
 
+/**
+ * Generates object instantiation code for a [ClassRepresentation]
+ */
 internal class ObjectConstructor {
 
+    /**
+     * Generates and returns object instantiation code for [representation]
+     */
     fun constructObjectFor(
         representation: ClassRepresentation,
     ): CodeBlock {
@@ -38,6 +46,7 @@ internal class ObjectConstructor {
                 representation.parameters
                     .forEach { parameter ->
 
+                        // Randomly making nullable values null
                         val isNull = parameter.isNullable &&
                             Random.nextFloat() < NULL_VALUE_PROBABILITY
 
@@ -56,6 +65,9 @@ internal class ObjectConstructor {
         return codeBlock.build()
     }
 
+    /**
+     * Returns [CodeBlock] representing assignment logic for the passed [ClassRepresentation.ParameterSpec]
+     */
     private fun ClassRepresentation.ParameterSpec.getAssigner(): CodeBlock {
 
         val assignment: CodeBlock = when (val spec = this) {
@@ -135,6 +147,7 @@ internal class ObjectConstructor {
     private fun StringSpec.getStringAssigner(): CodeBlock {
 
         val length: Int = if (size.value == -1L) {
+            // Size is unset
             val min = maxOf(size.min.toSafeRangeInt(), 0)
             val max = minOf(size.max.toSafeRangeInt(), MAX_GENERATED_STRING_LENGTH)
             Random.nextInt(from = min, until = max)
@@ -272,6 +285,7 @@ internal class ObjectConstructor {
 
         val spec = this
 
+        // Retrieving instances of the specific Dowel type from (generated) PreviewParameterProvider
         return buildCodeBlock {
             val propName = spec.declaration.dowelListPropertyName
             add("$propName.random()")

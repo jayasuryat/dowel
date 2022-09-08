@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jayasuryat.dowel.processor
+package com.jayasuryat.dowel.processor.generator
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -21,13 +21,25 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.jayasuryat.dowel.annotation.Dowel
+import com.jayasuryat.dowel.processor.Names
+import com.jayasuryat.dowel.processor.dowelClassName
+import com.jayasuryat.dowel.processor.dowelListPropertyName
 import com.jayasuryat.dowel.processor.model.ClassRepresentation
 import com.jayasuryat.dowel.processor.model.ClassRepresentationMapper
+import com.jayasuryat.dowel.processor.util.asClassName
 import com.jayasuryat.dowel.processor.util.unsafeLazy
 import com.jayasuryat.dowel.processor.util.writeTo
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
+/**
+ * Generates a file containing an implementation of
+ * [androidx.compose.ui.tooling.preview.PreviewParameterProvider] for a [KSClassDeclaration].
+ *
+ * The generated file would have the same package as the [KSClassDeclaration]
+ * but would be in the generated sources. File name would be <Name of [KSClassDeclaration]>PreviewParamProvider.kt
+ */
+@Suppress("KDocUnresolvedReference")
 internal class DowelGenerator(
     private val resolver: Resolver,
     private val codeGenerator: CodeGenerator,
@@ -42,6 +54,10 @@ internal class DowelGenerator(
     }
     private val objectConstructor: ObjectConstructor by unsafeLazy { ObjectConstructor() }
 
+    /**
+     * Generates an implementation of [androidx.compose.ui.tooling.preview.PreviewParameterProvider]
+     * for [classDeclaration]
+     */
     fun generatePreviewParameterProviderFor(
         classDeclaration: KSClassDeclaration,
     ) {
@@ -54,6 +70,7 @@ internal class DowelGenerator(
             .addPreviewParamProvider(classDeclaration = classDeclaration)
             .build()
 
+        // Creating a file with specified specs and flushing code into it
         fileSpec.writeTo(
             codeGenerator = codeGenerator,
             dependencies = Dependencies(
@@ -63,6 +80,10 @@ internal class DowelGenerator(
         )
     }
 
+    /**
+     * Method responsible for generating all of the code inside the implementation of
+     * [androidx.compose.ui.tooling.preview.PreviewParameterProvider]
+     */
     private fun FileSpec.Builder.addPreviewParamProvider(
         classDeclaration: KSClassDeclaration,
     ): FileSpec.Builder {
@@ -70,16 +91,15 @@ internal class DowelGenerator(
         val outputClassName = classDeclaration.dowelClassName
 
         // Annotated class's class name
-        val declarationClassName = ClassName(
-            packageName = packageName,
-            classDeclaration.simpleName.asString()
-        )
+        val declarationClassName = classDeclaration.asClassName()
 
         // Super-type of the generated class
         val outputSuperType = Names.previewParamProvider.parameterizedBy(declarationClassName)
 
+        // KSClassDeclaration mapped to an intermediate representation to help with code generation
         val representation: ClassRepresentation = mapper.map(classDeclaration)
 
+        // Number of objects to be generated as part of the "values" sequence property
         val sequenceSize: Int = classDeclaration.annotations
             .first { it.shortName.asString() == Dowel::class.java.simpleName }
             .arguments
@@ -101,15 +121,28 @@ internal class DowelGenerator(
         return this
     }
 
+    /**
+     * Adds private properties inside the generated class which help in simplifying code generation.
+     *
+     * Dowel supports nesting of Dowel classes (read more at [Dowel]), in such cases code is need to
+     * to be generated for the nested objects as well. Instead of generating code for every nested
+     * Dowel class by *hand*, their respective (generated) PreviewParameterProviders are reused to
+     * provide instances of those respective types.
+     *
+     * This method adds instances of such PreviewParameterProviders as private properties inside the
+     * generated class.
+     */
     private fun TypeSpec.Builder.addDowelProperties(
         representation: ClassRepresentation,
     ): TypeSpec.Builder {
 
         val specs = representation.parameters.map { it.spec }
 
+        // List of all the objects which are of Dowel type (i.e., Classes annotated with @Dowel)
         val dowelObjects: List<ClassRepresentation.ParameterSpec.DowelSpec> = specs
             .filterIsInstance<ClassRepresentation.ParameterSpec.DowelSpec>()
 
+        // List of all the objects which are of List<Dowel class> type
         val dowelObjectLists: List<ClassRepresentation.ParameterSpec.DowelSpec> = specs
             .filterIsInstance<ClassRepresentation.ParameterSpec.ListSpec>()
             .map { it.elementSpec }
@@ -120,16 +153,13 @@ internal class DowelGenerator(
             addAll(dowelObjectLists)
         }.distinct()
 
-        val parameters: List<PropertySpec> = allDowelSpecs
+        // List of all the properties that are needed to be added to the generated class
+        val properties: List<PropertySpec> = allDowelSpecs
             .map { spec ->
 
                 val declaration = spec.declaration
 
-                val declarationType = ClassName(
-                    packageName = declaration.packageName.asString(),
-                    declaration.simpleName.asString()
-                )
-
+                val declarationType = declaration.asClassName()
                 val declarationListType = List::class.asTypeName()
                     .parameterizedBy(declarationType)
 
@@ -142,24 +172,24 @@ internal class DowelGenerator(
                 sequenceProperty.build()
             }
 
-        this.addProperties(parameters)
+        this.addProperties(properties)
 
         return this
     }
 
+    /**
+     * Adds the overridden "values" property of the [androidx.compose.ui.tooling.preview.PreviewParameterProvider]
+     * class with a [Sequence] of values of type represented by [representation]. This method
+     * generates code for instantiation logic of all the properties listed in the [representation].
+     */
     private fun TypeSpec.Builder.addValuesProperty(
         representation: ClassRepresentation,
         objectConstructor: ObjectConstructor,
         instanceCount: Int,
     ): TypeSpec.Builder {
 
-        val declaration = representation.declaration
-
         // Annotated class's class name
-        val declarationClassName = ClassName(
-            packageName = declaration.packageName.asString(),
-            declaration.simpleName.asString()
-        )
+        val declarationClassName = representation.declaration.asClassName()
 
         val propertyType = Names.sequenceName.parameterizedBy(declarationClassName)
 
