@@ -30,8 +30,21 @@ import com.jayasuryat.dowel.processor.util.logError
 import com.jayasuryat.dowel.processor.util.unsafeLazy
 import com.squareup.kotlinpoet.ksp.toTypeName
 
-// TODO: Update mapping logic from IntRange, FloatRange, and Size. Can filter out default values here.
-
+/**
+ * Mapper class to map a [KSClassDeclaration] to [ClassRepresentation]. This mapper only considers the
+ * properties listed in the primary constructor of the [KSClassDeclaration] and in that ignores all
+ * of the properties which have default values.
+ *
+ * **Note** : This mapper will call [KSTypeReference.resolve] method on every property, which is
+ * an expensive call. It is suggested to map a [KSClassDeclaration] once and reuse the resultant
+ * [ClassRepresentation] instead of mapping multiple times.
+ *
+ * @param resolver to resolve types of each property
+ * @param logger to log errors when unexpected or invalid inputs ore encountered
+ *
+ * @see [ClassRepresentation]
+ * @see [KSTypeReference.resolve]
+ */
 internal class ClassRepresentationMapper(
     private val resolver: Resolver,
     private val logger: KSPLogger,
@@ -68,7 +81,7 @@ internal class ClassRepresentationMapper(
         val parameters: List<KSValueParameter> = constructor.parameters
 
         val mappedParameters: List<ClassRepresentation.Parameter> = parameters
-            .filter { !it.hasDefault }
+            .filter { !it.hasDefault } // Ignoring all properties with default values
             .map { parameter ->
 
                 val resolvedType = parameter.type.resolve()
@@ -135,10 +148,13 @@ internal class ClassRepresentationMapper(
             propType.isMarkedNullable -> getUnsupportedNullableSpec()
 
             else -> {
-                // TODO: Fix message
+
+                val propName = propTypeDeclaration.parentDeclaration!!.simpleName.asString() + "." +
+                    propTypeDeclaration.simpleName.asString()
+
                 logger.logError(
-                    message =
-                    "Dowel does not support generating preview param providers for the type ${propType.toTypeName()} (${propTypeDeclaration.simpleName.asString()}.${propTypeDeclaration.simpleName.asString()}).",
+                    message = "Dowel does not support generating preview param providers for the type " +
+                        "${propType.toTypeName()} @ ($propName).",
                     node = propTypeDeclaration,
                 )
             }
@@ -243,6 +259,8 @@ internal class ClassRepresentationMapper(
 
     private fun KSType.getStateSpec(): StateSpec {
 
+        require(this.arguments.size == 1) { "State must have have exactly one type argument. Current size = ${this.arguments.size}" }
+
         val arg = this.arguments.first()
 
         val resolvedType = arg.type!!.resolve()
@@ -266,7 +284,7 @@ internal class ClassRepresentationMapper(
             defaultMax = DefaultRange.DEFAULT_LIST_LEN_MAX,
         )
 
-        require(this.arguments.size == 1) { "List should have only one type argument. Current size = ${this.arguments.size}" }
+        require(this.arguments.size == 1) { "List must have have exactly one type argument. Current size = ${this.arguments.size}" }
 
         val arg = this.arguments.first()
 
@@ -299,6 +317,8 @@ internal class ClassRepresentationMapper(
             defaultMax = DefaultRange.DEFAULT_MAP_LEN_MAX,
         )
 
+        require(this.arguments.size == 3) { "Map must have have exactly two type arguments. Current size = ${this.arguments.size}" }
+
         val key = this.arguments[0].getSpec()
         val value = this.arguments[1].getSpec()
 
@@ -310,6 +330,8 @@ internal class ClassRepresentationMapper(
     }
 
     private fun KSType.getFlowSpec(): FlowSpec {
+
+        require(this.arguments.size == 1) { "Flow must have have exactly one type argument. Current size = ${this.arguments.size}" }
 
         val arg = this.arguments.first()
 
@@ -331,6 +353,8 @@ internal class ClassRepresentationMapper(
                 annotations = this.annotations.toList(),
             )
         }
+
+        require(this.arguments.size == 1) { "Pair must have have exactly two type arguments. Current size = ${this.arguments.size}" }
 
         val left = this.arguments[0].getSpec()
         val right = this.arguments[1].getSpec()
