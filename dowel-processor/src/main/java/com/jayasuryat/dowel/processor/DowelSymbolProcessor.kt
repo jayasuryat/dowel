@@ -23,8 +23,18 @@ import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.validate
 import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.annotation.DowelList
+import com.jayasuryat.dowel.processor.generator.DowelGenerator
+import com.jayasuryat.dowel.processor.generator.DowelListGenerator
 import com.jayasuryat.dowel.processor.util.unsafeLazy
 
+/**
+ * A [SymbolProcessor] implementation which intercepts declarations with @[Dowel] and @[DowelList]
+ * annotations to trigger code generation for generating
+ * [androidx.compose.ui.tooling.preview.PreviewParameterProvider] for the annotated class.
+ *
+ * @see [Dowel]
+ * @see [DowelList]
+ */
 internal class DowelSymbolProcessor(
     private val logger: KSPLogger,
     private val codeGenerator: CodeGenerator,
@@ -58,35 +68,55 @@ internal class DowelSymbolProcessor(
         )
     }
 
+    /**
+     * Entry point into processing of symbols, system calls this method to trigger processing
+     */
     override fun process(resolver: Resolver): List<KSAnnotated> {
 
         this.resolver = resolver
 
-        // region : Processing @Dowel annotation
-        val dowelSymbols: Sequence<KSAnnotated> = resolver.getSymbolsWithAnnotation(
+        val invalidDowelSymbols: List<KSAnnotated> = resolver.processSymbol(
             annotationName = Dowel::class.qualifiedName!!,
+            visitor = dowelVisitor,
         )
 
-        val (validDowelSymbols: List<KSAnnotated>, invalidDowelSymbols: List<KSAnnotated>) =
-            dowelSymbols.partition { it.validate() }
-
-        validDowelSymbols.forEach { symbol -> symbol.accept(dowelVisitor, Unit) }
-        // endregion
-
-        // region : Processing @DowelList annotation
-        val dowelListSymbols: Sequence<KSAnnotated> = resolver.getSymbolsWithAnnotation(
+        val invalidDowelListSymbols: List<KSAnnotated> = resolver.processSymbol(
             annotationName = DowelList::class.qualifiedName!!,
+            visitor = dowelListVisitor,
         )
 
-        val (validListSymbols: List<KSAnnotated>, invalidListSymbols: List<KSAnnotated>) =
-            dowelListSymbols.partition { it.validate() }
-
-        validListSymbols.forEach { symbol -> symbol.accept(dowelListVisitor, Unit) }
-        // endregion
-
-        return invalidDowelSymbols + invalidListSymbols
+        return invalidDowelSymbols + invalidDowelListSymbols
     }
 
+    /**
+     * Processes symbols with the passed information and returns all of the invalid symbols.
+     */
+    private fun Resolver.processSymbol(
+        annotationName: String,
+        visitor: KSVisitorVoid,
+    ): List<KSAnnotated> {
+
+        val resolver = this
+
+        val symbols: Sequence<KSAnnotated> = resolver.getSymbolsWithAnnotation(
+            annotationName = annotationName,
+        )
+
+        val (validSymbols: List<KSAnnotated>, invalidSymbols: List<KSAnnotated>) =
+            symbols.partition { it.validate() }
+
+        validSymbols.forEach { symbol -> symbol.accept(visitor, Unit) }
+
+        return invalidSymbols
+    }
+
+    /**
+     * Validates if a class annotated with @[Dowel] annotation meets all of the necessary criteria.
+     * Triggers code generation if a class is validated to be appropriate, otherwise logs an error
+     * with appropriate message.
+     *
+     * See [Dowel] for all of the applicable criteria.
+     */
     private class DowelAnnotationVisitor(
         private val logger: KSPLogger,
         private val dowelGenerator: DowelGenerator,
@@ -99,6 +129,7 @@ internal class DowelSymbolProcessor(
 
             if (!classDeclaration.checkValidityAndLog(logger)) return
 
+            // Triggering code generation
             dowelGenerator.generatePreviewParameterProviderFor(
                 classDeclaration = classDeclaration,
             )
@@ -132,6 +163,13 @@ internal class DowelSymbolProcessor(
         }
     }
 
+    /**
+     * Validates if a class annotated with @[DowelList] annotation meets all of the necessary criteria.
+     * Triggers code generation if a class is validated to be appropriate, otherwise logs an error
+     * with appropriate message.
+     *
+     * See [DowelList] for all of the applicable criteria.
+     */
     private class DowelListAnnotationVisitor(
         private val logger: KSPLogger,
         private val generator: DowelListGenerator,
@@ -144,6 +182,7 @@ internal class DowelSymbolProcessor(
 
             if (!classDeclaration.checkValidityAndLog(logger)) return
 
+            // Triggering code generation
             generator.generateListPreviewParameterProviderFor(
                 classDeclaration = classDeclaration,
             )

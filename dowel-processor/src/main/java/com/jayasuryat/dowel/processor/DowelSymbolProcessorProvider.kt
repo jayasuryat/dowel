@@ -18,7 +18,17 @@ package com.jayasuryat.dowel.processor
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
+import com.jayasuryat.dowel.annotation.Dowel
+import com.jayasuryat.dowel.annotation.DowelList
 
+/**
+ * Entry point into Kotlin Symbol Processor, creates and provides an instance of [SymbolProcessor]
+ * i.e., [DowelSymbolProcessor].
+ *
+ * @see [DowelSymbolProcessor]
+ * @see [Dowel]
+ * @see [DowelList]
+ */
 public class DowelSymbolProcessorProvider : SymbolProcessorProvider {
 
     override fun create(
