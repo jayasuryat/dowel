@@ -16,6 +16,7 @@
 package com.jayasuryat.dowel.processor.model
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.processor.annotation.FloatRange
 import com.jayasuryat.dowel.processor.annotation.IntRange
 import com.jayasuryat.dowel.processor.annotation.Size
@@ -110,6 +111,9 @@ internal data class ClassRepresentation(
             val enumDeclaration: KSClassDeclaration,
         ) : ParameterSpec
 
+        /**
+         * Types which are annotated with @[Dowel] annotation
+         */
         data class DowelSpec(
             val declaration: KSClassDeclaration,
         ) : ParameterSpec

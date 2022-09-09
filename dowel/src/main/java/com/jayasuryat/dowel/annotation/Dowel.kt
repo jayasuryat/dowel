@@ -52,6 +52,10 @@ import com.jayasuryat.dowel.internal.DowelInternal
  * As far as a type is in this supported list, there are no practical limitations on how many times they may be nested.
  * Like List&lt;Map&lt;String, List&lt;@[Dowel] class&gt;&gt;&gt;
  *
+ * **Note** : More meta information about a property can be given to Dowel using [androidx.annotation]
+ * annotations. Currently [androidx.annotation.IntRange], [androidx.annotation.FloatRange],
+ * and [androidx.annotation.Size] are supported.
+ *
  * @param [count] Number of items in the generated sequence of items
  * @see [DowelList]
  */

@@ -17,6 +17,9 @@
 
 package com.jayasuryat.dowel.processor
 
+/**
+ * A source of pre-defined random words
+ */
 internal object StringSource {
 
     private const val source: String =

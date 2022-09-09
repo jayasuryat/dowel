@@ -50,6 +50,7 @@ internal class ClassRepresentationMapper(
     private val logger: KSPLogger,
 ) {
 
+    // region : Types
     private val builtIns: KSBuiltIns = resolver.builtIns
 
     private val listDeclaration: KSType by unsafeLazy {
@@ -72,6 +73,7 @@ internal class ClassRepresentationMapper(
         val ksName = resolver.getKSNameFromString(Pair::class.qualifiedName!!)
         resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
     }
+    // endregion
 
     fun map(
         classDeclaration: KSClassDeclaration,
@@ -101,6 +103,10 @@ internal class ClassRepresentationMapper(
         )
     }
 
+    /**
+     * Maps give [KSType] to an appropriate concrete representation i.e.,
+     * [ClassRepresentation.ParameterSpec].
+     */
     private fun KSType.getSpec(
         annotations: List<KSAnnotation>,
     ): ClassRepresentation.ParameterSpec {
@@ -317,7 +323,7 @@ internal class ClassRepresentationMapper(
             defaultMax = DefaultRange.DEFAULT_MAP_LEN_MAX,
         )
 
-        require(this.arguments.size == 3) { "Map must have have exactly two type arguments. Current size = ${this.arguments.size}" }
+        require(this.arguments.size == 2) { "Map must have have exactly two type arguments. Current size = ${this.arguments.size}" }
 
         val key = this.arguments[0].getSpec()
         val value = this.arguments[1].getSpec()
@@ -354,7 +360,7 @@ internal class ClassRepresentationMapper(
             )
         }
 
-        require(this.arguments.size == 1) { "Pair must have have exactly two type arguments. Current size = ${this.arguments.size}" }
+        require(this.arguments.size == 2) { "Pair must have have exactly two type arguments. Current size = ${this.arguments.size}" }
 
         val left = this.arguments[0].getSpec()
         val right = this.arguments[1].getSpec()

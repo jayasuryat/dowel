@@ -39,7 +39,7 @@ internal data class Size(
         /**
          * Finds [androidx.annotation.Size] annotation from passed [annotations] and maps
          * respective values to the [Size] holder class and returns it. In case the
-         * [androidx.annotation.Size] is not found, resorts to the passed default values.
+         * [androidx.annotation.Size] annotation is not found, resorts to the passed default values.
          */
         fun find(
             annotations: List<KSAnnotation>,

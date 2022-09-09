@@ -69,7 +69,7 @@ internal class DowelSymbolProcessor(
     }
 
     /**
-     * Entry point into processing of symbols, system calls this method to trigger processing
+     * Entry point into processing of symbols, called by Kotlin Symbol Processing to run the processing task.
      */
     override fun process(resolver: Resolver): List<KSAnnotated> {
 

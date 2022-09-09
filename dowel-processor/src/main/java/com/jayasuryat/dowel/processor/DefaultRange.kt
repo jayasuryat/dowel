@@ -15,6 +15,17 @@
  */
 package com.jayasuryat.dowel.processor
 
+import com.jayasuryat.dowel.processor.annotation.FloatRange
+import com.jayasuryat.dowel.processor.annotation.IntRange
+import com.jayasuryat.dowel.processor.annotation.Size
+
+/**
+ * Default *sane* ranges for various types, used as fallbacks when not enough information is provided to
+ * the [DowelSymbolProcessor] with annotations while generating code.
+ * @see [IntRange]
+ * @see [FloatRange]
+ * @see [Size]
+ */
 internal object DefaultRange {
 
     internal const val DEFAULT_INT_MIN: Long = 0

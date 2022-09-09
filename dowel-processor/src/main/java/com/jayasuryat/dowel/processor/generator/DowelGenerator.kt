@@ -38,6 +38,8 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
  *
  * The generated file would have the same package as the [KSClassDeclaration]
  * but would be in the generated sources. File name would be <Name of [KSClassDeclaration]>PreviewParamProvider.kt
+ *
+ * @see [DowelListGenerator]
  */
 @Suppress("KDocUnresolvedReference")
 internal class DowelGenerator(
@@ -66,9 +68,10 @@ internal class DowelGenerator(
             .builder(
                 packageName = classDeclaration.packageName.asString(),
                 fileName = classDeclaration.dowelClassName,
-            )
-            .addPreviewParamProvider(classDeclaration = classDeclaration)
-            .build()
+            ).addPreviewParamProvider(
+                classDeclaration = classDeclaration,
+                objectConstructor = objectConstructor,
+            ).build()
 
         // Creating a file with specified specs and flushing code into it
         fileSpec.writeTo(
@@ -86,6 +89,7 @@ internal class DowelGenerator(
      */
     private fun FileSpec.Builder.addPreviewParamProvider(
         classDeclaration: KSClassDeclaration,
+        objectConstructor: ObjectConstructor,
     ): FileSpec.Builder {
 
         val outputClassName = classDeclaration.dowelClassName

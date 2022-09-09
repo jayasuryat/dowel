@@ -35,7 +35,7 @@ internal data class FloatRange(
         /**
          * Finds [androidx.annotation.FloatRange] annotation from passed [annotations] and maps
          * respective values to the [FloatRange] holder class and returns it. In case the
-         * [androidx.annotation.FloatRange] is not found, resorts to the passed default values.
+         * [androidx.annotation.FloatRange] annotation is not found, resorts to the passed default values.
          */
         fun find(
             annotations: List<KSAnnotation>,

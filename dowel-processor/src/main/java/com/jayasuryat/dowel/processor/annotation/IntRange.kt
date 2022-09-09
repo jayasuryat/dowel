@@ -35,7 +35,7 @@ internal data class IntRange(
         /**
          * Finds [androidx.annotation.IntRange] annotation from passed [annotations] and maps
          * respective values to the [IntRange] holder class and returns it. In case the
-         * [androidx.annotation.IntRange] is not found, resorts to the passed default values.
+         * [androidx.annotation.IntRange] annotation is not found, resorts to the passed default values.
          */
         fun find(
             annotations: List<KSAnnotation>,

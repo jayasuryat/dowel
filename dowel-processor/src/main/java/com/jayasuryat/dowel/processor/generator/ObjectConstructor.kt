@@ -27,7 +27,9 @@ import java.util.*
 import kotlin.random.Random
 
 /**
- * Generates object instantiation code for a [ClassRepresentation]
+ * Generates object instantiation [CodeBlock] for a [ClassRepresentation], does the most of code
+ * generation heavy lifting.
+ * @see ClassRepresentation
  */
 internal class ObjectConstructor {
 
