@@ -15,6 +15,7 @@
  */
 package com.jayasuryat.dowel.processor.generator
 
+import com.google.devtools.ksp.getVisibility
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
@@ -32,6 +33,7 @@ import com.jayasuryat.dowel.processor.util.unsafeLazy
 import com.jayasuryat.dowel.processor.util.writeTo
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.ksp.toKModifier
 
 /**
  * Generates a file containing an implementation of
@@ -111,8 +113,12 @@ internal class DowelGenerator(
             .first { it.name!!.asString() == Dowel.Companion.COUNT_PROPERTY_NAME }
             .value as Int
 
+        val visibility: KModifier = classDeclaration.getVisibility().toKModifier()
+            ?: KModifier.PUBLIC
+
         val classSpec: TypeSpec = TypeSpec
             .classBuilder(outputClassName)
+            .addModifiers(visibility)
             .addSuperinterface(outputSuperType)
             .addDowelProperties(representation = representation)
             .addValuesProperty(
