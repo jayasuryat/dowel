@@ -19,6 +19,7 @@ import com.jayasuryat.dowel.processor.StringSource
 import com.jayasuryat.dowel.processor.dowelListPropertyName
 import com.jayasuryat.dowel.processor.model.ClassRepresentation
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.*
+import com.jayasuryat.dowel.processor.relativeClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.buildCodeBlock
@@ -40,10 +41,10 @@ internal class ObjectConstructor {
         representation: ClassRepresentation,
     ): CodeBlock {
 
-        val className = representation.declaration.simpleName.asString()
+        val className = representation.declaration.relativeClassName
 
         val codeBlock = CodeBlock.builder()
-            .addStatement("$className(")
+            .addStatement("%L(", className)
             .withIndent {
                 representation.parameters
                     .forEach { parameter ->

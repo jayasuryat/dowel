@@ -59,11 +59,47 @@ internal object Names {
     const val dowelListClassNameSuffix: String = "ListPreviewParamProvider"
 }
 
-internal val KSClassDeclaration.dowelClassName: String
-    get() = "${this.simpleName.asString()}${Names.dowelClassNameSuffix}"
+/**
+ * Returns a *relative* dot separated class name like Map.Entry or List, useful when dealing with
+ * nested classes
+ */
+internal val KSClassDeclaration.relativeClassName: String
+    get() {
+        val packageName = this.packageName.asString()
+        return this.qualifiedName!!.asString()
+            .substring(packageName.length)
+            .removePrefix(".")
+    }
 
+/**
+ * Returns a string which could be used as the name of a Dowel generated PreviewParameterProvider
+ * class.
+ *
+ * The string would be in the following format '&lt;Name of KSClassDeclaration&gt;PreviewParamProvider'
+ * where the name would be considered based on the nesting of class. For example
+ * MapEntryPreviewParamProvider for Map.Entry class, and PersonPreviewParamProvider for Person class
+ */
+internal val KSClassDeclaration.dowelClassName: String
+    get() {
+        val relativeName = this.relativeClassName
+        val dotRemoved = relativeName.replace(".", "")
+        return "$dotRemoved${Names.dowelClassNameSuffix}"
+    }
+
+/**
+ * Returns a string which could be used as the name of a Dowel generated List-PreviewParameterProvider
+ * class.
+ *
+ * The string would be in the following format '&lt;Name of KSClassDeclaration&gt;ListPreviewParamProvider'
+ * where the name would be considered based on the nesting of class. For example
+ * MapEntryListPreviewParamProvider for Map.Entry class, and PersonListPreviewParamProvider for Person class
+ */
 internal val KSClassDeclaration.dowelListClassName: String
-    get() = "${this.simpleName.asString()}${Names.dowelListClassNameSuffix}"
+    get() {
+        val relativeName = this.relativeClassName
+        val dotRemoved = relativeName.replace(".", "")
+        return "$dotRemoved${Names.dowelListClassNameSuffix}"
+    }
 
 internal val KSClassDeclaration.dowelListPropertyName: String
     get() = this.simpleName.asString().replaceFirstChar { char -> char.lowercaseChar() } + "List"
