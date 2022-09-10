@@ -25,6 +25,7 @@ import com.jayasuryat.dowel.processor.Names
 import com.jayasuryat.dowel.processor.dowelClassName
 import com.jayasuryat.dowel.processor.dowelListPropertyName
 import com.jayasuryat.dowel.processor.model.ClassRepresentation
+import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.DowelSpec
 import com.jayasuryat.dowel.processor.model.ClassRepresentationMapper
 import com.jayasuryat.dowel.processor.util.asClassName
 import com.jayasuryat.dowel.processor.util.unsafeLazy
@@ -140,22 +141,8 @@ internal class DowelGenerator(
         representation: ClassRepresentation,
     ): TypeSpec.Builder {
 
-        val specs = representation.parameters.map { it.spec }
-
-        // List of all the objects which are of Dowel type (i.e., Classes annotated with @Dowel)
-        val dowelObjects: List<ClassRepresentation.ParameterSpec.DowelSpec> = specs
-            .filterIsInstance<ClassRepresentation.ParameterSpec.DowelSpec>()
-
-        // List of all the objects which are of List<Dowel class> type
-        val dowelObjectLists: List<ClassRepresentation.ParameterSpec.DowelSpec> = specs
-            .filterIsInstance<ClassRepresentation.ParameterSpec.ListSpec>()
-            .map { it.elementSpec }
-            .filterIsInstance<ClassRepresentation.ParameterSpec.DowelSpec>()
-
-        val allDowelSpecs: List<ClassRepresentation.ParameterSpec.DowelSpec> = buildList {
-            addAll(dowelObjects)
-            addAll(dowelObjectLists)
-        }.distinct()
+        // All the dowel specs in the representation
+        val allDowelSpecs = representation.getAllDowelSpecsRecursively()
 
         // List of all the properties that are needed to be added to the generated class
         val properties: List<PropertySpec> = allDowelSpecs
@@ -219,6 +206,61 @@ internal class DowelGenerator(
         this.addProperty(valuesProperty)
 
         return this
+    }
+
+    /**
+     * Finds list of all the [DowelSpec] in a given [ClassRepresentation] by
+     * recursively searching in all of the type parameters of all properties.
+     */
+    private fun ClassRepresentation.getAllDowelSpecsRecursively(): List<DowelSpec> {
+
+        /**
+         * Finds all the [DowelSpec] in a specific [ClassRepresentation.ParameterSpec] by
+         * recursively searching in all of the type parameters.
+         */
+        fun ClassRepresentation.ParameterSpec.getAllDowelSpecsRecursively(): List<DowelSpec> {
+
+            val specs: List<DowelSpec> = when (val spec = this) {
+
+                is ClassRepresentation.ParameterSpec.IntSpec,
+                is ClassRepresentation.ParameterSpec.LongSpec,
+                is ClassRepresentation.ParameterSpec.FloatSpec,
+                is ClassRepresentation.ParameterSpec.DoubleSpec,
+                is ClassRepresentation.ParameterSpec.CharSpec,
+                is ClassRepresentation.ParameterSpec.BooleanSpec,
+                is ClassRepresentation.ParameterSpec.StringSpec,
+                is ClassRepresentation.ParameterSpec.FunctionSpec,
+                is ClassRepresentation.ParameterSpec.EnumSpec,
+                is ClassRepresentation.ParameterSpec.UnsupportedNullableSpec,
+                -> emptyList()
+
+                is ClassRepresentation.ParameterSpec.StateSpec ->
+                    spec.elementSpec.getAllDowelSpecsRecursively()
+
+                is ClassRepresentation.ParameterSpec.ListSpec ->
+                    spec.elementSpec.getAllDowelSpecsRecursively()
+
+                is ClassRepresentation.ParameterSpec.MapSpec ->
+                    spec.keySpec.getAllDowelSpecsRecursively() +
+                            spec.valueSpec.getAllDowelSpecsRecursively()
+
+                is ClassRepresentation.ParameterSpec.FlowSpec ->
+                    spec.elementSpec.getAllDowelSpecsRecursively()
+
+                is ClassRepresentation.ParameterSpec.PairSpec ->
+                    spec.leftElementSpec.getAllDowelSpecsRecursively() +
+                            spec.rightElementSpec.getAllDowelSpecsRecursively()
+
+                is DowelSpec -> listOf(spec)
+            }
+
+            return specs
+        }
+
+        return parameters
+            .map { parameter -> parameter.spec.getAllDowelSpecsRecursively() }
+            .flatten()
+            .distinct()
     }
 
     companion object {
