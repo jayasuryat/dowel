@@ -48,7 +48,16 @@ internal fun FileSpec.writeTo(
     OutputStreamWriter(file, StandardCharsets.UTF_8).use(::writeTo)
 }
 
-internal fun KSClassDeclaration.asClassName(): ClassName = ClassName(
-    packageName = this.packageName.asString(),
-    this.simpleName.asString()
-)
+internal fun KSClassDeclaration.asClassName(): ClassName {
+
+    val name = this.qualifiedName!!.asString().substring(
+        startIndex = this.packageName.asString().length + 1,
+    )
+
+    val names = name.split(".")
+
+    return ClassName(
+        packageName = this.packageName.asString(),
+        names
+    )
+}
