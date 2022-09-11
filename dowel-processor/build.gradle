@@ -14,7 +14,7 @@ kotlin {
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += '-Xopt-in=com.jayasuryat.dowel.internal.DowelInternal'
+        freeCompilerArgs += '-opt-in=com.jayasuryat.dowel.internal.DowelInternal'
     }
 }
 
