@@ -77,13 +77,9 @@ internal class DowelListGenerator(
         classDeclaration: KSClassDeclaration,
     ): FileSpec.Builder {
 
-        val outputClassName = classDeclaration.dowelListClassName
-
         // Annotated class's class name
-        val declarationClassName = ClassName(
-            packageName = packageName,
-            classDeclaration.simpleName.asString()
-        )
+        val declarationClassName = classDeclaration.asClassName()
+        val outputClassName = declarationClassName.dowelListClassName
 
         val listType = Names.listName.parameterizedBy(declarationClassName)
 

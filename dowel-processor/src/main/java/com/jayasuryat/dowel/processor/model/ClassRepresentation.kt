@@ -16,6 +16,8 @@
 package com.jayasuryat.dowel.processor.model
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSType
+import com.jayasuryat.dowel.annotation.ConsiderForDowel
 import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.processor.annotation.FloatRange
 import com.jayasuryat.dowel.processor.annotation.IntRange
@@ -116,6 +118,22 @@ internal data class ClassRepresentation(
          */
         data class DowelSpec(
             val declaration: KSClassDeclaration,
+            val type: KSType,
+        ) : ParameterSpec
+
+        /**
+         * Types for which user has provided a custom implementation of
+         * [androidx.compose.ui.tooling.preview.PreviewParameterProvider] through @[ConsiderForDowel]
+         * annotation.
+         *
+         * @param provider is the declaration of that custom provider
+         * @param type is the [KSType] of the elements produced in the "values" property of the said provider
+         * @see [ConsiderForDowel]
+         */
+        @Suppress("KDocUnresolvedReference")
+        data class PreDefinedProviderSpec(
+            val provider: KSClassDeclaration,
+            val type: KSType,
         ) : ParameterSpec
 
         /**

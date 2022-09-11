@@ -245,7 +245,7 @@ private fun PersonPreview(
 )
 @Composable
 private fun LocationPreview(
-    @PreviewParameter(LocationPreviewParamProvider::class) location: Location,
+    @PreviewParameter(LocationCustomPreviewParamProvider::class) location: Location,
 ) {
     LocationItem(
         modifier = Modifier

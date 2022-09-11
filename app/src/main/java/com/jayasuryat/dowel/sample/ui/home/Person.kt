@@ -47,7 +47,6 @@ data class Person(
     val onClick: suspend (a: Person, b: Int) -> Unit,
 )
 
-@Dowel(count = 20)
 data class Location(
     val lat: Long?,
     val lon: Long?,

@@ -21,18 +21,23 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSType
+import com.jayasuryat.dowel.annotation.ConsiderForDowel
 import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.processor.Names
 import com.jayasuryat.dowel.processor.dowelClassName
 import com.jayasuryat.dowel.processor.dowelListPropertyName
 import com.jayasuryat.dowel.processor.model.ClassRepresentation
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.DowelSpec
+import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.PreDefinedProviderSpec
 import com.jayasuryat.dowel.processor.model.ClassRepresentationMapper
+import com.jayasuryat.dowel.processor.model.UserPredefinedParamProviders
 import com.jayasuryat.dowel.processor.util.asClassName
 import com.jayasuryat.dowel.processor.util.unsafeLazy
 import com.jayasuryat.dowel.processor.util.writeTo
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toKModifier
 
 /**
@@ -49,12 +54,14 @@ internal class DowelGenerator(
     private val resolver: Resolver,
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
+    private val predefinedProviders: UserPredefinedParamProviders,
 ) {
 
     private val mapper: ClassRepresentationMapper by unsafeLazy {
         ClassRepresentationMapper(
             resolver = resolver,
             logger = logger,
+            predefinedProviders = predefinedProviders,
         )
     }
     private val objectConstructor: ObjectConstructor by unsafeLazy { ObjectConstructor() }
@@ -95,10 +102,9 @@ internal class DowelGenerator(
         objectConstructor: ObjectConstructor,
     ): FileSpec.Builder {
 
-        val outputClassName = classDeclaration.dowelClassName
-
         // Annotated class's class name
         val declarationClassName = classDeclaration.asClassName()
+        val outputClassName = declarationClassName.dowelClassName
 
         // Super-type of the generated class
         val outputSuperType = Names.previewParamProvider.parameterizedBy(declarationClassName)
@@ -140,31 +146,37 @@ internal class DowelGenerator(
      * Dowel class by *hand*, their respective (generated) PreviewParameterProviders are reused to
      * provide instances of those respective types.
      *
+     * Dowel also supports user pre-defined [androidx.compose.ui.tooling.preview.PreviewParameterProvider]
+     * through [ConsiderForDowel] annotation
+     *
      * This method adds instances of such PreviewParameterProviders as private properties inside the
      * generated class.
+     *
+     * @see [Dowel]
+     * @see [ConsiderForDowel]
      */
     private fun TypeSpec.Builder.addDowelProperties(
         representation: ClassRepresentation,
     ): TypeSpec.Builder {
 
-        // All the dowel specs in the representation
-        val allDowelSpecs = representation.getAllDowelSpecsRecursively()
+        // All the supporting providers' information
+        val supportingProviders: List<ProviderInfo> =
+            representation.getAllSupportingProvidersRecursively()
 
         // List of all the properties that are needed to be added to the generated class
-        val properties: List<PropertySpec> = allDowelSpecs
-            .map { spec ->
+        val properties: List<PropertySpec> = supportingProviders
+            .map { provider ->
 
-                val declaration = spec.declaration
-
-                val declarationType = declaration.asClassName()
+                val declarationType = provider.providerName
+                val providerTypeName = provider.type.toClassName()
                 val declarationListType = List::class.asTypeName()
-                    .parameterizedBy(declarationType)
+                    .parameterizedBy(providerTypeName)
 
                 val sequenceProperty = PropertySpec.builder(
-                    name = declaration.dowelListPropertyName,
+                    name = providerTypeName.dowelListPropertyName,
                     type = declarationListType,
                     modifiers = listOf(KModifier.PRIVATE),
-                ).initializer("${declaration.dowelClassName}().values.toList()")
+                ).initializer("${declarationType.simpleName}().values.toList()")
 
                 sequenceProperty.build()
             }
@@ -215,18 +227,22 @@ internal class DowelGenerator(
     }
 
     /**
-     * Finds list of all the [DowelSpec] in a given [ClassRepresentation] by
-     * recursively searching in all of the type parameters of all properties.
+     * Finds list of all the [ClassRepresentation.ParameterSpec] which can act as supporting
+     * implementations of [androidx.compose.ui.tooling.preview.PreviewParameterProvider] which are
+     * being reused to get instances of different types of properties.
+     *
+     * Looks recursively for [DowelSpec] and [PreDefinedProviderSpec] and flat-maps their
+     * info into [ProviderInfo]
      */
-    private fun ClassRepresentation.getAllDowelSpecsRecursively(): List<DowelSpec> {
+    private fun ClassRepresentation.getAllSupportingProvidersRecursively(): List<ProviderInfo> {
 
         /**
-         * Finds all the [DowelSpec] in a specific [ClassRepresentation.ParameterSpec] by
-         * recursively searching in all of the type parameters.
+         * Finds instances of [DowelSpec] and [PreDefinedProviderSpec] recursively and returns list
+         * of all the mapped instances of the [ProviderInfo] accumulated found along the way.
          */
-        fun ClassRepresentation.ParameterSpec.getAllDowelSpecsRecursively(): List<DowelSpec> {
+        fun ClassRepresentation.ParameterSpec.getAllSupportingProvidersRecursively(): List<ProviderInfo> {
 
-            val specs: List<DowelSpec> = when (val spec = this) {
+            val specs: List<ProviderInfo> = when (val spec = this) {
 
                 is ClassRepresentation.ParameterSpec.IntSpec,
                 is ClassRepresentation.ParameterSpec.LongSpec,
@@ -241,33 +257,67 @@ internal class DowelGenerator(
                 -> emptyList()
 
                 is ClassRepresentation.ParameterSpec.StateSpec ->
-                    spec.elementSpec.getAllDowelSpecsRecursively()
+                    spec.elementSpec.getAllSupportingProvidersRecursively()
 
                 is ClassRepresentation.ParameterSpec.ListSpec ->
-                    spec.elementSpec.getAllDowelSpecsRecursively()
+                    spec.elementSpec.getAllSupportingProvidersRecursively()
 
                 is ClassRepresentation.ParameterSpec.MapSpec ->
-                    spec.keySpec.getAllDowelSpecsRecursively() +
-                            spec.valueSpec.getAllDowelSpecsRecursively()
+                    spec.keySpec.getAllSupportingProvidersRecursively() +
+                        spec.valueSpec.getAllSupportingProvidersRecursively()
 
                 is ClassRepresentation.ParameterSpec.FlowSpec ->
-                    spec.elementSpec.getAllDowelSpecsRecursively()
+                    spec.elementSpec.getAllSupportingProvidersRecursively()
 
                 is ClassRepresentation.ParameterSpec.PairSpec ->
-                    spec.leftElementSpec.getAllDowelSpecsRecursively() +
-                            spec.rightElementSpec.getAllDowelSpecsRecursively()
+                    spec.leftElementSpec.getAllSupportingProvidersRecursively() +
+                        spec.rightElementSpec.getAllSupportingProvidersRecursively()
 
-                is DowelSpec -> listOf(spec)
+                is DowelSpec -> {
+                    val providerName = ClassName(
+                        packageName = spec.declaration.packageName.asString(),
+                        spec.declaration.dowelClassName
+                    )
+                    val providerInfo = ProviderInfo(
+                        providerName = providerName,
+                        type = spec.type,
+                    )
+                    listOf(providerInfo)
+                }
+
+                is PreDefinedProviderSpec -> {
+                    val providerName = ClassName(
+                        packageName = spec.provider.packageName.asString(),
+                        spec.provider.simpleName.asString()
+                    )
+                    val providerInfo = ProviderInfo(
+                        providerName = providerName,
+                        type = spec.type,
+                    )
+                    listOf(providerInfo)
+                }
             }
 
             return specs
         }
 
         return parameters
-            .map { parameter -> parameter.spec.getAllDowelSpecsRecursively() }
+            .map { parameter -> parameter.spec.getAllSupportingProvidersRecursively() }
             .flatten()
-            .distinct()
+            .distinctBy { it.providerName.canonicalName }
     }
+
+    /**
+     * A data class to hold information about a supporting
+     * [androidx.compose.ui.tooling.preview.PreviewParameterProvider].
+     *
+     * @param providerName is the [ClassName] of the [androidx.compose.ui.tooling.preview.PreviewParameterProvider]
+     * @param type is the element's [KSType] of the "values" generated by the said provider
+     */
+    private data class ProviderInfo(
+        val providerName: ClassName,
+        val type: KSType,
+    )
 
     companion object {
 

@@ -40,7 +40,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
  * [ClassRepresentation] instead of mapping multiple times.
  *
  * @param resolver to resolve types of each property
- * @param logger to log errors when unexpected or invalid inputs ore encountered
+ * @param logger to log errors when unexpected or invalid inputs are encountered
  *
  * @see [ClassRepresentation]
  * @see [KSTypeReference.resolve]
@@ -48,6 +48,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 internal class ClassRepresentationMapper(
     private val resolver: Resolver,
     private val logger: KSPLogger,
+    private val predefinedProviders: UserPredefinedParamProviders,
 ) {
 
     // region : Types
@@ -114,7 +115,13 @@ internal class ClassRepresentationMapper(
         val propType: KSType = this
         val propTypeDeclaration: KSDeclaration = propType.declaration
 
+        // Ordering is crucial here. Only checks for the first matching type
         val paramSpec: ClassRepresentation.ParameterSpec = when {
+
+            // User has pre-defined a PreviewParameterProvider for this type
+            // As this check is done first, this spec takes precedence over all the other specs
+            // which may also match.
+            predefinedProviders[propType.makeNotNullable()] != null -> propType.getPreDefinedProviderSpec()
 
             // Primitives
             propType.isAssignableFrom(builtIns.intType) -> getIntSpec(annotations)
@@ -180,6 +187,17 @@ internal class ClassRepresentationMapper(
             spec = spec,
             name = prop.name!!.asString(),
             isNullable = type.nullability == Nullability.NULLABLE,
+        )
+    }
+
+    private fun KSType.getPreDefinedProviderSpec(): PreDefinedProviderSpec {
+
+        val declaration: KSClassDeclaration? = predefinedProviders[this.makeNotNullable()]
+        requireNotNull(declaration) { "Dowel internal error, something went wrong while processing predefined param providers for $this" }
+
+        return PreDefinedProviderSpec(
+            provider = declaration,
+            type = this,
         )
     }
 
@@ -397,6 +415,7 @@ internal class ClassRepresentationMapper(
 
         return DowelSpec(
             declaration = declaration,
+            type = declaration.asType(listOf()), // TODO: Revisit this
         )
     }
 

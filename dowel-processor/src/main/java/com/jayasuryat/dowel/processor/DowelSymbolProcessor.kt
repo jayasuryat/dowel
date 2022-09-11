@@ -21,10 +21,13 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.validate
+import com.jayasuryat.dowel.annotation.ConsiderForDowel
 import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.annotation.DowelList
 import com.jayasuryat.dowel.processor.generator.DowelGenerator
 import com.jayasuryat.dowel.processor.generator.DowelListGenerator
+import com.jayasuryat.dowel.processor.model.UserPredefinedParamProviderMapper
+import com.jayasuryat.dowel.processor.model.UserPredefinedParamProviders
 import com.jayasuryat.dowel.processor.util.unsafeLazy
 
 /**
@@ -35,6 +38,7 @@ import com.jayasuryat.dowel.processor.util.unsafeLazy
  * @see [Dowel]
  * @see [DowelList]
  */
+@Suppress("KDocUnresolvedReference")
 internal class DowelSymbolProcessor(
     private val logger: KSPLogger,
     private val codeGenerator: CodeGenerator,
@@ -42,25 +46,19 @@ internal class DowelSymbolProcessor(
 
     private lateinit var resolver: Resolver
 
-    private val dowelGenerator: DowelGenerator by unsafeLazy {
-        DowelGenerator(
+    private val predefinedProviderMapper by unsafeLazy {
+        UserPredefinedParamProviderMapper(
             resolver = resolver,
-            codeGenerator = codeGenerator,
             logger = logger,
         )
     }
+
     private val dowelListGenerator: DowelListGenerator by unsafeLazy {
         DowelListGenerator(
             codeGenerator = codeGenerator,
         )
     }
 
-    private val dowelVisitor: KSVisitorVoid by unsafeLazy {
-        DowelAnnotationVisitor(
-            logger = logger,
-            dowelGenerator = dowelGenerator,
-        )
-    }
     private val dowelListVisitor: KSVisitorVoid by unsafeLazy {
         DowelListAnnotationVisitor(
             logger = logger,
@@ -75,9 +73,13 @@ internal class DowelSymbolProcessor(
 
         this.resolver = resolver
 
+        val predefinedProviders = resolver.getUserPredefinedParamProviders()
+
         val invalidDowelSymbols: List<KSAnnotated> = resolver.processSymbol(
             annotationName = Dowel::class.qualifiedName!!,
-            visitor = dowelVisitor,
+            visitor = DowelAnnotationVisitor.createInstance(
+                predefinedProviders = predefinedProviders,
+            )
         )
 
         val invalidDowelListSymbols: List<KSAnnotated> = resolver.processSymbol(
@@ -86,6 +88,21 @@ internal class DowelSymbolProcessor(
         )
 
         return invalidDowelSymbols + invalidDowelListSymbols
+    }
+
+    /**
+     * Resolves symbols annotated with @[ConsiderForDowel] annotation and maps them to
+     * [UserPredefinedParamProviders] using the [predefinedProviderMapper] mapper class.
+     */
+    private fun Resolver.getUserPredefinedParamProviders(): UserPredefinedParamProviders {
+
+        val resolver = this
+
+        val predefinedProviderSymbols: List<KSAnnotated> = resolver.getSymbolsWithAnnotation(
+            annotationName = ConsiderForDowel::class.qualifiedName!!,
+        ).toList()
+
+        return predefinedProviderMapper.map(predefinedProviderSymbols)
     }
 
     /**
@@ -110,6 +127,7 @@ internal class DowelSymbolProcessor(
         return invalidSymbols
     }
 
+    // region : Visitors
     /**
      * Validates if a class annotated with @[Dowel] annotation meets all of the necessary criteria.
      * Triggers code generation if a class is validated to be appropriate, otherwise logs an error
@@ -161,6 +179,25 @@ internal class DowelSymbolProcessor(
 
             return true
         }
+
+        companion object
+    }
+
+    /**
+     * Short hand helper method to create an instance of [DowelAnnotationVisitor]
+     */
+    private fun DowelAnnotationVisitor.Companion.createInstance(
+        predefinedProviders: UserPredefinedParamProviders,
+    ): DowelAnnotationVisitor {
+        return DowelAnnotationVisitor(
+            logger = logger,
+            dowelGenerator = DowelGenerator(
+                resolver = resolver,
+                codeGenerator = codeGenerator,
+                logger = logger,
+                predefinedProviders = predefinedProviders
+            )
+        )
     }
 
     /**
@@ -208,4 +245,5 @@ internal class DowelSymbolProcessor(
             return true
         }
     }
+    // endregion
 }

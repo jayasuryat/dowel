@@ -23,6 +23,7 @@ import com.jayasuryat.dowel.processor.relativeClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.buildCodeBlock
+import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.withIndent
 import java.util.*
 import kotlin.random.Random
@@ -51,7 +52,7 @@ internal class ObjectConstructor {
 
                         // Randomly making nullable values null
                         val isNull = parameter.isNullable &&
-                            Random.nextFloat() < NULL_VALUE_PROBABILITY
+                                Random.nextFloat() < NULL_VALUE_PROBABILITY
 
                         val assignmentLiteral: CodeBlock =
                             if (isNull) buildCodeBlock { add("null") }
@@ -92,6 +93,8 @@ internal class ObjectConstructor {
             is FunctionSpec -> spec.getFunctionAssigner()
             is EnumSpec -> spec.getEnumAssigner()
             is DowelSpec -> spec.getDowelAssigner()
+
+            is PreDefinedProviderSpec -> spec.getPreDefinedProviderSpecAssigner()
 
             is UnsupportedNullableSpec -> spec.getUnsupportedNullableAssigner()
         }
@@ -291,6 +294,17 @@ internal class ObjectConstructor {
         // Retrieving instances of the specific Dowel type from (generated) PreviewParameterProvider
         return buildCodeBlock {
             val propName = spec.declaration.dowelListPropertyName
+            add("$propName.random()")
+        }
+    }
+
+    private fun PreDefinedProviderSpec.getPreDefinedProviderSpecAssigner(): CodeBlock {
+
+        val spec = this
+
+        // Retrieving instances of the specific type from user pre-defined PreviewParameterProvider
+        return buildCodeBlock {
+            val propName = spec.type.toClassName().dowelListPropertyName
             add("$propName.random()")
         }
     }
