@@ -24,10 +24,10 @@ import com.jayasuryat.dowel.annotation.ConsiderForDowel
  * annotated with @[ConsiderForDowel] annotation, mapped to their generic type parameter.
  *
  * For example,
- * <code>
+ * ```
  *     @ConsiderForDowel
- *     PersonProvider : PreviewParameterProvider&lt;Person&gt;() {...}
- * </code>
+ *     class PersonProvider : PreviewParameterProvider<Person>() {...}
+ * ```
  *
  * The above class would be mapped to -> Person to PersonProvider
  */
