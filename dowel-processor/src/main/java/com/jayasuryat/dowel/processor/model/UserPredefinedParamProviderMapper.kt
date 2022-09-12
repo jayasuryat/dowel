@@ -71,7 +71,7 @@ internal class UserPredefinedParamProviderMapper(
         return this.mapNotNull { declaration ->
 
             val isValid = declaration is KSClassDeclaration &&
-                    declaration.classKind == ClassKind.CLASS
+                declaration.classKind == ClassKind.CLASS
 
             if (!isValid) {
                 logger.error(
@@ -115,8 +115,8 @@ internal class UserPredefinedParamProviderMapper(
             if (existing != null) {
                 logger.error(
                     message = "Multiple classes providing preview params for type $type.\n" +
-                            "Only a single class can be annotated with @${ConsiderForDowel::class.simpleName} per type.\n" +
-                            "${existing.qualifiedName!!.asString()} & ${declaration.qualifiedName!!.asString()} both are annotated with @${ConsiderForDowel::class.simpleName} annotation for the same type.",
+                        "Only a single class can be annotated with @${ConsiderForDowel::class.simpleName} per type.\n" +
+                        "${existing.qualifiedName!!.asString()} & ${declaration.qualifiedName!!.asString()} both are annotated with @${ConsiderForDowel::class.simpleName} annotation for the same type.",
                     symbol = declaration,
                 )
                 continue
