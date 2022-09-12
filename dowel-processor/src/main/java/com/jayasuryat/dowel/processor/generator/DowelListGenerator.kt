@@ -186,7 +186,12 @@ internal class DowelListGenerator(
     companion object {
 
         private val KSClassDeclaration.getDowelListPropertyName: String
-            get() = this.relativeClassName.replace(".", "") + "List"
+            get() {
+                val relativeName = this.relativeClassName
+                    .replace(".", "")
+                    .replaceFirstChar { char -> char.lowercaseChar() }
+                return relativeName + "List"
+            }
 
         private const val DOWEL_LIST_PROP_NAME: String = "values"
     }
