@@ -107,16 +107,3 @@ internal val ClassName.dowelListClassName: String
     }
 internal val KSClassDeclaration.dowelListClassName: String
     get() = this.asClassName().dowelListClassName
-
-/**
- * Returns a string which could be used as the name of a property in Dowel generated
- * PreviewParameterProvider class to store references of other [List] types.
- *
- * The string would be in the following format '&lt;Relative name of class&gt;List'
- * where the name would be considered based on the nesting of class. For example
- * mapEntryList for Map.Entry class, and personList for Person class
- */
-internal val ClassName.dowelListPropertyName: String
-    get() = this.relativeClassName.replaceFirstChar { char -> char.lowercaseChar() } + "List"
-internal val KSClassDeclaration.dowelListPropertyName: String
-    get() = this.asClassName().dowelListPropertyName

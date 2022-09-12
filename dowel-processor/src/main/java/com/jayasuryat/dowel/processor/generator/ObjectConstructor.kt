@@ -15,8 +15,8 @@
  */
 package com.jayasuryat.dowel.processor.generator
 
+import com.jayasuryat.dowel.processor.BackingProvider
 import com.jayasuryat.dowel.processor.StringSource
-import com.jayasuryat.dowel.processor.dowelListPropertyName
 import com.jayasuryat.dowel.processor.model.ClassRepresentation
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.*
 import com.jayasuryat.dowel.processor.relativeClassName
@@ -52,7 +52,7 @@ internal class ObjectConstructor {
 
                         // Randomly making nullable values null
                         val isNull = parameter.isNullable &&
-                                Random.nextFloat() < NULL_VALUE_PROBABILITY
+                            Random.nextFloat() < NULL_VALUE_PROBABILITY
 
                         val assignmentLiteral: CodeBlock =
                             if (isNull) buildCodeBlock { add("null") }
@@ -293,7 +293,7 @@ internal class ObjectConstructor {
 
         // Retrieving instances of the specific Dowel type from (generated) PreviewParameterProvider
         return buildCodeBlock {
-            val propName = spec.declaration.dowelListPropertyName
+            val propName = BackingProvider.listPropertyNameFor(spec.type.toClassName())
             add("$propName.random()")
         }
     }
@@ -304,7 +304,7 @@ internal class ObjectConstructor {
 
         // Retrieving instances of the specific type from user pre-defined PreviewParameterProvider
         return buildCodeBlock {
-            val propName = spec.type.toClassName().dowelListPropertyName
+            val propName = BackingProvider.listPropertyNameFor(spec.type.toClassName())
             add("$propName.random()")
         }
     }

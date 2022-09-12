@@ -24,9 +24,9 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.jayasuryat.dowel.annotation.ConsiderForDowel
 import com.jayasuryat.dowel.annotation.Dowel
+import com.jayasuryat.dowel.processor.BackingProvider
 import com.jayasuryat.dowel.processor.Names
 import com.jayasuryat.dowel.processor.dowelClassName
-import com.jayasuryat.dowel.processor.dowelListPropertyName
 import com.jayasuryat.dowel.processor.model.ClassRepresentation
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.DowelSpec
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.PreDefinedProviderSpec
@@ -173,7 +173,7 @@ internal class DowelGenerator(
                     .parameterizedBy(providerTypeName)
 
                 val sequenceProperty = PropertySpec.builder(
-                    name = providerTypeName.dowelListPropertyName,
+                    name = BackingProvider.listPropertyNameFor(providerTypeName),
                     type = declarationListType,
                     modifiers = listOf(KModifier.PRIVATE),
                 ).initializer("${declarationType.simpleName}().values.toList()")
