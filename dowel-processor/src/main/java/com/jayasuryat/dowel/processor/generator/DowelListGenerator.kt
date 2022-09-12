@@ -19,10 +19,7 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.jayasuryat.dowel.annotation.DowelList
-import com.jayasuryat.dowel.processor.Names
-import com.jayasuryat.dowel.processor.dowelClassName
-import com.jayasuryat.dowel.processor.dowelListClassName
-import com.jayasuryat.dowel.processor.dowelListPropertyName
+import com.jayasuryat.dowel.processor.*
 import com.jayasuryat.dowel.processor.util.asClassName
 import com.jayasuryat.dowel.processor.util.writeTo
 import com.squareup.kotlinpoet.*
@@ -108,7 +105,7 @@ internal class DowelListGenerator(
     }
 
     /**
-     * Adds private properties inside the generated class which help in simplifying code generation.
+     * Adds private property inside the generated class which help in simplifying code generation.
      *
      * Instead of generating the instantiation code of list of objects by *hand*, their respective
      * (generated) PreviewParameterProviders are reused to provide instances of those respective types.
@@ -124,7 +121,7 @@ internal class DowelListGenerator(
         val declarationListType = Names.listName.parameterizedBy(declarationName)
 
         val values = PropertySpec.builder(
-            name = declaration.dowelListPropertyName,
+            name = declaration.getDowelListPropertyName,
             type = declarationListType,
             modifiers = listOf(KModifier.PRIVATE),
         ).initializer("${declaration.dowelClassName}().values.toList()")
@@ -154,6 +151,8 @@ internal class DowelListGenerator(
             simpleName = "Random"
         )
 
+        val propName = declaration.getDowelListPropertyName
+
         // Building a sequence by extracting random values out of  PreviewParameterProvider
         val initializer: CodeBlock = CodeBlock.builder()
             .addStatement("sequence {")
@@ -162,9 +161,9 @@ internal class DowelListGenerator(
                 withIndent {
                     add(
                         "yield(%L.shuffled().take(%M.nextInt(%L.size)))\n",
-                        declaration.dowelListPropertyName,
+                        propName,
                         randomMember,
-                        declaration.dowelListPropertyName,
+                        propName,
                     )
                 }
                 addStatement("}")
@@ -185,6 +184,9 @@ internal class DowelListGenerator(
     }
 
     companion object {
+
+        private val KSClassDeclaration.getDowelListPropertyName: String
+            get() = this.relativeClassName.replace(".", "") + "List"
 
         private const val DOWEL_LIST_PROP_NAME: String = "values"
     }
