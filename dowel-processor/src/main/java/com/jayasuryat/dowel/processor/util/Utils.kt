@@ -18,9 +18,7 @@ package com.jayasuryat.dowel.processor.util
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
-import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSNode
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
@@ -46,18 +44,4 @@ internal fun FileSpec.writeTo(
 ) {
     val file = codeGenerator.createNewFile(dependencies, packageName, name)
     OutputStreamWriter(file, StandardCharsets.UTF_8).use(::writeTo)
-}
-
-internal fun KSClassDeclaration.asClassName(): ClassName {
-
-    val name = this.qualifiedName!!.asString().substring(
-        startIndex = this.packageName.asString().length + 1,
-    )
-
-    val names = name.split(".")
-
-    return ClassName(
-        packageName = this.packageName.asString(),
-        names
-    )
 }

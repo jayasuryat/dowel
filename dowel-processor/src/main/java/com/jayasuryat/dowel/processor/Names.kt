@@ -16,9 +16,9 @@
 package com.jayasuryat.dowel.processor
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.jayasuryat.dowel.processor.util.asClassName
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asTypeName
+import com.squareup.kotlinpoet.ksp.toClassName
 
 internal object Names {
 
@@ -72,7 +72,7 @@ internal val ClassName.relativeClassName: String
             .removePrefix(".")
     }
 internal val KSClassDeclaration.relativeClassName: String
-    get() = this.asClassName().relativeClassName
+    get() = this.toClassName().relativeClassName
 
 /**
  * Returns a string which could be used as the name of a Dowel generated PreviewParameterProvider
@@ -89,7 +89,7 @@ internal val ClassName.dowelClassName: String
         return "$dotRemoved${Names.dowelClassNameSuffix}"
     }
 internal val KSClassDeclaration.dowelClassName: String
-    get() = this.asClassName().dowelClassName
+    get() = this.toClassName().dowelClassName
 
 /**
  * Returns a string which could be used as the name of a Dowel generated List-PreviewParameterProvider
@@ -106,4 +106,4 @@ internal val ClassName.dowelListClassName: String
         return "$dotRemoved${Names.dowelListClassNameSuffix}"
     }
 internal val KSClassDeclaration.dowelListClassName: String
-    get() = this.asClassName().dowelListClassName
+    get() = this.toClassName().dowelListClassName

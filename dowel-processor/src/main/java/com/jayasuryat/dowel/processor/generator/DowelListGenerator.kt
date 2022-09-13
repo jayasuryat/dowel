@@ -20,10 +20,10 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.jayasuryat.dowel.annotation.DowelList
 import com.jayasuryat.dowel.processor.*
-import com.jayasuryat.dowel.processor.util.asClassName
 import com.jayasuryat.dowel.processor.util.writeTo
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.ksp.toClassName
 
 /**
  * Generates a file containing an implementation of
@@ -75,7 +75,7 @@ internal class DowelListGenerator(
     ): FileSpec.Builder {
 
         // Annotated class's class name
-        val declarationClassName = classDeclaration.asClassName()
+        val declarationClassName = classDeclaration.toClassName()
         val outputClassName = declarationClassName.dowelListClassName
 
         val listType = Names.listName.parameterizedBy(declarationClassName)
@@ -117,7 +117,7 @@ internal class DowelListGenerator(
         declaration: KSClassDeclaration,
     ): TypeSpec.Builder {
 
-        val declarationName = declaration.asClassName()
+        val declarationName = declaration.toClassName()
         val declarationListType = Names.listName.parameterizedBy(declarationName)
 
         val values = PropertySpec.builder(
@@ -141,7 +141,7 @@ internal class DowelListGenerator(
         instanceCount: Int,
     ): TypeSpec.Builder {
 
-        val declarationName = declaration.asClassName()
+        val declarationName = declaration.toClassName()
         val listType = Names.listName.parameterizedBy(declarationName)
 
         val propertyType = Names.sequenceName.parameterizedBy(listType)

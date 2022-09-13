@@ -32,7 +32,6 @@ import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.Do
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.PreDefinedProviderSpec
 import com.jayasuryat.dowel.processor.model.ClassRepresentationMapper
 import com.jayasuryat.dowel.processor.model.UserPredefinedParamProviders
-import com.jayasuryat.dowel.processor.util.asClassName
 import com.jayasuryat.dowel.processor.util.unsafeLazy
 import com.jayasuryat.dowel.processor.util.writeTo
 import com.squareup.kotlinpoet.*
@@ -103,7 +102,7 @@ internal class DowelGenerator(
     ): FileSpec.Builder {
 
         // Annotated class's class name
-        val declarationClassName = classDeclaration.asClassName()
+        val declarationClassName = classDeclaration.toClassName()
         val outputClassName = declarationClassName.dowelClassName
 
         // Super-type of the generated class
@@ -198,7 +197,7 @@ internal class DowelGenerator(
     ): TypeSpec.Builder {
 
         // Annotated class's class name
-        val declarationClassName = representation.declaration.asClassName()
+        val declarationClassName = representation.declaration.toClassName()
 
         val propertyType = Names.sequenceName.parameterizedBy(declarationClassName)
 
