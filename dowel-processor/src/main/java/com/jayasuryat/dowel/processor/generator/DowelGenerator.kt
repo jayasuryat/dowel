@@ -36,8 +36,10 @@ import com.jayasuryat.dowel.processor.util.unsafeLazy
 import com.jayasuryat.dowel.processor.util.writeTo
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.plusParameter
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toKModifier
+import com.squareup.kotlinpoet.ksp.toTypeName
 
 /**
  * Generates a file containing an implementation of
@@ -166,16 +168,14 @@ internal class DowelGenerator(
         val properties: List<PropertySpec> = supportingProviders
             .map { provider ->
 
-                val declarationType = provider.providerName
-                val providerTypeName = provider.type.toClassName()
                 val declarationListType = List::class.asTypeName()
-                    .parameterizedBy(providerTypeName)
+                    .plusParameter(provider.type.toTypeName())
 
                 val sequenceProperty = PropertySpec.builder(
-                    name = BackingProvider.listPropertyNameFor(providerTypeName),
+                    name = BackingProvider.listPropertyNameFor(provider.type),
                     type = declarationListType,
                     modifiers = listOf(KModifier.PRIVATE),
-                ).initializer("${declarationType.simpleName}().values.toList()")
+                ).initializer("${provider.providerName.simpleName}().values.toList()")
 
                 sequenceProperty.build()
             }

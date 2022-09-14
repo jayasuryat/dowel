@@ -23,7 +23,6 @@ import com.jayasuryat.dowel.processor.relativeClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.buildCodeBlock
-import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.withIndent
 import java.util.*
 import kotlin.random.Random
@@ -293,7 +292,7 @@ internal class ObjectConstructor {
 
         // Retrieving instances of the specific Dowel type from (generated) PreviewParameterProvider
         return buildCodeBlock {
-            val propName = BackingProvider.listPropertyNameFor(spec.type.toClassName())
+            val propName = BackingProvider.listPropertyNameFor(spec.type)
             add("$propName.random()")
         }
     }
@@ -304,7 +303,7 @@ internal class ObjectConstructor {
 
         // Retrieving instances of the specific type from user pre-defined PreviewParameterProvider
         return buildCodeBlock {
-            val propName = BackingProvider.listPropertyNameFor(spec.type.toClassName())
+            val propName = BackingProvider.listPropertyNameFor(spec.type)
             add("$propName.random()")
         }
     }
