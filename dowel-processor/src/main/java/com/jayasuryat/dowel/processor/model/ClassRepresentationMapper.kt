@@ -19,6 +19,7 @@ import com.google.devtools.ksp.processing.KSBuiltIns
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.*
+import com.jayasuryat.dowel.annotation.ConsiderForDowel
 import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.processor.DefaultRange
 import com.jayasuryat.dowel.processor.Names
@@ -26,9 +27,16 @@ import com.jayasuryat.dowel.processor.annotation.FloatRange
 import com.jayasuryat.dowel.processor.annotation.IntRange
 import com.jayasuryat.dowel.processor.annotation.Size
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.*
-import com.jayasuryat.dowel.processor.util.logError
-import com.jayasuryat.dowel.processor.util.unsafeLazy
-import com.squareup.kotlinpoet.ksp.toTypeName
+import com.jayasuryat.dowel.processor.util.*
+
+/**
+ * Types which are completely unsupported by Dowel, and would be logged as an error at some
+ * point after getting mapped
+ */
+private object UnsupportedType
+
+private typealias MaybeParamSpec = Either<UnsupportedType, ClassRepresentation.ParameterSpec>
+private typealias MaybeSpec<T> = Either<UnsupportedType, T>
 
 /**
  * Mapper class to map a [KSClassDeclaration] to [ClassRepresentation]. This mapper only considers the
@@ -85,17 +93,32 @@ internal class ClassRepresentationMapper(
 
         val mappedParameters: List<ClassRepresentation.Parameter> = parameters
             .filter { !it.hasDefault } // Ignoring all properties with default values
-            .map { parameter ->
+            .mapNotNull { parameter -> // Filtering out UnsupportedType parameters
 
                 val resolvedType = parameter.type.resolve()
-                val spec: ClassRepresentation.ParameterSpec = resolvedType.getSpec(
+                val spec: MaybeSpec<ClassRepresentation.ParameterSpec> = resolvedType.getSpec(
                     annotations = parameter.annotations.toList(),
                 )
 
-                parameter.mapToParameter(
-                    spec = spec,
-                    type = resolvedType,
-                )
+                val mappedParam = when (spec) {
+                    is Either.Left -> {
+                        logger.logUnsupportedTypeError(
+                            parentClass = classDeclaration,
+                            parameter = parameter,
+                            type = resolvedType,
+                        )
+                        // Mapping UnsupportedType as null and filtering it out
+                        null
+                    }
+                    is Either.Right -> {
+                        // Mapping to ClassRepresentation.Parameter type
+                        parameter.mapToParameter(
+                            spec = spec.value,
+                            type = resolvedType,
+                        )
+                    }
+                }
+                mappedParam
             }
 
         return ClassRepresentation(
@@ -110,27 +133,28 @@ internal class ClassRepresentationMapper(
      */
     private fun KSType.getSpec(
         annotations: List<KSAnnotation>,
-    ): ClassRepresentation.ParameterSpec {
+    ): MaybeParamSpec {
 
         val propType: KSType = this
         val propTypeDeclaration: KSDeclaration = propType.declaration
 
         // Ordering is crucial here. Only checks for the first matching type
-        val paramSpec: ClassRepresentation.ParameterSpec = when {
+        val paramSpec: MaybeParamSpec = when {
 
             // User has pre-defined a PreviewParameterProvider for this type
             // As this check is done first, this spec takes precedence over all the other specs
             // which may also match.
-            predefinedProviders[propType.makeNotNullable()] != null -> propType.getPreDefinedProviderSpec()
+            predefinedProviders[propType.makeNotNullable()] != null ->
+                propType.getPreDefinedProviderSpec().right()
 
             // Primitives
-            propType.isAssignableFrom(builtIns.intType) -> getIntSpec(annotations)
-            propType.isAssignableFrom(builtIns.longType) -> getLongSpec(annotations)
-            propType.isAssignableFrom(builtIns.floatType) -> getFloatSpec(annotations)
-            propType.isAssignableFrom(builtIns.doubleType) -> getDoubleSpec(annotations)
-            propType.isAssignableFrom(builtIns.charType) -> getCharSpec()
-            propType.isAssignableFrom(builtIns.booleanType) -> getBooleanSpec()
-            propType.isAssignableFrom(builtIns.stringType) -> getStringSpec(annotations)
+            propType.isAssignableFrom(builtIns.intType) -> getIntSpec(annotations).right()
+            propType.isAssignableFrom(builtIns.longType) -> getLongSpec(annotations).right()
+            propType.isAssignableFrom(builtIns.floatType) -> getFloatSpec(annotations).right()
+            propType.isAssignableFrom(builtIns.doubleType) -> getDoubleSpec(annotations).right()
+            propType.isAssignableFrom(builtIns.charType) -> getCharSpec().right()
+            propType.isAssignableFrom(builtIns.booleanType) -> getBooleanSpec().right()
+            propType.isAssignableFrom(builtIns.stringType) -> getStringSpec(annotations).right()
 
             // State
             stateDeclaration.isAssignableFrom(propType) -> propType.getStateSpec()
@@ -148,29 +172,21 @@ internal class ClassRepresentationMapper(
             pairDeclaration.isAssignableFrom(propType) -> propType.getPairSpec()
 
             // High-order functions
-            propType.isFunctionType || propType.isSuspendFunctionType -> propType.getFunctionSpec()
+            propType.isFunctionType || propType.isSuspendFunctionType ->
+                propType.getFunctionSpec().right()
 
             // Enum classes
             propTypeDeclaration is KSClassDeclaration &&
-                propTypeDeclaration.classKind == ClassKind.ENUM_CLASS -> propTypeDeclaration.getEnumSpec()
+                propTypeDeclaration.classKind == ClassKind.ENUM_CLASS ->
+                propTypeDeclaration.getEnumSpec().right()
 
             // Class annotated with @Dowel annotation
-            propTypeDeclaration.isDowelClass() -> propTypeDeclaration.getDowelSpec()
+            propTypeDeclaration.isDowelClass() -> propTypeDeclaration.getDowelSpec().right()
 
             // Unsupported types which are nullable
-            propType.isMarkedNullable -> getUnsupportedNullableSpec()
+            propType.isMarkedNullable -> getUnsupportedNullableSpec().right()
 
-            else -> {
-
-                val propName = propTypeDeclaration.parentDeclaration!!.simpleName.asString() + "." +
-                    propTypeDeclaration.simpleName.asString()
-
-                logger.logError(
-                    message = "Dowel does not support generating preview param providers for the type " +
-                        "${propType.toTypeName()} @ ($propName).",
-                    node = propTypeDeclaration,
-                )
-            }
+            else -> UnsupportedType.left()
         }
 
         return paramSpec
@@ -281,25 +297,25 @@ internal class ClassRepresentationMapper(
         )
     }
 
-    private fun KSType.getStateSpec(): StateSpec {
+    private fun KSType.getStateSpec(): MaybeSpec<StateSpec> {
 
         require(this.arguments.size == 1) { "State must have have exactly one type argument. Current size = ${this.arguments.size}" }
-
         val arg = this.arguments.first()
 
         val resolvedType = arg.type!!.resolve()
-        val spec: ClassRepresentation.ParameterSpec = resolvedType.getSpec(
-            annotations = arg.annotations.toList(),
-        )
 
-        return StateSpec(
-            elementSpec = spec
-        )
+        return resolvedType.getSpec(
+            annotations = arg.annotations.toList(),
+        ).fold { spec ->
+            StateSpec(
+                elementSpec = spec
+            )
+        }
     }
 
     private fun KSType.getListSpec(
         annotations: List<KSAnnotation>,
-    ): ListSpec {
+    ): MaybeSpec<ListSpec> {
 
         val size: Size = Size.find(
             annotations = annotations.toList(),
@@ -313,21 +329,23 @@ internal class ClassRepresentationMapper(
         val arg = this.arguments.first()
 
         val resolvedType = arg.type!!.resolve()
-        val spec: ClassRepresentation.ParameterSpec = resolvedType.getSpec(
+        val spec: Either<UnsupportedType, ListSpec> = resolvedType.getSpec(
             annotations = arg.annotations.toList(),
-        )
+        ).fold { spec ->
+            ListSpec(
+                size = size,
+                elementSpec = spec,
+            )
+        }
 
-        return ListSpec(
-            size = size,
-            elementSpec = spec,
-        )
+        return spec
     }
 
     private fun KSType.getMapSpec(
         annotations: List<KSAnnotation>,
-    ): MapSpec {
+    ): MaybeSpec<MapSpec> {
 
-        fun KSTypeArgument.getSpec(): ClassRepresentation.ParameterSpec {
+        fun KSTypeArgument.getSpec(): MaybeParamSpec {
             val resolvedType = this.type!!.resolve()
             return resolvedType.getSpec(
                 annotations = this.annotations.toList(),
@@ -346,32 +364,41 @@ internal class ClassRepresentationMapper(
         val key = this.arguments[0].getSpec()
         val value = this.arguments[1].getSpec()
 
-        return MapSpec(
-            size = size,
-            keySpec = key,
-            valueSpec = value,
-        )
+        val spec: Either<UnsupportedType, MapSpec> = Either.combine(
+            either = key,
+            either2 = value
+        ) { keySpec, valueSpec ->
+            MapSpec(
+                size = size,
+                keySpec = keySpec,
+                valueSpec = valueSpec,
+            )
+        }
+
+        return spec
     }
 
-    private fun KSType.getFlowSpec(): FlowSpec {
+    private fun KSType.getFlowSpec(): MaybeSpec<FlowSpec> {
 
         require(this.arguments.size == 1) { "Flow must have have exactly one type argument. Current size = ${this.arguments.size}" }
 
         val arg = this.arguments.first()
 
         val resolvedType = arg.type!!.resolve()
-        val spec: ClassRepresentation.ParameterSpec = resolvedType.getSpec(
+        val spec: Either<UnsupportedType, FlowSpec> = resolvedType.getSpec(
             annotations = arg.annotations.toList(),
-        )
+        ).fold { spec ->
+            FlowSpec(
+                elementSpec = spec
+            )
+        }
 
-        return FlowSpec(
-            elementSpec = spec
-        )
+        return spec
     }
 
-    private fun KSType.getPairSpec(): PairSpec {
+    private fun KSType.getPairSpec(): MaybeSpec<PairSpec> {
 
-        fun KSTypeArgument.getSpec(): ClassRepresentation.ParameterSpec {
+        fun KSTypeArgument.getSpec(): MaybeParamSpec {
             val resolvedType = this.type!!.resolve()
             return resolvedType.getSpec(
                 annotations = this.annotations.toList(),
@@ -383,10 +410,17 @@ internal class ClassRepresentationMapper(
         val left = this.arguments[0].getSpec()
         val right = this.arguments[1].getSpec()
 
-        return PairSpec(
-            leftElementSpec = left,
-            rightElementSpec = right,
-        )
+        val spec: MaybeSpec<PairSpec> = Either.combine(
+            either = left,
+            either2 = right
+        ) { leftR, rightR ->
+            PairSpec(
+                leftElementSpec = leftR,
+                rightElementSpec = rightR,
+            )
+        }
+
+        return spec
     }
 
     private fun KSType.getFunctionSpec(): FunctionSpec {
@@ -426,5 +460,23 @@ internal class ClassRepresentationMapper(
         val dowelName = Dowel::class.java.simpleName
         val annotation = declaration.annotations.find { it.shortName.asString() == dowelName }
         return annotation != null
+    }
+
+    private fun KSPLogger.logUnsupportedTypeError(
+        parentClass: KSClassDeclaration,
+        parameter: KSValueParameter,
+        type: KSType,
+    ) {
+
+        val logger = this
+
+        val location = parentClass.simpleName.asString() + "." + parameter.name!!.asString()
+        val message = "\nUnexpected type encountered : $type @ $location.\n" +
+            "See documentation of @${Dowel::class.simpleName} annotation class to read more about " +
+            "the supported types or how to potentially fix this issue.\n" +
+            "Alternatively, provide a pre-defined PreviewParameterProvider via the " +
+            "@${ConsiderForDowel::class.simpleName} annotation."
+
+        logger.error(message = message, symbol = parameter)
     }
 }

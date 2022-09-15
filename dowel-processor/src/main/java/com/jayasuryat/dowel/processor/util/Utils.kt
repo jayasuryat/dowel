@@ -17,20 +17,9 @@ package com.jayasuryat.dowel.processor.util
 
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
-import com.google.devtools.ksp.processing.KSPLogger
-import com.google.devtools.ksp.symbol.KSNode
 import com.squareup.kotlinpoet.FileSpec
 import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
-
-@Suppress("NOTHING_TO_INLINE")
-internal inline fun KSPLogger.logError(
-    message: String,
-    node: KSNode?,
-): Nothing {
-    this.error(message, node)
-    throw Error(message)
-}
 
 internal fun <T> unsafeLazy(initializer: () -> T): Lazy<T> =
     lazy(
