@@ -55,7 +55,7 @@ internal inline fun <L, R, T> Either.Companion.combine(
 
     val val2 = when (either2) {
         is Either.Left -> return either2
-        is Either.Right -> either.value
+        is Either.Right -> either2.value
     }
 
     return transform(val1, val2).right()
