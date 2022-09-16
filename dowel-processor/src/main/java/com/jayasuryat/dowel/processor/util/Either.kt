@@ -34,8 +34,6 @@ internal fun <T> T.right(): Either<Nothing, T> = Either.Right(this)
 
 internal fun <L, R, T> Either<L, R>.fold(logic: (R) -> T): Either<L, T> {
 
-    if (this is Either.Left) return this
-
     return when (this) {
         is Either.Left -> this
         is Either.Right -> logic(this.value).right()
