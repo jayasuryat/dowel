@@ -24,7 +24,7 @@ import com.jayasuryat.dowel.annotation.ConsiderForDowel
  * annotated with @[ConsiderForDowel] annotation, mapped to their generic type parameter.
  *
  * For example,
- * ```
+ * ``` kotlin
  *     @ConsiderForDowel
  *     class PersonProvider : PreviewParameterProvider<Person>() {...}
  * ```
