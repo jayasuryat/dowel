@@ -27,7 +27,11 @@ import com.jayasuryat.dowel.processor.annotation.FloatRange
 import com.jayasuryat.dowel.processor.annotation.IntRange
 import com.jayasuryat.dowel.processor.annotation.Size
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.*
-import com.jayasuryat.dowel.processor.util.*
+import com.jayasuryat.dowel.processor.util.unsafeLazy
+import com.jayasuryat.either.Either
+import com.jayasuryat.either.either
+import com.jayasuryat.either.left
+import com.jayasuryat.either.right
 
 /**
  * Types which are completely unsupported by Dowel, and would be logged as an error at some
@@ -243,7 +247,7 @@ internal class ClassRepresentationMapper(
         )
 
         return LongSpec(
-            range = range
+            range = range,
         )
     }
 
@@ -303,12 +307,13 @@ internal class ClassRepresentationMapper(
         val arg = this.arguments.first()
 
         val resolvedType = arg.type!!.resolve()
-
-        return resolvedType.getSpec(
+        val spec = resolvedType.getSpec(
             annotations = arg.annotations.toList(),
-        ).fold { spec ->
+        )
+
+        return either {
             StateSpec(
-                elementSpec = spec
+                elementSpec = spec.bind(),
             )
         }
     }
@@ -327,18 +332,17 @@ internal class ClassRepresentationMapper(
         require(this.arguments.size == 1) { "List must have have exactly one type argument. Current size = ${this.arguments.size}" }
 
         val arg = this.arguments.first()
-
         val resolvedType = arg.type!!.resolve()
-        val spec: Either<UnsupportedType, ListSpec> = resolvedType.getSpec(
+        val spec = resolvedType.getSpec(
             annotations = arg.annotations.toList(),
-        ).fold { spec ->
+        )
+
+        return either {
             ListSpec(
                 size = size,
-                elementSpec = spec,
+                elementSpec = spec.bind(),
             )
         }
-
-        return spec
     }
 
     private fun KSType.getMapSpec(
@@ -364,18 +368,13 @@ internal class ClassRepresentationMapper(
         val key = this.arguments[0].getSpec()
         val value = this.arguments[1].getSpec()
 
-        val spec: Either<UnsupportedType, MapSpec> = Either.combine(
-            either = key,
-            either2 = value
-        ) { keySpec, valueSpec ->
+        return either {
             MapSpec(
                 size = size,
-                keySpec = keySpec,
-                valueSpec = valueSpec,
+                keySpec = key.bind(),
+                valueSpec = value.bind(),
             )
         }
-
-        return spec
     }
 
     private fun KSType.getFlowSpec(): MaybeSpec<FlowSpec> {
@@ -385,15 +384,15 @@ internal class ClassRepresentationMapper(
         val arg = this.arguments.first()
 
         val resolvedType = arg.type!!.resolve()
-        val spec: Either<UnsupportedType, FlowSpec> = resolvedType.getSpec(
+        val spec = resolvedType.getSpec(
             annotations = arg.annotations.toList(),
-        ).fold { spec ->
+        )
+
+        return either {
             FlowSpec(
-                elementSpec = spec
+                elementSpec = spec.bind(),
             )
         }
-
-        return spec
     }
 
     private fun KSType.getPairSpec(): MaybeSpec<PairSpec> {
@@ -410,17 +409,12 @@ internal class ClassRepresentationMapper(
         val left = this.arguments[0].getSpec()
         val right = this.arguments[1].getSpec()
 
-        val spec: MaybeSpec<PairSpec> = Either.combine(
-            either = left,
-            either2 = right
-        ) { leftR, rightR ->
+        return either {
             PairSpec(
-                leftElementSpec = leftR,
-                rightElementSpec = rightR,
+                leftElementSpec = left.bind(),
+                rightElementSpec = right.bind(),
             )
         }
-
-        return spec
     }
 
     private fun KSType.getFunctionSpec(): FunctionSpec {
@@ -438,9 +432,7 @@ internal class ClassRepresentationMapper(
 
     private fun KSClassDeclaration.getEnumSpec(): EnumSpec {
 
-        return EnumSpec(
-            enumDeclaration = this
-        )
+        return EnumSpec(enumDeclaration = this)
     }
 
     private fun KSDeclaration.getDowelSpec(): DowelSpec {
