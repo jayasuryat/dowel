@@ -20,3 +20,4 @@ include ':app'
 
 include ':dowel'
 include ':dowel-processor'
+include ':either'
