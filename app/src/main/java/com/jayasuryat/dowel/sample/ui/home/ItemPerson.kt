@@ -37,6 +37,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jayasuryat.dowel.sample.ui.home.model.Person
+import com.jayasuryat.dowel.sample.ui.home.model.PersonPreviewParamProvider
+import com.jayasuryat.dowel.sample.ui.home.model.location.Location
+import com.jayasuryat.dowel.sample.ui.home.model.location.LocationCustomPreviewParamProvider
 
 @Composable
 internal fun ItemPerson(

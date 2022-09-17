@@ -21,8 +21,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import com.jayasuryat.dowel.sample.ui.home.HomeScreen
-import com.jayasuryat.dowel.sample.ui.home.Person
-import com.jayasuryat.dowel.sample.ui.home.PersonPreviewParamProvider
+import com.jayasuryat.dowel.sample.ui.home.model.Person
+import com.jayasuryat.dowel.sample.ui.home.model.PersonPreviewParamProvider
 import com.jayasuryat.dowel.sample.ui.theme.DowelTheme
 
 class MainActivity : ComponentActivity() {

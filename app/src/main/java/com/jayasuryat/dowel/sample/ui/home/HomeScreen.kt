@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.jayasuryat.dowel.sample.ui.home.model.Person
 
 @Composable
 fun HomeScreen(

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jayasuryat.dowel.sample.ui.home
+package com.jayasuryat.dowel.sample.ui.home.model
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.Size
@@ -21,6 +21,9 @@ import androidx.compose.runtime.State
 import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.annotation.DowelList
 import com.jayasuryat.dowel.sample.R
+import com.jayasuryat.dowel.sample.ui.home.model.location.Location
+import com.jayasuryat.dowel.sample.ui.home.model.status.Status
+import com.jayasuryat.dowel.sample.ui.home.model.unsupported.UnsupportedType
 import kotlinx.coroutines.flow.Flow
 
 @DowelList(count = 5)
@@ -46,17 +49,3 @@ data class Person(
     @Size(value = 1) val interests: List<Float>,
     val onClick: suspend (a: Person, b: Int) -> Unit,
 )
-
-data class Location(
-    val lat: Long?,
-    val lon: Long?,
-)
-
-sealed interface UnsupportedType {
-
-    object SomeType : UnsupportedType
-}
-
-enum class Status {
-    Active, InActive, PendingActivation, Deleted, Archived
-}
