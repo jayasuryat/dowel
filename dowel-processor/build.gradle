@@ -27,7 +27,7 @@ dependencies {
     implementation project(":dowel")
 
     // KSP
-    implementation("com.google.devtools.ksp:symbol-processing-api:1.7.0-1.0.6")
+    implementation("com.google.devtools.ksp:symbol-processing-api:$ksp_api_version")
 
     // Kotlin-Poet
     implementation("com.squareup:kotlinpoet:1.12.0")

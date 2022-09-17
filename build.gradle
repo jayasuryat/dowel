@@ -1,6 +1,7 @@
 buildscript {
     ext {
         compose_version = '1.2.0'
+        ksp_api_version = '1.7.0-1.0.6'
     }
 }
 
