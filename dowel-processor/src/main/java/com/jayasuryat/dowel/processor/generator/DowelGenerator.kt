@@ -175,7 +175,7 @@ internal class DowelGenerator(
                     name = BackingProvider.listPropertyNameFor(provider.type),
                     type = declarationListType,
                     modifiers = listOf(KModifier.PRIVATE),
-                ).initializer("${provider.providerName.simpleName}().values.toList()")
+                ).initializer("%T().values.toList()", provider.providerName)
 
                 sequenceProperty.build()
             }
