@@ -23,6 +23,7 @@ import com.jayasuryat.dowel.processor.relativeClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.buildCodeBlock
+import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.withIndent
 import java.util.*
 import kotlin.random.Random
@@ -281,8 +282,9 @@ internal class ObjectConstructor {
     }
 
     private fun EnumSpec.getEnumAssigner(): CodeBlock {
+        val enumName = this.enumDeclaration.toClassName()
         return buildCodeBlock {
-            add("%L.values().random()", enumDeclaration.simpleName.asString())
+            add("%T.values().random()", enumName)
         }
     }
 
