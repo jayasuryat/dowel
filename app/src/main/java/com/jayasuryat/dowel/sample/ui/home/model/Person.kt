@@ -29,7 +29,7 @@ import com.jayasuryat.dowel.sample.ui.home.model.unsupported.UnsupportedType
 import kotlinx.coroutines.flow.Flow
 
 @DowelList(count = 5)
-@Dowel(count = 3)
+@Dowel(count = 30)
 data class Person(
     @Size(value = 5) val name: String,
     @Size(value = 300) val bio: String?,

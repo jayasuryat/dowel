@@ -27,19 +27,25 @@ sealed interface Vehicle {
         val model: Int,
     ) : Vehicle
 
-    sealed interface FourWheeler {
+    @Dowel
+    data class Car(
+        val make: String,
+        val model: Int,
+    ) : Vehicle
+
+    sealed interface FourWheeler : Vehicle {
 
         @Dowel
         data class Car(
             val make: String,
             val model: Int,
-        ) : Vehicle
+        ) : FourWheeler
 
         @Dowel
         data class Truck(
             val make: String,
             val model: Int,
             val bedCapacity: Float,
-        ) : Vehicle
+        ) : FourWheeler
     }
 }
