@@ -23,6 +23,7 @@ import com.jayasuryat.dowel.annotation.DowelList
 import com.jayasuryat.dowel.sample.R
 import com.jayasuryat.dowel.sample.ui.home.model.location.Location
 import com.jayasuryat.dowel.sample.ui.home.model.meta.SomeStaticInfo
+import com.jayasuryat.dowel.sample.ui.home.model.sealed.Vehicle
 import com.jayasuryat.dowel.sample.ui.home.model.status.Status
 import com.jayasuryat.dowel.sample.ui.home.model.unsupported.UnsupportedType
 import kotlinx.coroutines.flow.Flow
@@ -40,6 +41,7 @@ data class Person(
     val likes: Long,
     val isAlien: Boolean,
     val location: Location,
+    val vehicle: Vehicle,
     val liveLocation: Flow<Location?>,
     val latLon: Pair<Long, Long>,
     val meta: SomeStaticInfo,

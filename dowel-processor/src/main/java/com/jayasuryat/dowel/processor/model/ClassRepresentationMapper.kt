@@ -26,6 +26,7 @@ import com.jayasuryat.dowel.processor.Names
 import com.jayasuryat.dowel.processor.annotation.FloatRange
 import com.jayasuryat.dowel.processor.annotation.IntRange
 import com.jayasuryat.dowel.processor.annotation.Size
+import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.*
 import com.jayasuryat.dowel.processor.util.unsafeLazy
 import com.jayasuryat.either.Either
@@ -39,7 +40,7 @@ import com.jayasuryat.either.right
  */
 private object UnsupportedType
 
-private typealias MaybeParamSpec = Either<UnsupportedType, ClassRepresentation.ParameterSpec>
+private typealias MaybeParamSpec = Either<UnsupportedType, ParameterSpec>
 private typealias MaybeSpec<T> = Either<UnsupportedType, T>
 
 /**
@@ -100,7 +101,7 @@ internal class ClassRepresentationMapper(
             .mapNotNull { parameter -> // Filtering out UnsupportedType parameters
 
                 val resolvedType = parameter.type.resolve()
-                val spec: MaybeSpec<ClassRepresentation.ParameterSpec> = resolvedType.getSpec(
+                val spec: MaybeSpec<ParameterSpec> = resolvedType.getSpec(
                     annotations = parameter.annotations.toList(),
                 )
 
@@ -179,11 +180,17 @@ internal class ClassRepresentationMapper(
             propType.isFunctionType || propType.isSuspendFunctionType ->
                 propType.getFunctionSpec().right()
 
+            // Sealed class
+            propTypeDeclaration is KSClassDeclaration &&
+                propTypeDeclaration.modifiers.contains(Modifier.SEALED) ->
+                propTypeDeclaration.getSealedSpec()
+
             // Enum classes
             propTypeDeclaration is KSClassDeclaration &&
                 propTypeDeclaration.classKind == ClassKind.ENUM_CLASS ->
                 propTypeDeclaration.getEnumSpec().right()
 
+            // Object
             propTypeDeclaration is KSClassDeclaration &&
                 propTypeDeclaration.classKind == ClassKind.OBJECT ->
                 propTypeDeclaration.getObjectSpec().right()
@@ -201,7 +208,7 @@ internal class ClassRepresentationMapper(
     }
 
     private fun KSValueParameter.mapToParameter(
-        spec: ClassRepresentation.ParameterSpec,
+        spec: ParameterSpec,
         type: KSType,
     ): ClassRepresentation.Parameter {
 
@@ -432,6 +439,59 @@ internal class ClassRepresentationMapper(
             argumentsSize = ksType.arguments.size - 1,
             isReturnTypeUnit = isReturnTypeUnit
         )
+    }
+
+    private fun KSClassDeclaration.getSealedSpec(): MaybeSpec<SealedSpec> {
+
+        fun MaybeSpec<ParameterSpec>.logErrorIfInvalid(
+            declaration: KSClassDeclaration,
+        ) {
+            when (this) {
+                is Either.Left -> {
+                    // Update error message
+                    logger.error(
+                        message = " \nSealed sub types can only Objects, Enum classes or concrete classes annotated with @${Dowel::class.simpleName} annotation",
+                        symbol = declaration,
+                    )
+                }
+                is Either.Right -> Unit
+            }
+        }
+
+        // This is an expensive call
+        val subClasses: List<KSClassDeclaration> = this.getSealedSubclasses().toList()
+
+        if (subClasses.isEmpty()) {
+            logger.error(
+                message = " \nSealed type ${this.qualifiedName!!.asString()} does not have any concrete implementations.\n" +
+                    "There should be al-least a single implementation of a sealed type present in order to be able to provide an instance.",
+                symbol = this,
+            )
+            return UnsupportedType.left()
+        }
+
+        val subTypeSpecs: List<MaybeSpec<ParameterSpec>> = subClasses.map { declaration ->
+
+            // Using star projected type for now, as classes with generic type parameters
+            // are not supported yet.
+            // TODO: Would have to reconsider this choice, when adding support for classes with generic type parameters.
+            val type: KSType = declaration.asStarProjectedType()
+
+            // The type.getSpec() method will trigger calling of this method again if any
+            // of the sub-classes is a sealed class again
+            val spec = type.getSpec(annotations = declaration.annotations.toList())
+            spec.logErrorIfInvalid(declaration = declaration)
+            spec
+        }
+
+        val sealedSpec: Either<UnsupportedType, SealedSpec> = either {
+            val subTypes: List<ParameterSpec> = subTypeSpecs.map { subClass -> subClass.bind() }
+            SealedSpec(
+                subTypeSpecs = subTypes,
+            )
+        }
+
+        return sealedSpec
     }
 
     private fun KSClassDeclaration.getEnumSpec(): EnumSpec {

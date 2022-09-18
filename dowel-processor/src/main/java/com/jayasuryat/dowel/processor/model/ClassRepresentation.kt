@@ -109,6 +109,10 @@ internal data class ClassRepresentation(
             val isReturnTypeUnit: Boolean,
         ) : ParameterSpec
 
+        data class SealedSpec(
+            val subTypeSpecs: List<ParameterSpec>,
+        ) : ParameterSpec
+
         data class EnumSpec(
             val enumDeclaration: KSClassDeclaration,
         ) : ParameterSpec

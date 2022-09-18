@@ -91,6 +91,7 @@ internal class ObjectConstructor {
             is PairSpec -> spec.getPairAssigner() // This would be a recursive call
 
             is FunctionSpec -> spec.getFunctionAssigner()
+            is SealedSpec -> spec.getSealedAssigner() // This would be a recursive call
             is EnumSpec -> spec.getEnumAssigner()
             is ObjectSpec -> spec.getObjectAssigner()
             is DowelSpec -> spec.getDowelAssigner()
@@ -279,6 +280,16 @@ internal class ObjectConstructor {
             add(" ->")
             if (!isReturnTypeUnit) add(" TODO()")
             add(" }")
+        }
+    }
+
+    private fun SealedSpec.getSealedAssigner(): CodeBlock {
+
+        // Choosing one of (possibly) many sub-types of the sealed type randomly
+        val subClass: ClassRepresentation.ParameterSpec = this.subTypeSpecs.random()
+
+        return buildCodeBlock {
+            add("%L", subClass.getAssigner())
         }
     }
 

@@ -273,6 +273,12 @@ internal class DowelGenerator(
                     spec.leftElementSpec.getAllSupportingProvidersRecursively() +
                         spec.rightElementSpec.getAllSupportingProvidersRecursively()
 
+                is ClassRepresentation.ParameterSpec.SealedSpec -> {
+                    spec.subTypeSpecs.map { subSpec ->
+                        subSpec.getAllSupportingProvidersRecursively()
+                    }.flatten()
+                }
+
                 is DowelSpec -> {
                     val providerName = ClassName(
                         packageName = spec.declaration.packageName.asString(),
