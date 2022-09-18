@@ -25,8 +25,8 @@ import com.jayasuryat.dowel.internal.DowelInternal
  * values, and the objects would be constructed using the primary constructor of the annotated class.
  * All properties with default values would be ignored, and nullable types would be null randomly.
  *
- * The annotated class must be a concrete class, and all of the properties listed in the primary
- * constructor can only be of the following types:
+ * The annotated class must be a concrete class, class should not have any generic type parameters,
+ * and all of the properties listed in the primary constructor can only be of the following types:
  * * Primitives ([Int], [Long], [Float], [Double], [Char], [Boolean], [String])
  * * [androidx.compose.runtime.State]
  * * [kotlinx.coroutines.flow.Flow]

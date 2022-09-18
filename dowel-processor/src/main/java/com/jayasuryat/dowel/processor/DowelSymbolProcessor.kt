@@ -161,7 +161,7 @@ internal class DowelSymbolProcessor(
 
             if (declaration.classKind != ClassKind.CLASS) {
                 logger.error(
-                    message = "@${Dowel::class.qualifiedName} annotation can only be applied to classes",
+                    message = " \n@${Dowel::class.simpleName} annotation can only be applied to classes",
                     symbol = declaration,
                 )
                 return false
@@ -171,7 +171,15 @@ internal class DowelSymbolProcessor(
                 declaration.modifiers.contains(Modifier.SEALED)
             ) {
                 logger.error(
-                    message = "@${Dowel::class.qualifiedName} annotation can't be applied to an abstract class",
+                    message = " \n@${Dowel::class.simpleName} annotation can't be applied to an abstract classes",
+                    symbol = declaration,
+                )
+                return false
+            }
+
+            if (declaration.typeParameters.isNotEmpty()){
+                logger.error(
+                    message = " \n@${Dowel::class.simpleName} annotation can't be applied classes with generic type parameters.",
                     symbol = declaration,
                 )
                 return false
@@ -236,7 +244,7 @@ internal class DowelSymbolProcessor(
 
             if (dowelAnnotation == null) {
                 logger.error(
-                    message = "@${DowelList::class.qualifiedName} annotation can only be applied to classes already annotated with @${Dowel::class.qualifiedName} annotation.",
+                    message = "@${DowelList::class.simpleName} annotation can only be applied to classes already annotated with @${Dowel::class.simpleName} annotation.",
                     symbol = declaration,
                 )
                 return false
