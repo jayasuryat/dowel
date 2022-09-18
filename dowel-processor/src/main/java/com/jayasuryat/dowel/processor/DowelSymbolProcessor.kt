@@ -177,6 +177,16 @@ internal class DowelSymbolProcessor(
                 return false
             }
 
+            val constructor = declaration.primaryConstructor!!
+            if (constructor.modifiers.contains(Modifier.PRIVATE)) {
+                logger.error(
+                    " \nCannot create an instance of class ${declaration.simpleName.asString()} as it's constructor is private.\n" +
+                        "@${Dowel::class.simpleName} generates code based on the primary constructor of the annotated class, read more at ${Dowel::class.simpleName} annotation class's documentation.",
+                    constructor,
+                )
+                return false
+            }
+
             if (declaration.typeParameters.isNotEmpty()) {
                 logger.error(
                     message = " \n@${Dowel::class.simpleName} annotation can't be applied classes with generic type parameters.",
