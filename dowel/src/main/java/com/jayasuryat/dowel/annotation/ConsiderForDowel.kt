@@ -35,6 +35,8 @@ package com.jayasuryat.dowel.annotation
  * an instance of that provider for that type, instead of building instances by *hand*.
  *
  * **Note** : Only a single class can be annotated with @[ConsiderForDowel] per type.
+ *
+ * @see [Dowel]
  */
 @Suppress("KDocUnresolvedReference")
 @Retention(AnnotationRetention.SOURCE)

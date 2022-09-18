@@ -33,6 +33,7 @@ import com.jayasuryat.dowel.internal.DowelInternal
  * * Functional types (high-order functions)
  * * @[Dowel] classes (@[Dowel] classes can be nested. A @[Dowel] annotated class can have
  *   properties of type of classes which are annotated with @[Dowel])
+ * * Sealed types
  * * [Enum]
  * * [List]
  * * [Map]
