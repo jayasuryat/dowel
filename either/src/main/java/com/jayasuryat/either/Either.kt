@@ -33,6 +33,11 @@ public sealed class Either<out L, out R> {
         public val value: T,
     ) : Either<Nothing, T>()
 
+    public fun rightOrNull(): R? = when (this) {
+        is Left -> null
+        is Right -> this.value
+    }
+
     public companion object
 }
 
