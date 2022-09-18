@@ -92,6 +92,7 @@ internal class ObjectConstructor {
 
             is FunctionSpec -> spec.getFunctionAssigner()
             is EnumSpec -> spec.getEnumAssigner()
+            is ObjectSpec -> spec.getObjectAssigner()
             is DowelSpec -> spec.getDowelAssigner()
 
             is PreDefinedProviderSpec -> spec.getPreDefinedProviderSpecAssigner()
@@ -285,6 +286,13 @@ internal class ObjectConstructor {
         val enumName = this.enumDeclaration.toClassName()
         return buildCodeBlock {
             add("%T.values().random()", enumName)
+        }
+    }
+
+    private fun ObjectSpec.getObjectAssigner(): CodeBlock {
+        val objectName = this.objectDeclaration.toClassName()
+        return buildCodeBlock {
+            add("%T", objectName)
         }
     }
 

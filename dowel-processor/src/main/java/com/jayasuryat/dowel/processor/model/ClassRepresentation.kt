@@ -113,6 +113,10 @@ internal data class ClassRepresentation(
             val enumDeclaration: KSClassDeclaration,
         ) : ParameterSpec
 
+        data class ObjectSpec(
+            val objectDeclaration: KSClassDeclaration,
+        ) : ParameterSpec
+
         /**
          * Types which are annotated with @[Dowel] annotation
          */

@@ -177,7 +177,7 @@ internal class DowelSymbolProcessor(
                 return false
             }
 
-            if (declaration.typeParameters.isNotEmpty()){
+            if (declaration.typeParameters.isNotEmpty()) {
                 logger.error(
                     message = " \n@${Dowel::class.simpleName} annotation can't be applied classes with generic type parameters.",
                     symbol = declaration,

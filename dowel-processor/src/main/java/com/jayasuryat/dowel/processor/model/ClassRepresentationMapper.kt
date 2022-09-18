@@ -184,6 +184,10 @@ internal class ClassRepresentationMapper(
                 propTypeDeclaration.classKind == ClassKind.ENUM_CLASS ->
                 propTypeDeclaration.getEnumSpec().right()
 
+            propTypeDeclaration is KSClassDeclaration &&
+                propTypeDeclaration.classKind == ClassKind.OBJECT ->
+                propTypeDeclaration.getObjectSpec().right()
+
             // Class annotated with @Dowel annotation
             propTypeDeclaration.isDowelClass() -> propTypeDeclaration.getDowelSpec().right()
 
@@ -433,6 +437,11 @@ internal class ClassRepresentationMapper(
     private fun KSClassDeclaration.getEnumSpec(): EnumSpec {
 
         return EnumSpec(enumDeclaration = this)
+    }
+
+    private fun KSClassDeclaration.getObjectSpec(): ObjectSpec {
+
+        return ObjectSpec(objectDeclaration = this)
     }
 
     private fun KSDeclaration.getDowelSpec(): DowelSpec {

@@ -22,6 +22,7 @@ import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.annotation.DowelList
 import com.jayasuryat.dowel.sample.R
 import com.jayasuryat.dowel.sample.ui.home.model.location.Location
+import com.jayasuryat.dowel.sample.ui.home.model.meta.SomeStaticInfo
 import com.jayasuryat.dowel.sample.ui.home.model.status.Status
 import com.jayasuryat.dowel.sample.ui.home.model.unsupported.UnsupportedType
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +42,7 @@ data class Person(
     val location: Location,
     val liveLocation: Flow<Location?>,
     val latLon: Pair<Long, Long>,
+    val meta: SomeStaticInfo,
     val customType: UnsupportedType = UnsupportedType.SomeType,
     @Size(value = 2) val locations: List<Location>,
     val isExpanded: State<Boolean>,
