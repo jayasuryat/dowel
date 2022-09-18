@@ -15,7 +15,6 @@
  */
 package com.jayasuryat.dowel.processor.generator
 
-import com.jayasuryat.dowel.processor.BackingProvider
 import com.jayasuryat.dowel.processor.StringSource
 import com.jayasuryat.dowel.processor.model.ClassRepresentation
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.*
@@ -313,7 +312,7 @@ internal class ObjectConstructor {
 
         // Retrieving instances of the specific Dowel type from (generated) PreviewParameterProvider
         return buildCodeBlock {
-            val propName = BackingProvider.listPropertyNameFor(spec.type)
+            val propName = spec.propertyName
             add("$propName.random()")
         }
     }
@@ -324,7 +323,7 @@ internal class ObjectConstructor {
 
         // Retrieving instances of the specific type from user pre-defined PreviewParameterProvider
         return buildCodeBlock {
-            val propName = BackingProvider.listPropertyNameFor(spec.type)
+            val propName = spec.propertyName
             add("$propName.random()")
         }
     }

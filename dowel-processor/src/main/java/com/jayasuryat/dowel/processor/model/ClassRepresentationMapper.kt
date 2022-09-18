@@ -26,13 +26,17 @@ import com.jayasuryat.dowel.processor.Names
 import com.jayasuryat.dowel.processor.annotation.FloatRange
 import com.jayasuryat.dowel.processor.annotation.IntRange
 import com.jayasuryat.dowel.processor.annotation.Size
+import com.jayasuryat.dowel.processor.dowelClassName
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.*
+import com.jayasuryat.dowel.processor.relativeClassName
 import com.jayasuryat.dowel.processor.util.unsafeLazy
 import com.jayasuryat.either.Either
 import com.jayasuryat.either.either
 import com.jayasuryat.either.left
 import com.jayasuryat.either.right
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.ksp.toClassName
 
 /**
  * Types which are completely unsupported by Dowel, and would be logged as an error at some
@@ -223,12 +227,13 @@ internal class ClassRepresentationMapper(
 
     private fun KSType.getPreDefinedProviderSpec(): PreDefinedProviderSpec {
 
-        val declaration: KSClassDeclaration? = predefinedProviders[this.makeNotNullable()]
-        requireNotNull(declaration) { "Dowel internal error, something went wrong while processing predefined param providers for $this" }
+        val provider: KSClassDeclaration? = predefinedProviders[this.makeNotNullable()]
+        requireNotNull(provider) { "Dowel internal error, something went wrong while processing predefined param providers for $this" }
 
         return PreDefinedProviderSpec(
-            provider = declaration,
+            provider = provider.toClassName(),
             type = this,
+            propertyName = this.getBackingListPropertyName(),
         )
     }
 
@@ -507,10 +512,17 @@ internal class ClassRepresentationMapper(
     private fun KSDeclaration.getDowelSpec(): DowelSpec {
 
         val declaration = this as KSClassDeclaration
+        val type = declaration.asType(listOf())
+
+        val provider = ClassName(
+            packageName = declaration.packageName.asString(),
+            declaration.dowelClassName
+        )
 
         return DowelSpec(
-            declaration = declaration,
             type = declaration.asType(listOf()), // TODO: Revisit this
+            provider = provider,
+            propertyName = type.getBackingListPropertyName(),
         )
     }
 
@@ -539,5 +551,12 @@ internal class ClassRepresentationMapper(
             "@${ConsiderForDowel::class.simpleName} annotation."
 
         logger.error(message = message, symbol = parameter)
+    }
+
+    private fun KSType.getBackingListPropertyName(): String {
+
+        return this.toClassName().relativeClassName
+            .filter { it.isLetterOrDigit() }
+            .replaceFirstChar { char -> char.lowercaseChar() } + "List"
     }
 }

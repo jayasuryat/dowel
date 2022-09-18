@@ -22,6 +22,7 @@ import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.processor.annotation.FloatRange
 import com.jayasuryat.dowel.processor.annotation.IntRange
 import com.jayasuryat.dowel.processor.annotation.Size
+import com.squareup.kotlinpoet.ClassName
 
 /**
  * [ClassRepresentation] represents a class with all of it's properties mapped to concrete sealed
@@ -125,9 +126,10 @@ internal data class ClassRepresentation(
          * Types which are annotated with @[Dowel] annotation
          */
         data class DowelSpec(
-            val declaration: KSClassDeclaration,
-            val type: KSType,
-        ) : ParameterSpec
+            override val type: KSType,
+            override val provider: ClassName,
+            override val propertyName: String,
+        ) : ParameterSpec, BackedSpec
 
         /**
          * Types for which user has provided a custom implementation of
@@ -140,13 +142,20 @@ internal data class ClassRepresentation(
          */
         @Suppress("KDocUnresolvedReference")
         data class PreDefinedProviderSpec(
-            val provider: KSClassDeclaration,
-            val type: KSType,
-        ) : ParameterSpec
+            override val type: KSType,
+            override val provider: ClassName,
+            override val propertyName: String,
+        ) : ParameterSpec, BackedSpec
 
         /**
          * Types which are not directly supported by Dowel for code generation, but are nullable
          */
         object UnsupportedNullableSpec : ParameterSpec
+    }
+
+    interface BackedSpec {
+        val type: KSType
+        val provider: ClassName
+        val propertyName: String
     }
 }
