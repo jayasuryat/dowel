@@ -15,7 +15,7 @@
  */
 package com.jayasuryat.dowel.annotation
 
-import com.jayasuryat.dowel.internal.DowelInternal
+import com.jayasuryat.dowel.annotation.internal.DowelInternal
 
 /**
  * Annotation class for triggering the generation of PreviewParameterProvider for the annotated class

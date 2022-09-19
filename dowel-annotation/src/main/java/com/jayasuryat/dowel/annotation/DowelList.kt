@@ -15,7 +15,7 @@
  */
 package com.jayasuryat.dowel.annotation
 
-import com.jayasuryat.dowel.internal.DowelInternal
+import com.jayasuryat.dowel.annotation.internal.DowelInternal
 
 /**
  * This annotation builds on top of what already @[Dowel] annotation is doing.
