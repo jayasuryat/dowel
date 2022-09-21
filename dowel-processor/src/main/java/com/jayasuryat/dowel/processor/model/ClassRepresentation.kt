@@ -123,7 +123,9 @@ internal data class ClassRepresentation(
         ) : ParameterSpec
 
         /**
-         * Types which are annotated with @[Dowel] annotation
+         * Types which are annotated with @[Dowel] annotation.
+         *
+         * @see [BackedSpec]
          */
         data class DowelSpec(
             override val type: KSType,
@@ -136,9 +138,8 @@ internal data class ClassRepresentation(
          * [androidx.compose.ui.tooling.preview.PreviewParameterProvider] through @[ConsiderForDowel]
          * annotation.
          *
-         * @param provider is the declaration of that custom provider
-         * @param type is the [KSType] of the elements produced in the "values" property of the said provider
          * @see [ConsiderForDowel]
+         * @see [BackedSpec]
          */
         @Suppress("KDocUnresolvedReference")
         data class PreDefinedProviderSpec(
@@ -153,6 +154,23 @@ internal data class ClassRepresentation(
         object UnsupportedNullableSpec : ParameterSpec
     }
 
+    /**
+     * This interface represents a spec which is being backed by an implementation of
+     * [androidx.compose.ui.tooling.preview.PreviewParameterProvider], and that implementation could
+     * be coming from the generated code, or could be coming from user defined sources via @[Dowel]
+     * or @[ConsiderForDowel] annotations respectively. For these specs there is no need to generate
+     * code *by hand* as the existing provider could provide instances, and those instaces would
+     * be used in constructing other objects.
+     *
+     * @property [type] : The type of object being provided
+     * @property [provider] : The [ClassName] of the backing provider (implementation of
+     * [androidx.compose.ui.tooling.preview.PreviewParameterProvider])
+     * @property [propertyName] : A suggested name for a property to hold an instance of [provider]
+     *
+     * @see [Dowel]
+     * @see [ConsiderForDowel]
+     */
+    @Suppress("KDocUnresolvedReference")
     interface BackedSpec {
         val type: KSType
         val provider: ClassName

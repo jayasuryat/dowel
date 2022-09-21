@@ -453,9 +453,8 @@ internal class ClassRepresentationMapper(
         ) {
             when (this) {
                 is Either.Left -> {
-                    // Update error message
                     logger.error(
-                        message = " \nSealed sub types can only Objects, Enum classes or concrete classes annotated with @${Dowel::class.simpleName} annotation",
+                        message = " \nSealed sub types can only be Objects, Enum classes, or concrete classes annotated with @${Dowel::class.simpleName} annotation",
                         symbol = declaration,
                     )
                 }

@@ -18,7 +18,9 @@ package com.jayasuryat.dowel.annotation
 import com.jayasuryat.dowel.annotation.internal.DowelInternal
 
 /**
- * Annotation class for triggering the generation of PreviewParameterProvider for the annotated class
+ * This is the primary entry-point into Dowel.
+ *
+ * An annotation class for triggering the generation of PreviewParameterProvider for the annotated class
  * ([androidx.compose.ui.tooling.preview.PreviewParameterProvider]).
  *
  * The generated PreviewParameterProvider will have [count] number of objects in the sequence of
@@ -32,7 +34,9 @@ import com.jayasuryat.dowel.annotation.internal.DowelInternal
  * * [kotlinx.coroutines.flow.Flow]
  * * Functional types (high-order functions)
  * * @[Dowel] classes (@[Dowel] classes can be nested. A @[Dowel] annotated class can have
- *   properties of type of classes which are annotated with @[Dowel])
+ *   properties of type of classes which are again annotated with @[Dowel])
+ * * Types for which a user-defined PreviewParameterProvider exist (via the @[ConsiderForDowel]
+ * annotation)
  * * Sealed types
  * * [Enum]
  * * [List]
@@ -54,11 +58,14 @@ import com.jayasuryat.dowel.annotation.internal.DowelInternal
  * Like List&lt;Map&lt;String, List&lt;@[Dowel] class&gt;&gt;&gt;
  *
  * **Note** : More meta information about a property can be given to Dowel using [androidx.annotation]
- * annotations. Currently [androidx.annotation.IntRange], [androidx.annotation.FloatRange],
- * and [androidx.annotation.Size] are supported.
+ * annotations. Currently, following are the supported annotations:
+ * * [androidx.annotation.IntRange]
+ * * [androidx.annotation.FloatRange]
+ * * [androidx.annotation.Size]
  *
  * @param [count] Number of items in the generated sequence of items
  * @see [DowelList]
+ * @see [ConsiderForDowel]
  */
 @Suppress("KDocUnresolvedReference")
 @Retention(AnnotationRetention.SOURCE)
