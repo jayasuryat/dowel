@@ -15,7 +15,7 @@
  */
 package com.jayasuryat.dowel.annotation
 
-import com.jayasuryat.dowel.internal.DowelInternal
+import com.jayasuryat.dowel.annotation.internal.DowelInternal
 
 /**
  * This is the primary entry-point into Dowel.

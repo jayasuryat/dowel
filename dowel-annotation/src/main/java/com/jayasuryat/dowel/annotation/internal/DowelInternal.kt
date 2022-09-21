@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jayasuryat.dowel.internal
+package com.jayasuryat.dowel.annotation.internal
 
 @RequiresOptIn(
     message = "This API is for Dowel's internal use only. This API should not be consumed from external sources."

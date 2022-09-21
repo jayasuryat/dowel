@@ -1,7 +1,9 @@
 buildscript {
     ext {
+        kotlin_version = "1.7.0"
         compose_version = '1.2.0'
         ksp_api_version = '1.7.0-1.0.6'
+        lint_version = "30.2.1"
     }
 }
 

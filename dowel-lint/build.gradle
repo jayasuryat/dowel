@@ -1,0 +1,26 @@
+plugins {
+    id 'java-library'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'com.android.lint'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+kotlin {
+    explicitApi()
+}
+
+dependencies {
+
+    compileOnly project(":dowel-annotation")
+
+    compileOnly "com.android.tools.lint:lint-api:$lint_version"
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+
+//    testImplementation "junit:junit:4.13.2"
+//    testImplementation "com.android.tools.lint:lint:$lint_version"
+//    testImplementation "com.android.tools.lint:lint-tests:$lint_version"
+}

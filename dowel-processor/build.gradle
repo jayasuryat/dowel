@@ -14,7 +14,7 @@ kotlin {
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += '-opt-in=com.jayasuryat.dowel.internal.DowelInternal'
+        freeCompilerArgs += '-opt-in=com.jayasuryat.dowel.annotation.internal.DowelInternal'
     }
 }
 
@@ -24,7 +24,7 @@ dependencies {
     implementation project(":either")
 
     // Dowel
-    implementation project(":dowel")
+    implementation project(":dowel-annotation")
 
     // KSP
     implementation("com.google.devtools.ksp:symbol-processing-api:$ksp_api_version")
