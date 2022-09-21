@@ -26,6 +26,7 @@ public class DowelIssueRegistry : IssueRegistry() {
     override val issues: List<Issue> = listOf(
         /*ReliableDetector.ISSUE,*/
         WrongDowelUsageDetector.ISSUE,
+        WrongDowelListUsageDetector.ISSUE,
     )
 
     override val api: Int

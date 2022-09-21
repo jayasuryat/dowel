@@ -16,6 +16,7 @@
 package com.jayasuryat.dowel.sample.ui.home.model
 
 import com.jayasuryat.dowel.annotation.Dowel
+import com.jayasuryat.dowel.annotation.DowelList
 
 @Dowel
 private object Test1
@@ -23,13 +24,12 @@ private object Test1
 @Dowel
 private data class Test2(
     val x: Int = 2,
-) {
+)
 
-    @Dowel
-    companion object {
-    }
-}
-
+@DowelList
+private data class Test28(
+    val x: Int = 2,
+)
 
 @Dowel
 private abstract class Test3 {
@@ -49,4 +49,3 @@ private sealed interface Test6
 
 @Dowel
 annotation class Test8
-
