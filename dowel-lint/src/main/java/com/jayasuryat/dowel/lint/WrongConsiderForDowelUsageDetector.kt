@@ -23,7 +23,7 @@ import org.jetbrains.uast.UElement
 internal class WrongConsiderForDowelUsageDetector : Detector(), SourceCodeScanner {
 
     override fun applicableAnnotations(): List<String> {
-        return listOf("com.jayasuryat.dowel.annotation.ConsiderForDowel")
+        return listOf(AnnotationNames.ConsiderForDowel)
     }
 
     override fun isApplicableAnnotationUsage(type: AnnotationUsageType): Boolean {

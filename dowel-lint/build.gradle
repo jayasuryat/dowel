@@ -15,8 +15,6 @@ kotlin {
 
 dependencies {
 
-    compileOnly project(":dowel-annotation")
-
     compileOnly "com.android.tools.lint:lint-api:$lint_version"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 

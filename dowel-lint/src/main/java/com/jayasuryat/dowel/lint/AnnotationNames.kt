@@ -15,10 +15,11 @@
  */
 package com.jayasuryat.dowel.lint
 
-import com.jayasuryat.dowel.annotation.Dowel
-
-// TODO: Consider removing this class, if working with annotations directly is fine
 internal object AnnotationNames {
 
-    val DOWEL: String = Dowel::class.qualifiedName!!
+    const val Dowel: String = "com.jayasuryat.dowel.annotation.Dowel"
+
+    const val DowelList: String = "com.jayasuryat.dowel.annotation.DowelList"
+
+    const val ConsiderForDowel: String = "com.jayasuryat.dowel.annotation.ConsiderForDowel"
 }

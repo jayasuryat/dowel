@@ -24,7 +24,7 @@ import org.jetbrains.uast.UElement
 internal class WrongDowelListUsageDetector : Detector(), SourceCodeScanner {
 
     override fun applicableAnnotations(): List<String> {
-        return listOf("com.jayasuryat.dowel.annotation.DowelList")
+        return listOf(AnnotationNames.DowelList)
     }
 
     override fun isApplicableAnnotationUsage(type: AnnotationUsageType): Boolean {
