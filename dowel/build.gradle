@@ -28,6 +28,11 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    lintOptions {
+        textReport true
+        textOutput 'stdout'
+    }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
@@ -40,5 +45,6 @@ kotlin {
 dependencies {
 
     api project(":dowel-annotation")
-    //lintPublish project(":dowel-lint")
+    implementation project(':dowel-lint')
+    lintPublish project(':dowel-lint')
 }

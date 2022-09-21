@@ -21,10 +21,12 @@ import com.android.tools.lint.detector.api.CURRENT_API
 import com.android.tools.lint.detector.api.Issue
 
 @Suppress("UnstableApiUsage")
-internal class DowelIssueRegistry : IssueRegistry() {
+public class DowelIssueRegistry : IssueRegistry() {
 
-    override val issues: List<Issue>
-        get() = WrongDowelUsageDetector.issues
+    override val issues: List<Issue> = listOf(
+        /*ReliableDetector.ISSUE,*/
+        WrongDowelUsageDetector.ISSUE,
+    )
 
     override val api: Int
         get() = CURRENT_API
