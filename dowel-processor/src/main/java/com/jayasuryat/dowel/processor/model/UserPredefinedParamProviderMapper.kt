@@ -19,6 +19,7 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.*
 import com.jayasuryat.dowel.annotation.ConsiderForDowel
+import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.processor.Names
 import com.jayasuryat.dowel.processor.util.unsafeLazy
 
@@ -68,18 +69,43 @@ internal class UserPredefinedParamProviderMapper(
      */
     private fun List<KSAnnotated>.validateAndMapAsClassDeclarations(): List<KSClassDeclaration> {
 
-        return this.mapNotNull { declaration ->
+        fun KSAnnotated.validateAndLogIfError(): Boolean {
 
-            val isValid = declaration is KSClassDeclaration &&
-                declaration.classKind == ClassKind.CLASS
+            val declaration = this
 
-            if (!isValid) {
+            // Checking if type is concrete class or not
+            if (declaration !is KSClassDeclaration || declaration.classKind != ClassKind.CLASS) {
                 logger.error(
                     message = "Only concrete classes can be annotated with @${ConsiderForDowel::class.simpleName} annotation",
                     symbol = declaration,
                 )
+                return false
             }
 
+            // Checking for private classes
+            if (declaration.modifiers.contains(Modifier.PRIVATE)) {
+                logger.error(
+                    message = " \n@${Dowel::class.simpleName} cannot create an instance for `${declaration.simpleName.asString()}` class: it is private in file.",
+                    declaration,
+                )
+                return false
+            }
+
+            // Checking for private constructors
+            val constructor = declaration.primaryConstructor!!
+            if (constructor.modifiers.contains(Modifier.PRIVATE)) {
+                logger.error(
+                    message = " \nCannot create an instance of class ${declaration.simpleName.asString()} as it's constructor is private.",
+                    constructor,
+                )
+                return false
+            }
+
+            return true
+        }
+
+        return this.mapNotNull { declaration ->
+            val isValid: Boolean = declaration.validateAndLogIfError()
             if (isValid) declaration as KSClassDeclaration else null
         }
     }

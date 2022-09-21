@@ -177,6 +177,14 @@ internal class DowelSymbolProcessor(
                 return false
             }
 
+            if (declaration.modifiers.contains(Modifier.PRIVATE)) {
+                logger.error(
+                    " \n@${Dowel::class.simpleName} cannot create an instance for `${declaration.simpleName.asString()}` class: it is private in file.",
+                    declaration,
+                )
+                return false
+            }
+
             val constructor = declaration.primaryConstructor!!
             if (constructor.modifiers.contains(Modifier.PRIVATE)) {
                 logger.error(
