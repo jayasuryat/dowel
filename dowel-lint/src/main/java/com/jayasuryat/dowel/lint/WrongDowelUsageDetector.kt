@@ -55,6 +55,7 @@ internal class WrongDowelUsageDetector : Detector(), SourceCodeScanner {
 
     internal object IssueInfo {
 
+        @Suppress("MemberVisibilityCanBePrivate")
         internal const val ISSUE_ID: String = "WrongDowelUsage"
 
         internal const val MESSAGE: String =

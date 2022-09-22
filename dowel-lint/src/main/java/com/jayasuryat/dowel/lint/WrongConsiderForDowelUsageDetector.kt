@@ -48,18 +48,24 @@ internal class WrongConsiderForDowelUsageDetector : Detector(), SourceCodeScanne
         if (!validSuperType) {
 
             context.report(
-                issue = ISSUE,
+                issue = IssueInfo.Definition,
                 scope = element,
                 location = context.getLocation(parent as UElement),
-                message = "@ConsiderForDowel annotation can only be applied to classes extending androidx.compose.ui.tooling.preview.PreviewParameterProvider",
+                message = IssueInfo.MESSAGE,
             )
         }
     }
 
-    internal companion object {
+    internal object IssueInfo {
 
-        internal val ISSUE: Issue = Issue.create(
-            id = "WrongDowelUsage",
+        @Suppress("MemberVisibilityCanBePrivate")
+        internal const val ISSUE_ID: String = "WrongConsiderForDowelUsage"
+
+        internal const val MESSAGE: String =
+            "@ConsiderForDowel annotation can only be applied to classes extending androidx.compose.ui.tooling.preview.PreviewParameterProvider"
+
+        internal val Definition: Issue = Issue.create(
+            id = ISSUE_ID,
             briefDescription = "Invalid usage of @ConsiderForDowel annotation.",
             explanation = """
                     @ConsiderForDowel annotation can only be applied to classes extending
