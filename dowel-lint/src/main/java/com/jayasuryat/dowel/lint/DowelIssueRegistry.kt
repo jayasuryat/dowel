@@ -23,12 +23,7 @@ import com.android.tools.lint.detector.api.Issue
 @Suppress("UnstableApiUsage")
 public class DowelIssueRegistry : IssueRegistry() {
 
-    override val issues: List<Issue> = listOf(
-        /*ReliableDetector.ISSUE,*/
-        WrongDowelUsageDetector.ISSUE,
-        WrongDowelListUsageDetector.ISSUE,
-        WrongConsiderForDowelUsageDetector.ISSUE,
-    )
+    override val issues: List<Issue> = AllIssues
 
     override val api: Int
         get() = CURRENT_API
@@ -38,4 +33,13 @@ public class DowelIssueRegistry : IssueRegistry() {
         feedbackUrl = "https://github.com/JayaSuryaT/Dowel/issues",
         identifier = "com.jayasuryat.dowel:dowel:{version}"
     )
+
+    internal companion object {
+
+        val AllIssues: List<Issue> = listOf(
+            WrongDowelUsageDetector.IssueInfo.Definition,
+            WrongDowelListUsageDetector.ISSUE,
+            WrongConsiderForDowelUsageDetector.ISSUE,
+        )
+    }
 }

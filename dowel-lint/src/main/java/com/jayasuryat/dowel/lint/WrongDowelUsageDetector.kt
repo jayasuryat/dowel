@@ -45,18 +45,23 @@ internal class WrongDowelUsageDetector : Detector(), SourceCodeScanner {
         if (isInvalidUsage) {
 
             context.report(
-                issue = ISSUE,
+                issue = IssueInfo.Definition,
                 scope = element,
                 location = context.getLocation(parent as UElement),
-                message = "@Dowel annotation can only be applied to concrete classes.",
+                message = IssueInfo.MESSAGE,
             )
         }
     }
 
-    internal companion object {
+    internal object IssueInfo {
 
-        internal val ISSUE: Issue = Issue.create(
-            id = "WrongDowelUsage",
+        internal const val MESSAGE: String =
+            "@Dowel annotation can only be applied to concrete classes."
+
+        internal const val ISSUE_ID: String = "WrongDowelUsage"
+
+        internal val Definition: Issue = Issue.create(
+            id = ISSUE_ID,
             briefDescription = "Invalid usage of @Dowel annotation.",
             explanation = """
                     @Dowel annotation should only be applied to concrete classes.
