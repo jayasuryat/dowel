@@ -48,18 +48,23 @@ internal class WrongDowelListUsageDetector : Detector(), SourceCodeScanner {
         if (isInvalidUsage) {
 
             context.report(
-                issue = ISSUE,
+                issue = IssueInfo.Definition,
                 scope = element,
                 location = context.getLocation(parent as UElement),
-                message = "@DowelList annotation can only be applied to classes already annotated with @Dowel annotation.",
+                message = IssueInfo.MESSAGE,
             )
         }
     }
 
-    internal companion object {
+    internal object IssueInfo {
 
-        internal val ISSUE: Issue = Issue.create(
-            id = "WrongDowelUsage",
+        internal const val ISSUE_ID: String = "WrongDowelListUsage"
+
+        internal const val MESSAGE: String =
+            "@DowelList annotation can only be applied to classes already annotated with @Dowel annotation."
+
+        internal val Definition: Issue = Issue.create(
+            id = ISSUE_ID,
             briefDescription = "Invalid usage of @DowelList annotation.",
             explanation = """
                     @DowelList annotation can only be applied to classes already annotated with @Dowel annotation.

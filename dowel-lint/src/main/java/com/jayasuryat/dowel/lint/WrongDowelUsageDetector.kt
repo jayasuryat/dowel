@@ -55,10 +55,10 @@ internal class WrongDowelUsageDetector : Detector(), SourceCodeScanner {
 
     internal object IssueInfo {
 
+        internal const val ISSUE_ID: String = "WrongDowelUsage"
+
         internal const val MESSAGE: String =
             "@Dowel annotation can only be applied to concrete classes."
-
-        internal const val ISSUE_ID: String = "WrongDowelUsage"
 
         internal val Definition: Issue = Issue.create(
             id = ISSUE_ID,
