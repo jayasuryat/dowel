@@ -73,56 +73,110 @@ internal class DowelSymbolProcessor(
 
         this.resolver = resolver
 
-        val predefinedProviders = resolver.getUserPredefinedParamProviders()
-
-        val invalidDowelSymbols: List<KSAnnotated> = resolver.processSymbol(
-            annotationName = Dowel::class.qualifiedName!!,
-            visitor = DowelAnnotationVisitor.createInstance(
-                predefinedProviders = predefinedProviders,
-            )
-        )
-
-        val invalidDowelListSymbols: List<KSAnnotated> = resolver.processSymbol(
-            annotationName = DowelList::class.qualifiedName!!,
-            visitor = dowelListVisitor,
-        )
+        val invalidDowelSymbols: List<KSAnnotated> = resolver.processDowelSymbols()
+        val invalidDowelListSymbols: List<KSAnnotated> = resolver.processDowelListSymbols()
 
         return invalidDowelSymbols + invalidDowelListSymbols
     }
 
     /**
-     * Resolves symbols annotated with @[ConsiderForDowel] annotation and maps them to
-     * [UserPredefinedParamProviders] using the [predefinedProviderMapper] mapper class.
+     * Processes symbols for @[Dowel] annotation and returns all of the invalid symbols.
      */
-    private fun Resolver.getUserPredefinedParamProviders(): UserPredefinedParamProviders {
+    private fun Resolver.processDowelSymbols(): List<KSAnnotated> {
+
+        /**
+         * Resolves symbols annotated with @[ConsiderForDowel] annotation and maps them to
+         * [UserPredefinedParamProviders] using the [predefinedProviderMapper] mapper class.
+         */
+        fun Resolver.getUserPredefinedParamProviders(): UserPredefinedParamProviders {
+
+            val resolver = this
+
+            val predefinedProviderSymbols: List<KSAnnotated> = resolver.getSymbolsWithAnnotation(
+                annotationName = ConsiderForDowel::class.qualifiedName!!,
+            ).toList()
+
+            return predefinedProviderMapper.map(predefinedProviderSymbols)
+        }
+
+        /**
+         * Logs warning when overlapping providers are found for a [KSType]. Overlapping providers
+         * could be coming from different sources. For example, a class could be annotated with
+         * @[Dowel] annotation, and a user defined PreviewParameterProvider implementation exists
+         * for the same class which is annotated with @[ConsiderForDowel] annotation. At this point
+         * Dowel generates a provider for that type and a pre-defined provider already exists for the
+         * same type, which is redundant.
+         */
+        fun logWarningForOverlappingDowelClasses(
+            predefinedProviders: UserPredefinedParamProviders,
+            dowelSymbols: List<KSAnnotated>,
+        ) {
+
+            val declarations: Map<KSClassDeclaration, KSType> = dowelSymbols
+                .filterIsInstance<KSClassDeclaration>()
+                .associateWith { declaration -> declaration.asType(listOf()) }
+
+            declarations.forEach { (declaration: KSClassDeclaration, type: KSType) ->
+
+                val existingProvider: KSClassDeclaration? = predefinedProviders[type]
+
+                if (existingProvider != null) {
+
+                    val existingName = existingProvider.simpleName.asString()
+                    val generatedName = declaration.dowelClassName
+
+                    logger.warn(
+                        "Duplicate/redundant providers found for type : $type, $existingName and $generatedName.\n" +
+                            "$existingName will take precedence and will be used in outputs. $generatedName will be ignored.\n" +
+                            "Consider removing the redundant @${Dowel::class.simpleName!!} annotation from the $existingName class."
+                    )
+                    logger.warn("", existingProvider)
+                    logger.warn("", declaration)
+                }
+            }
+        }
 
         val resolver = this
 
-        val predefinedProviderSymbols: List<KSAnnotated> = resolver.getSymbolsWithAnnotation(
-            annotationName = ConsiderForDowel::class.qualifiedName!!,
-        ).toList()
-
-        return predefinedProviderMapper.map(predefinedProviderSymbols)
-    }
-
-    /**
-     * Processes symbols with the passed information and returns all of the invalid symbols.
-     */
-    private fun Resolver.processSymbol(
-        annotationName: String,
-        visitor: KSVisitorVoid,
-    ): List<KSAnnotated> {
-
-        val resolver = this
+        val predefinedProviders: UserPredefinedParamProviders =
+            resolver.getUserPredefinedParamProviders()
 
         val symbols: Sequence<KSAnnotated> = resolver.getSymbolsWithAnnotation(
-            annotationName = annotationName,
+            annotationName = Dowel::class.qualifiedName!!,
         )
 
         val (validSymbols: List<KSAnnotated>, invalidSymbols: List<KSAnnotated>) =
             symbols.partition { it.validate() }
 
+        logWarningForOverlappingDowelClasses(
+            predefinedProviders = predefinedProviders,
+            dowelSymbols = validSymbols,
+        )
+
+        val visitor: KSVisitorVoid = DowelAnnotationVisitor.createInstance(
+            predefinedProviders = predefinedProviders,
+        )
+
         validSymbols.forEach { symbol -> symbol.accept(visitor, Unit) }
+
+        return invalidSymbols
+    }
+
+    /**
+     * Processes symbols for @[DowelList] annotation and returns all of the invalid symbols.
+     */
+    private fun Resolver.processDowelListSymbols(): List<KSAnnotated> {
+
+        val resolver = this
+
+        val symbols: Sequence<KSAnnotated> = resolver.getSymbolsWithAnnotation(
+            annotationName = DowelList::class.qualifiedName!!,
+        )
+
+        val (validSymbols: List<KSAnnotated>, invalidSymbols: List<KSAnnotated>) =
+            symbols.partition { it.validate() }
+
+        validSymbols.forEach { symbol -> symbol.accept(dowelListVisitor, Unit) }
 
         return invalidSymbols
     }

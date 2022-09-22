@@ -15,6 +15,9 @@
  */
 package com.jayasuryat.dowel.sample.ui.home.model.location
 
+import com.jayasuryat.dowel.annotation.Dowel
+
+@Dowel
 data class Location(
     val lat: Long?,
     val lon: Long?,
