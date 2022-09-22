@@ -60,7 +60,10 @@ internal class DowelListGenerator(
         fileSpec.writeTo(
             codeGenerator = codeGenerator,
             dependencies = Dependencies(
-                aggregating = true,
+                // This is not an aggregating output as it only depends on the KSClassDeclaration
+                // of annotated class. To be more precise, it only depends on the class generated
+                // by the @Dowel annotation for that class. Which is more or less, the same thing.
+                aggregating = false,
                 classDeclaration.containingFile!!
             )
         )
