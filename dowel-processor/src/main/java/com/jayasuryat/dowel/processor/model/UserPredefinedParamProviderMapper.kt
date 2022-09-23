@@ -19,7 +19,6 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.*
 import com.jayasuryat.dowel.annotation.ConsiderForDowel
-import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.processor.Names
 import com.jayasuryat.dowel.processor.util.unsafeLazy
 
@@ -76,7 +75,7 @@ internal class UserPredefinedParamProviderMapper(
             // Checking if type is concrete class or not
             if (declaration !is KSClassDeclaration || declaration.classKind != ClassKind.CLASS) {
                 logger.error(
-                    message = "Only concrete classes can be annotated with @${ConsiderForDowel::class.simpleName} annotation",
+                    message = "\nOnly concrete classes can be annotated with @${ConsiderForDowel::class.simpleName} annotation",
                     symbol = declaration,
                 )
                 return false
@@ -85,7 +84,7 @@ internal class UserPredefinedParamProviderMapper(
             // Checking for private classes
             if (declaration.modifiers.contains(Modifier.PRIVATE)) {
                 logger.error(
-                    message = " \n@${Dowel::class.simpleName} cannot create an instance for `${declaration.simpleName.asString()}` class: it is private in file.",
+                    message = "\nCannot create an instance for `${declaration.simpleName.asString()}` class: it is private in file.",
                     declaration,
                 )
                 return false
@@ -95,7 +94,7 @@ internal class UserPredefinedParamProviderMapper(
             val constructor = declaration.primaryConstructor!!
             if (constructor.modifiers.contains(Modifier.PRIVATE)) {
                 logger.error(
-                    message = " \nCannot create an instance of class ${declaration.simpleName.asString()} as it's constructor is private.",
+                    message = "\nCannot create an instance of class ${declaration.simpleName.asString()} as it's constructor is private.",
                     constructor,
                 )
                 return false
@@ -131,7 +130,7 @@ internal class UserPredefinedParamProviderMapper(
 
             if (type == null) {
                 logger.error(
-                    message = "Class ${declaration.qualifiedName!!.asString()} is annotated with @${ConsiderForDowel::class.simpleName}, but does not extend ${Names.previewParamProvider.canonicalName}.",
+                    message = "\nClass ${declaration.qualifiedName!!.asString()} is annotated with @${ConsiderForDowel::class.simpleName}, but does not extend ${Names.previewParamProvider.canonicalName}.",
                     symbol = declaration,
                 )
                 continue
@@ -140,7 +139,7 @@ internal class UserPredefinedParamProviderMapper(
             val existing = mapOfTypes[type]
             if (existing != null) {
                 logger.error(
-                    message = "Multiple classes providing preview params for type $type.\n" +
+                    message = "\nMultiple classes providing preview params for type $type.\n" +
                         "Only a single class can be annotated with @${ConsiderForDowel::class.simpleName} per type.\n" +
                         "${existing.qualifiedName!!.asString()} & ${declaration.qualifiedName!!.asString()} both are annotated with @${ConsiderForDowel::class.simpleName} annotation for the same type.",
                     symbol = declaration,

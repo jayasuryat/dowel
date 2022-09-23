@@ -12,6 +12,7 @@ spotless {
     }
 
     kotlin {
+        toggleOffOn()
         target("**/*.kt")
         targetExclude(
                 "$buildDir/**/*.kt",

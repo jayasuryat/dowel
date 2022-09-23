@@ -68,14 +68,19 @@ internal class DowelProcessingTest {
     }
     // endregion
 
+    // The following comment turns off spotless checks until the 'on' command is detected.
+    // Turning off spotless as it is formatting and removing trailing whitespaces in 'expected'
+    // output strings and leading to failed tests.
+    // spotless:off
+
     @Test
     fun `should compile success for dowel with class`() {
 
         val source = """
             package dowel
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
-
+            
             @Dowel
             class Person(
                 val name: String,
@@ -87,6 +92,7 @@ internal class DowelProcessingTest {
         val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
 
         Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals("", result.messages)
     }
 
     @Test
@@ -94,9 +100,9 @@ internal class DowelProcessingTest {
 
         val source = """
             package dowel
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
-
+            
             @Dowel
             data class Person(
                 val name: String,
@@ -108,6 +114,7 @@ internal class DowelProcessingTest {
         val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
 
         Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals("", result.messages)
     }
 
     @Test
@@ -115,9 +122,9 @@ internal class DowelProcessingTest {
 
         val source = """
             package dowel
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
-
+            
             @Dowel
             internal class Person(
                 val name: String,
@@ -129,6 +136,7 @@ internal class DowelProcessingTest {
         val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
 
         Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals("", result.messages)
     }
 
     @Test
@@ -136,9 +144,9 @@ internal class DowelProcessingTest {
 
         val source = """
             package dowel
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
-
+            
             @Dowel
             abstract class Person(
                 val name: String,
@@ -152,7 +160,7 @@ internal class DowelProcessingTest {
         Assert.assertEquals(
             """
             e: Error occurred in KSP, check log for detail
-            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6:
+            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6: 
             @Dowel annotation can't be applied to an abstract classes
 
             """.trimIndent(),
@@ -165,9 +173,9 @@ internal class DowelProcessingTest {
 
         val source = """
             package dowel
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
-
+            
             @Dowel
             sealed class Person(
                 val name: String,
@@ -181,7 +189,7 @@ internal class DowelProcessingTest {
         Assert.assertEquals(
             """
             e: Error occurred in KSP, check log for detail
-            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6:
+            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6: 
             @Dowel annotation can't be applied to an abstract classes
 
             """.trimIndent(),
@@ -194,9 +202,9 @@ internal class DowelProcessingTest {
 
         val source = """
             package dowel
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
-
+            
             @Dowel
             interface Person
         """.trimIndent()
@@ -207,7 +215,7 @@ internal class DowelProcessingTest {
         Assert.assertEquals(
             """
             e: Error occurred in KSP, check log for detail
-            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6:
+            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6: 
             @Dowel annotation can only be applied to classes
 
             """.trimIndent(),
@@ -220,9 +228,9 @@ internal class DowelProcessingTest {
 
         val source = """
             package dowel
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
-
+            
             @Dowel
             object Person
         """.trimIndent()
@@ -233,7 +241,7 @@ internal class DowelProcessingTest {
         Assert.assertEquals(
             """
             e: Error occurred in KSP, check log for detail
-            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6:
+            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6: 
             @Dowel annotation can only be applied to classes
 
             """.trimIndent(),
@@ -246,9 +254,9 @@ internal class DowelProcessingTest {
 
         val source = """
             package dowel
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
-
+            
             @Dowel
             annotation class Person
         """.trimIndent()
@@ -259,7 +267,7 @@ internal class DowelProcessingTest {
         Assert.assertEquals(
             """
             e: Error occurred in KSP, check log for detail
-            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6:
+            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6: 
             @Dowel annotation can only be applied to classes
 
             """.trimIndent(),
@@ -272,9 +280,9 @@ internal class DowelProcessingTest {
 
         val source = """
             package dowel
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
-
+            
             @Dowel
             private class Person(
                 val name: String,
@@ -288,7 +296,7 @@ internal class DowelProcessingTest {
         Assert.assertEquals(
             """
             e: Error occurred in KSP, check log for detail
-            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6:
+            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6: 
             @Dowel cannot create an instance for `Person` class: it is private in file.
 
             """.trimIndent(),
@@ -301,9 +309,9 @@ internal class DowelProcessingTest {
 
         val source = """
             package dowel
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
-
+            
             @Dowel
             class Person private constructor(
                 val name: String,
@@ -317,7 +325,7 @@ internal class DowelProcessingTest {
         Assert.assertEquals(
             """
             e: Error occurred in KSP, check log for detail
-            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6:
+            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6: 
             Cannot create an instance of class Person as it's constructor is private.
             @Dowel generates code based on the primary constructor of the annotated class, read more at Dowel annotation class's documentation.
 
@@ -331,9 +339,9 @@ internal class DowelProcessingTest {
 
         val source = """
             package dowel
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
-
+            
             @Dowel
             class Person<T>(
                 val name: String,
@@ -348,7 +356,7 @@ internal class DowelProcessingTest {
         Assert.assertEquals(
             """
             e: Error occurred in KSP, check log for detail
-            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6:
+            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6: 
             @Dowel annotation can't be applied classes with generic type parameters.
 
             """.trimIndent(),
@@ -361,16 +369,16 @@ internal class DowelProcessingTest {
 
         val source = """
             package dowel
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
-
+            
             @Dowel
             class Person(
                 val name: String,
                 val age: String,
                 val data : Data,
             )
-
+            
             sealed class Data
         """.trimIndent()
 
@@ -384,10 +392,10 @@ internal class DowelProcessingTest {
 
         val expectedMessage = """
             e: Error occurred in KSP, check log for detail
-            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:12:
+            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:12: 
             Sealed type dowel.Data does not have any concrete implementations.
             There should be al-least a single implementation of a sealed type present in order to be able to provide an instance.
-            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:9:
+            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:9: 
             Unexpected type encountered : Data @ Person.data.
             See documentation of @Dowel annotation class to read more about the supported types or how to potentially fix this issue.
             Alternatively, provide a pre-defined PreviewParameterProvider via the @ConsiderForDowel annotation.
@@ -402,16 +410,16 @@ internal class DowelProcessingTest {
 
         val source = """
             package dowel
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
-
+            
             @Dowel
             class Person(
                 val name: String,
                 val age: String,
                 val data : Data,
             )
-
+            
             sealed class Data{
                 interface SubData : Data
             }
@@ -427,9 +435,9 @@ internal class DowelProcessingTest {
 
         val expectedMessage = """
             e: Error occurred in KSP, check log for detail
-            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:13:
+            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:13: 
             Sealed sub types can only be Objects, Enum classes, or concrete classes annotated with @Dowel annotation
-            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:9:
+            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:9: 
             Unexpected type encountered : Data @ Person.data.
             See documentation of @Dowel annotation class to read more about the supported types or how to potentially fix this issue.
             Alternatively, provide a pre-defined PreviewParameterProvider via the @ConsiderForDowel annotation.
@@ -438,6 +446,8 @@ internal class DowelProcessingTest {
 
         Assert.assertTrue(result.messages.contains(expectedMessage))
     }
+
+    //spotless:on
 
     private fun compile(
         vararg sourceFiles: SourceFile,

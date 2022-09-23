@@ -454,7 +454,7 @@ internal class ClassRepresentationMapper(
             when (this) {
                 is Either.Left -> {
                     logger.error(
-                        message = " \nSealed sub types can only be Objects, Enum classes, or concrete classes annotated with @${Dowel::class.simpleName} annotation",
+                        message = "\nSealed sub types can only be Objects, Enum classes, or concrete classes annotated with @${Dowel::class.simpleName} annotation",
                         symbol = declaration,
                     )
                 }
@@ -467,7 +467,7 @@ internal class ClassRepresentationMapper(
 
         if (subClasses.isEmpty()) {
             logger.error(
-                message = " \nSealed type ${this.qualifiedName!!.asString()} does not have any concrete implementations.\n" +
+                message = "\nSealed type ${this.qualifiedName!!.asString()} does not have any concrete implementations.\n" +
                     "There should be al-least a single implementation of a sealed type present in order to be able to provide an instance.",
                 symbol = this,
             )

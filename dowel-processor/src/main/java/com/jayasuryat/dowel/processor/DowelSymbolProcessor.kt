@@ -215,7 +215,7 @@ internal class DowelSymbolProcessor(
 
             if (declaration.classKind != ClassKind.CLASS) {
                 logger.error(
-                    message = " \n@${Dowel::class.simpleName} annotation can only be applied to classes",
+                    message = "\n@${Dowel::class.simpleName} annotation can only be applied to classes",
                     symbol = declaration,
                 )
                 return false
@@ -225,7 +225,7 @@ internal class DowelSymbolProcessor(
                 declaration.modifiers.contains(Modifier.SEALED)
             ) {
                 logger.error(
-                    message = " \n@${Dowel::class.simpleName} annotation can't be applied to an abstract classes",
+                    message = "\n@${Dowel::class.simpleName} annotation can't be applied to an abstract classes",
                     symbol = declaration,
                 )
                 return false
@@ -233,7 +233,7 @@ internal class DowelSymbolProcessor(
 
             if (declaration.modifiers.contains(Modifier.PRIVATE)) {
                 logger.error(
-                    " \n@${Dowel::class.simpleName} cannot create an instance for `${declaration.simpleName.asString()}` class: it is private in file.",
+                    "\n@${Dowel::class.simpleName} cannot create an instance for `${declaration.simpleName.asString()}` class: it is private in file.",
                     declaration,
                 )
                 return false
@@ -242,7 +242,7 @@ internal class DowelSymbolProcessor(
             val constructor = declaration.primaryConstructor!!
             if (constructor.modifiers.contains(Modifier.PRIVATE)) {
                 logger.error(
-                    " \nCannot create an instance of class ${declaration.simpleName.asString()} as it's constructor is private.\n" +
+                    "\nCannot create an instance of class ${declaration.simpleName.asString()} as it's constructor is private.\n" +
                         "@${Dowel::class.simpleName} generates code based on the primary constructor of the annotated class, read more at ${Dowel::class.simpleName} annotation class's documentation.",
                     constructor,
                 )
@@ -251,7 +251,7 @@ internal class DowelSymbolProcessor(
 
             if (declaration.typeParameters.isNotEmpty()) {
                 logger.error(
-                    message = " \n@${Dowel::class.simpleName} annotation can't be applied classes with generic type parameters.",
+                    message = "\n@${Dowel::class.simpleName} annotation can't be applied classes with generic type parameters.",
                     symbol = declaration,
                 )
                 return false
@@ -316,7 +316,7 @@ internal class DowelSymbolProcessor(
 
             if (dowelAnnotation == null) {
                 logger.error(
-                    message = "@${DowelList::class.simpleName} annotation can only be applied to classes already annotated with @${Dowel::class.simpleName} annotation.",
+                    message = "\n@${DowelList::class.simpleName} annotation can only be applied to classes already annotated with @${Dowel::class.simpleName} annotation.",
                     symbol = declaration,
                 )
                 return false
