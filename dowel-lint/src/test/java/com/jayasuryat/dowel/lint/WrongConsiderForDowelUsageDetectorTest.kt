@@ -44,7 +44,7 @@ class WrongConsiderForDowelUsageDetectorTest {
     )
 
     @Test
-    fun `check considerForDowel with PreviewParameterProvider super class`() {
+    fun `should be clean for considerForDowel with PreviewParameterProvider super class`() {
 
         TestLintTask.lint()
             .files(
@@ -67,7 +67,7 @@ class WrongConsiderForDowelUsageDetectorTest {
     }
 
     @Test
-    fun `check considerForDowel with no super class`() {
+    fun `should raise error for considerForDowel with no super class`() {
 
         TestLintTask.lint()
             .files(

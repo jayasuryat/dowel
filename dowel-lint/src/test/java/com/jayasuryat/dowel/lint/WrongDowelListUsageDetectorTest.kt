@@ -44,7 +44,7 @@ class WrongDowelListUsageDetectorTest {
     )
 
     @Test
-    fun `check dowelList with a dowel class`() {
+    fun `should be clean for dowelList with dowel class`() {
 
         TestLintTask.lint()
             .files(
@@ -67,7 +67,7 @@ class WrongDowelListUsageDetectorTest {
     }
 
     @Test
-    fun `check dowelList with a dowel class reordered`() {
+    fun `should be clean for dowelList with dowel class reordered`() {
 
         TestLintTask.lint()
             .files(
@@ -90,7 +90,7 @@ class WrongDowelListUsageDetectorTest {
     }
 
     @Test
-    fun `check dowelList with a non-dowel class`() {
+    fun `should raise error for dowelList with non-dowel class`() {
 
         TestLintTask.lint()
             .files(

@@ -38,7 +38,7 @@ class WrongDowelUsageDetectorTest {
     )
 
     @Test
-    fun `check dowel with class`() {
+    fun `should be clean for dowel with class`() {
 
         lint()
             .files(
@@ -59,7 +59,7 @@ class WrongDowelUsageDetectorTest {
     }
 
     @Test
-    fun `check dowel with data class`() {
+    fun `should be clean for dowel with data class`() {
 
         lint()
             .files(
@@ -80,7 +80,7 @@ class WrongDowelUsageDetectorTest {
     }
 
     @Test
-    fun `check dowel with internal class`() {
+    fun `should be clean for dowel with internal class`() {
 
         lint()
             .files(
@@ -101,7 +101,7 @@ class WrongDowelUsageDetectorTest {
     }
 
     @Test
-    fun `check dowel with abstract class`() {
+    fun `should raise error for dowel with abstract class`() {
 
         lint()
             .files(
@@ -129,7 +129,7 @@ class WrongDowelUsageDetectorTest {
     }
 
     @Test
-    fun `check dowel with sealed class`() {
+    fun `should raise error for dowel with sealed class`() {
 
         lint()
             .files(
@@ -157,7 +157,7 @@ class WrongDowelUsageDetectorTest {
     }
 
     @Test
-    fun `check dowel with interface`() {
+    fun `should raise error for dowel with interface`() {
 
         lint()
             .files(
@@ -183,7 +183,7 @@ class WrongDowelUsageDetectorTest {
     }
 
     @Test
-    fun `check dowel with annotation class`() {
+    fun `should raise error for dowel with annotation class`() {
 
         lint()
             .files(
