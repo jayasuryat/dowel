@@ -36,6 +36,11 @@ internal class DowelProcessingTest {
         DowelSymbolProcessorProvider()
     }
 
+    // The following comment turns off spotless checks until the 'on' command is detected.
+    // Turning off spotless as it is formatting and removing trailing whitespaces in 'expected'
+    // output strings and leading to failed tests.
+    // spotless:off
+
     // region : Stubs
     private val PreviewParameterProviderStub: SourceFile by lazy {
         val source = """
@@ -51,7 +56,7 @@ internal class DowelProcessingTest {
         val source = """
             package kotlinx.coroutines.flow
             interface Flow<T>
-
+                        
             fun <T> flowOf(vararg elements: T): Flow<T> = object : Flow<T> {}
         """.trimIndent()
         SourceFile.kotlin(name = "Flow.kt", contents = source)
@@ -61,17 +66,12 @@ internal class DowelProcessingTest {
         val source = """
             package androidx.compose.runtime
             interface State<T>
-
+                        
             fun <T> mutableStateOf(value: T): State<T> = object : State<T> {}
         """.trimIndent()
         SourceFile.kotlin(name = "SnapshotState.kt", contents = source)
     }
     // endregion
-
-    // The following comment turns off spotless checks until the 'on' command is detected.
-    // Turning off spotless as it is formatting and removing trailing whitespaces in 'expected'
-    // output strings and leading to failed tests.
-    // spotless:off
 
     @Test
     fun `should compile success for dowel with class`() {
