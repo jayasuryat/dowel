@@ -18,12 +18,13 @@ package com.jayasuryat.dowel.lint
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintTask
 import com.android.tools.lint.detector.api.Issue
+import com.jayasuryat.dowel.lint.WrongConsiderForDowelUsageDetector.*
 import org.junit.Test
 
 @Suppress("UnstableApiUsage")
 class WrongConsiderForDowelUsageDetectorTest {
 
-    private val issue: Issue = WrongConsiderForDowelUsageDetector.IssueInfo.Definition
+    private val issue: Array<Issue> = WrongConsiderForDowelUsageDetector.ISSUES
 
     @Suppress("PrivatePropertyName")
     private val ConsiderForDowelStub = kotlin(
@@ -46,22 +47,21 @@ class WrongConsiderForDowelUsageDetectorTest {
     @Test
     fun `should be clean for considerForDowel with PreviewParameterProvider super class`() {
 
+        val source = kotlin(
+            """
+            package dowel
+
+            import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+            import com.jayasuryat.dowel.annotation.ConsiderForDowel
+
+            @ConsiderForDowel
+            internal class CustomPreviewParamProvider : PreviewParameterProvider<String>
+            """.trimIndent()
+        )
+
         TestLintTask.lint()
-            .files(
-                ConsiderForDowelStub,
-                PreviewParameterProviderStub,
-                kotlin(
-                    """
-                    package dowel
-
-                    import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-                    import com.jayasuryat.dowel.annotation.ConsiderForDowel
-
-                    @ConsiderForDowel
-                    internal class CustomPreviewParamProvider : PreviewParameterProvider<String>
-                    """.trimIndent()
-                )
-            ).issues(issue)
+            .files(ConsiderForDowelStub, PreviewParameterProviderStub, source)
+            .issues(*issue)
             .run()
             .expectClean()
     }
@@ -69,29 +69,118 @@ class WrongConsiderForDowelUsageDetectorTest {
     @Test
     fun `should raise error for considerForDowel with no super class`() {
 
+        val source = kotlin(
+            """
+            package dowel
+
+            import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+            import com.jayasuryat.dowel.annotation.ConsiderForDowel
+
+            @ConsiderForDowel
+            internal class CustomPreviewParamProvider
+            """.trimIndent()
+        )
+
         TestLintTask.lint()
-            .files(
-                ConsiderForDowelStub,
-                PreviewParameterProviderStub,
-                kotlin(
-                    """
-                    package dowel
-
-                    import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-                    import com.jayasuryat.dowel.annotation.ConsiderForDowel
-
-                    @ConsiderForDowel
-                    internal class CustomPreviewParamProvider
-                    """.trimIndent()
-                )
-            ).issues(issue)
+            .files(ConsiderForDowelStub, PreviewParameterProviderStub, source)
+            .issues(*issue)
             .run()
             .expectContains(
                 """
-                src/dowel/CustomPreviewParamProvider.kt:6: Error: ${WrongConsiderForDowelUsageDetector.IssueInfo.MESSAGE} [${issue.id}]
+                src/dowel/CustomPreviewParamProvider.kt:6: Error: ${MissingSuperTypeIssue.MESSAGE} [${MissingSuperTypeIssue.ISSUE_ID}]
                 @ConsiderForDowel
-                ^
+                ~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
+                """.trimIndent()
+            )
+    }
+
+    @Test
+    fun `should raise error for considerForDowel with private class`() {
+
+        val source = kotlin(
+            """
+            package dowel
+
+            import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+            import com.jayasuryat.dowel.annotation.ConsiderForDowel
+
+            @ConsiderForDowel
+            private class CustomPreviewParamProvider : PreviewParameterProvider<String>
+            """.trimIndent()
+        )
+
+        TestLintTask.lint()
+            .files(ConsiderForDowelStub, PreviewParameterProviderStub, source)
+            .issues(*issue)
+            .run()
+            .expectContains(
+                """
+                src/dowel/CustomPreviewParamProvider.kt:6: Error: ${PrivateClassIssue.MESSAGE} [${PrivateClassIssue.ISSUE_ID}]
+                @ConsiderForDowel
+                ~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
+                """.trimIndent()
+            )
+    }
+
+    @Test
+    fun `should raise error for considerForDowel with class with private constructor`() {
+
+        val source = kotlin(
+            """
+            package dowel
+
+            import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+            import com.jayasuryat.dowel.annotation.ConsiderForDowel
+
+            @ConsiderForDowel
+            class CustomPreviewParamProvider private constructor(): PreviewParameterProvider<String>
+            """.trimIndent()
+        )
+
+        TestLintTask.lint()
+            .files(ConsiderForDowelStub, PreviewParameterProviderStub, source)
+            .issues(*issue)
+            .run()
+            .expectContains(
+                """
+                src/dowel/CustomPreviewParamProvider.kt:6: Error: ${InaccessibleConstructorIssue.MESSAGE} [${InaccessibleConstructorIssue.ISSUE_ID}]
+                @ConsiderForDowel
+                ~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
+                """.trimIndent()
+            )
+    }
+
+    @Test
+    fun `should raise errors for considerForDowel with private class with private constructor`() {
+
+        val source = kotlin(
+            """
+            package dowel
+
+            import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+            import com.jayasuryat.dowel.annotation.ConsiderForDowel
+
+            @ConsiderForDowel
+            private class CustomPreviewParamProvider private constructor(): PreviewParameterProvider<String>
+            """.trimIndent()
+        )
+
+        TestLintTask.lint()
+            .files(ConsiderForDowelStub, PreviewParameterProviderStub, source)
+            .issues(*issue)
+            .run()
+            .expectContains(
+                """
+                src/dowel/CustomPreviewParamProvider.kt:6: Error: ${InaccessibleConstructorIssue.MESSAGE} [${InaccessibleConstructorIssue.ISSUE_ID}]
+                @ConsiderForDowel
+                ~~~~~~~~~~~~~~~~~
+                src/dowel/CustomPreviewParamProvider.kt:6: Error: ${PrivateClassIssue.MESSAGE} [${PrivateClassIssue.ISSUE_ID}]
+                @ConsiderForDowel
+                ~~~~~~~~~~~~~~~~~
+                2 errors, 0 warnings
                 """.trimIndent()
             )
     }
