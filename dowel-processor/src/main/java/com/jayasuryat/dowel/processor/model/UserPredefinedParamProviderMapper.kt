@@ -73,7 +73,11 @@ internal class UserPredefinedParamProviderMapper(
             val declaration = this
 
             // Checking if type is concrete class or not
-            if (declaration !is KSClassDeclaration || declaration.classKind != ClassKind.CLASS) {
+            if (declaration !is KSClassDeclaration ||
+                declaration.classKind != ClassKind.CLASS ||
+                declaration.modifiers.contains(Modifier.ABSTRACT) ||
+                declaration.modifiers.contains(Modifier.SEALED)
+            ) {
                 logger.error(
                     message = "\nOnly concrete classes can be annotated with @${ConsiderForDowel::class.simpleName} annotation",
                     symbol = declaration,
