@@ -76,6 +76,30 @@ internal class DowelListProcessingTest {
     }
 
     @Test
+    fun `should compile success for dowelList with dowel class reordered`() {
+
+        val source = """
+            package dowel
+            
+            import com.jayasuryat.dowel.annotation.Dowel
+            import com.jayasuryat.dowel.annotation.DowelList
+            
+            @Dowel
+            @DowelList
+            class Person(
+                val name: String,
+                val age: String,
+            )
+        """.trimIndent()
+
+        val kotlinSource: SourceFile = SourceFile.kotlin(name = "Person.kt", contents = source)
+        val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
+
+        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals("", result.messages)
+    }
+
+    @Test
     fun `should raise error for dowelList with non-dowel class`() {
 
         val source = """
