@@ -164,7 +164,7 @@ class WrongConsiderForDowelUsageDetectorTest {
             import com.jayasuryat.dowel.annotation.ConsiderForDowel
 
             @ConsiderForDowel
-            abstract class CustomPreviewParamProvider : PreviewParameterProvider<String>
+            interface CustomPreviewParamProvider : PreviewParameterProvider<String>
             """.trimIndent()
         )
 
