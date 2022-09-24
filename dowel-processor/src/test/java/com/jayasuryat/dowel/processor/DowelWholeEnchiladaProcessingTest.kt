@@ -36,6 +36,8 @@ internal class DowelWholeEnchiladaProcessingTest {
         DowelSymbolProcessorProvider()
     }
 
+    // spotless:off
+
     //region : Sources
     private val PreviewParameterProviderStub: SourceFile by lazy {
         val source = """
@@ -50,7 +52,7 @@ internal class DowelWholeEnchiladaProcessingTest {
     private val SizeStub: SourceFile by lazy {
         val source = """
             package androidx.annotation;
-
+            
             annotation class Size(
                 val value : Long = -1,
                 val min : Long = Long.MIN_VALUE,
@@ -65,7 +67,7 @@ internal class DowelWholeEnchiladaProcessingTest {
         val source = """
             package kotlinx.coroutines.flow
             interface Flow<T>
-
+            
             fun <T> flowOf(vararg elements: T): Flow<T> = object : Flow<T> {}
         """.trimIndent()
         SourceFile.kotlin(name = "Flow.kt", contents = source)
@@ -75,7 +77,7 @@ internal class DowelWholeEnchiladaProcessingTest {
         val source = """
             package androidx.compose.runtime
             interface State<T>
-
+            
             fun <T> mutableStateOf(value: T): State<T> = object : State<T> {}
         """.trimIndent()
         SourceFile.kotlin(name = "SnapshotState.kt", contents = source)
@@ -84,33 +86,33 @@ internal class DowelWholeEnchiladaProcessingTest {
     private val VehicleSource: SourceFile by lazy {
         val source = """
             package dowel.vehicle
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
-
+            
             sealed interface Vehicle {
-
+            
                 object Dummy : Vehicle
-
+            
                 @Dowel
                 data class Bike(
                     val make: String,
                     val model: Int,
                 ) : Vehicle
-
+            
                 @Dowel
                 data class Car(
                     val make: String,
                     val model: Int,
                 ) : Vehicle
-
+            
                 sealed interface FourWheeler : Vehicle {
-
+            
                     @Dowel
                     data class Car(
                         val make: String,
                         val model: Int,
                     ) : FourWheeler
-
+            
                     @Dowel
                     data class Truck(
                         val make: String,
@@ -146,9 +148,9 @@ internal class DowelWholeEnchiladaProcessingTest {
     private val LocationSource: SourceFile by lazy {
         val source = """
             package dowel.location
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
-
+            
             @Dowel
             data class Location(
                 val lat: Long?,
@@ -158,20 +160,21 @@ internal class DowelWholeEnchiladaProcessingTest {
         SourceFile.kotlin(name = "Location.kt", contents = source)
     }
 
-    private val AmbiguityLocationSource: SourceFile by lazy {
+    // TODO: Add support for class name clashes
+    /*private val AmbiguityLocationSource: SourceFile by lazy {
         val source = """
             package dowel
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
-
+            
             @Dowel
             data class Location(
                 val lat: Long,
                 val lon: Long,
             )
         """.trimIndent()
-        SourceFile.kotlin(name = "Location.kt", contents = source)
-    }
+        SourceFile.kotlin(name = "AmbiguousLocation.kt", contents = source)
+    }*/
     //endregion
 
     @Test
@@ -179,7 +182,7 @@ internal class DowelWholeEnchiladaProcessingTest {
 
         val source = """
             package dowel
-
+            
             import com.jayasuryat.dowel.annotation.Dowel
             import androidx.annotation.Size
             import androidx.compose.runtime.State
@@ -187,7 +190,8 @@ internal class DowelWholeEnchiladaProcessingTest {
             import dowel.status.Status
             import dowel.vehicle.Vehicle
             import dowel.static.info.SomeStaticInfo
-
+            import dowel.location.Location
+            
             @Dowel(count = 30)
             data class Person(
                 @Size(value = 5) val name: String,
@@ -223,11 +227,13 @@ internal class DowelWholeEnchiladaProcessingTest {
             StatusSource,
             StaticInfoSource,
             LocationSource,
-            AmbiguityLocationSource
+            /*AmbiguityLocationSource*/
         )
 
         Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
     }
+
+    // spotless:on
 
     private fun compile(
         vararg sourceFiles: SourceFile,
