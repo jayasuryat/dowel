@@ -20,7 +20,7 @@ import com.intellij.lang.jvm.JvmClassKind
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 
-@Suppress("UnstableApiUsage", "MemberVisibilityCanBePrivate")
+@Suppress("UnstableApiUsage")
 internal class WrongDowelUsageDetector : Detector(), SourceCodeScanner {
 
     override fun applicableAnnotations(): List<String> {

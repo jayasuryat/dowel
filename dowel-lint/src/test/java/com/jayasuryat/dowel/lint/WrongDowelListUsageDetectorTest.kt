@@ -18,12 +18,13 @@ package com.jayasuryat.dowel.lint
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintTask
 import com.android.tools.lint.detector.api.Issue
+import com.jayasuryat.dowel.lint.WrongDowelListUsageDetector.NonDowelClassIssue
 import org.junit.Test
 
 @Suppress("UnstableApiUsage")
 class WrongDowelListUsageDetectorTest {
 
-    private val issue: Issue = WrongDowelListUsageDetector.IssueInfo.Definition
+    private val issues: Array<Issue> = WrongDowelListUsageDetector.ISSUES
 
     @Suppress("PrivatePropertyName")
     private val DowelStub = kotlin(
@@ -46,22 +47,22 @@ class WrongDowelListUsageDetectorTest {
     @Test
     fun `should be clean for dowelList with dowel class`() {
 
+        val source = kotlin(
+            """
+            package dowel
+            import com.jayasuryat.dowel.annotation.Dowel
+            import com.jayasuryat.dowel.annotation.DowelList
+            @Dowel
+            @DowelList
+            class Person(
+                val age : Int,
+            )
+            """.trimIndent()
+        )
+
         TestLintTask.lint()
-            .files(
-                DowelStub,
-                kotlin(
-                    """
-                    package dowel
-                    import com.jayasuryat.dowel.annotation.Dowel
-                    import com.jayasuryat.dowel.annotation.DowelList
-                    @Dowel
-                    @DowelList
-                    class Person(
-                        val age : Int,
-                    )
-                    """.trimIndent()
-                )
-            ).issues(issue)
+            .files(DowelStub, source)
+            .issues(*issues)
             .run()
             .expectClean()
     }
@@ -69,22 +70,22 @@ class WrongDowelListUsageDetectorTest {
     @Test
     fun `should be clean for dowelList with dowel class reordered`() {
 
+        val source = kotlin(
+            """
+            package dowel
+            import com.jayasuryat.dowel.annotation.Dowel
+            import com.jayasuryat.dowel.annotation.DowelList
+            @DowelList
+            @Dowel
+            class Person(
+                val age : Int,
+            )
+            """.trimIndent()
+        )
+
         TestLintTask.lint()
-            .files(
-                DowelStub,
-                kotlin(
-                    """
-                    package dowel
-                    import com.jayasuryat.dowel.annotation.Dowel
-                    import com.jayasuryat.dowel.annotation.DowelList
-                    @DowelList
-                    @Dowel
-                    class Person(
-                        val age : Int,
-                    )
-                    """.trimIndent()
-                )
-            ).issues(issue)
+            .files(DowelStub, source)
+            .issues(*issues)
             .run()
             .expectClean()
     }
@@ -92,27 +93,26 @@ class WrongDowelListUsageDetectorTest {
     @Test
     fun `should raise error for dowelList with non-dowel class`() {
 
+        val source = kotlin(
+            """
+            package dowel
+            import com.jayasuryat.dowel.annotation.DowelList
+            @DowelList
+            class Person(
+                val age : Int,
+            )
+            """.trimIndent()
+        )
+
         TestLintTask.lint()
-            .files(
-                DowelStub,
-                kotlin(
-                    """
-                    package dowel
-                    import com.jayasuryat.dowel.annotation.Dowel
-                    import com.jayasuryat.dowel.annotation.DowelList
-                    @DowelList
-                    class Person(
-                        val age : Int,
-                    )
-                    """.trimIndent()
-                )
-            ).issues(issue)
+            .files(DowelStub, source)
+            .issues(*issues)
             .run()
             .expectContains(
                 """
-                src/dowel/Person.kt:4: Error: ${WrongDowelListUsageDetector.IssueInfo.MESSAGE} [${issue.id}]
+                src/dowel/Person.kt:3: Error: ${NonDowelClassIssue.MESSAGE} [${NonDowelClassIssue.ISSUE_ID}]
                 @DowelList
-                ^
+                ~~~~~~~~~~
                 1 errors, 0 warnings
                 """.trimIndent()
             )
