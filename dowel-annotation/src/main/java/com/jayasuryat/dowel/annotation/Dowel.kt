@@ -38,6 +38,7 @@ import com.jayasuryat.dowel.annotation.internal.DowelInternal
  * * Types for which a user-defined PreviewParameterProvider exist (via the @[ConsiderForDowel]
  * annotation)
  * * Sealed types
+ * * Kotlin Objects
  * * [Enum]
  * * [List]
  * * [Map]
