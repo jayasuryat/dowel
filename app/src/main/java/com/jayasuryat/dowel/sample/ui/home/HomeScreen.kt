@@ -15,15 +15,13 @@
  */
 package com.jayasuryat.dowel.sample.ui.home
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.jayasuryat.dowel.sample.ui.home.model.Person
 
 @Composable
@@ -49,7 +47,11 @@ fun HomeScreen(
                 ItemPerson(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .wrapContentHeight(),
+                        .wrapContentHeight()
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 8.dp,
+                        ),
                     person = person
                 )
             }
