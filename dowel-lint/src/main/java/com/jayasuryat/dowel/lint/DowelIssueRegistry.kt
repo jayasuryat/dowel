@@ -37,7 +37,7 @@ public class DowelIssueRegistry : IssueRegistry() {
     internal companion object {
 
         val AllIssues: List<Issue> = listOf(
-            WrongDowelUsageDetector.IssueInfo.Definition,
+            *WrongDowelUsageDetector.ISSUES,
             WrongDowelListUsageDetector.IssueInfo.Definition,
             WrongConsiderForDowelUsageDetector.IssueInfo.Definition,
         )

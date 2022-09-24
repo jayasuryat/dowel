@@ -16,10 +16,11 @@
 package com.jayasuryat.dowel.lint
 
 import com.android.tools.lint.detector.api.*
+import com.intellij.lang.jvm.JvmClassKind
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 
-@Suppress("UnstableApiUsage")
+@Suppress("UnstableApiUsage", "MemberVisibilityCanBePrivate")
 internal class WrongDowelUsageDetector : Detector(), SourceCodeScanner {
 
     override fun applicableAnnotations(): List<String> {
@@ -37,36 +38,63 @@ internal class WrongDowelUsageDetector : Detector(), SourceCodeScanner {
         usageInfo: AnnotationUsageInfo,
     ) {
 
+        val evaluator = context.evaluator
         val parent: UClass = element.uastParent as? UClass ?: return
 
-        val isInvalidUsage = context.evaluator.isAbstract(parent) ||
-            context.evaluator.isCompanion(parent)
+        // Class-kind is not 'class' or class is not concrete
+        if (parent.classKind != JvmClassKind.CLASS ||
+            evaluator.isAbstract(parent) ||
+            evaluator.isCompanion(parent)
+        ) {
 
-        if (isInvalidUsage) {
+            // TODO: This check does not check for objects, need to add that
 
             context.report(
-                issue = IssueInfo.Definition,
+                issue = InvalidClassKindIssue.Definition,
                 scope = element,
-                location = context.getLocation(parent as UElement),
-                message = IssueInfo.MESSAGE,
+                location = context.getLocation(element),
+                message = InvalidClassKindIssue.MESSAGE,
+            )
+
+            return
+        }
+
+        // Class is private in file
+        // The check is not evaluator.isPrivate(parent) because that's how Java representation works
+        if (!evaluator.isPublic(parent)) {
+
+            context.report(
+                issue = PrivateClassIssue.Definition,
+                scope = element,
+                location = context.getLocation(element),
+                message = PrivateClassIssue.MESSAGE,
+            )
+        }
+
+        // Constructor is private
+        val constructor = parent.constructors.firstOrNull()
+        if (constructor == null || evaluator.isPrivate(constructor)) {
+
+            context.report(
+                issue = InaccessibleConstructorIssue.Definition,
+                scope = element,
+                location = context.getLocation(element),
+                message = InaccessibleConstructorIssue.MESSAGE,
             )
         }
     }
 
-    internal object IssueInfo {
+    internal object InvalidClassKindIssue {
 
-        @Suppress("MemberVisibilityCanBePrivate")
-        internal const val ISSUE_ID: String = "WrongDowelUsage"
+        internal const val ISSUE_ID: String = "InvalidClassKindForDowel"
 
         internal const val MESSAGE: String =
             "@Dowel annotation can only be applied to concrete classes."
 
         internal val Definition: Issue = Issue.create(
             id = ISSUE_ID,
-            briefDescription = "Invalid usage of @Dowel annotation.",
-            explanation = """
-                    @Dowel annotation should only be applied to concrete classes.
-                    """, // no need to .trimIndent(), lint does that automatically
+            briefDescription = MESSAGE,
+            explanation = "@Dowel annotation should only be applied to concrete classes.",
             category = Category.CORRECTNESS,
             priority = 7,
             severity = Severity.ERROR,
@@ -74,6 +102,57 @@ internal class WrongDowelUsageDetector : Detector(), SourceCodeScanner {
                 WrongDowelUsageDetector::class.java,
                 Scope.JAVA_FILE_SCOPE
             )
+        )
+    }
+
+    internal object PrivateClassIssue {
+
+        internal const val ISSUE_ID: String = "PrivateDowelClass"
+
+        internal const val MESSAGE: String =
+            "@Dowel annotation can't be applied to private classes"
+
+        internal val Definition: Issue = Issue.create(
+            id = ISSUE_ID,
+            briefDescription = MESSAGE,
+            explanation = "@Dowel annotation can't be applied to private classes as Dowel would be unable create instances for that class.",
+            category = Category.CORRECTNESS,
+            priority = 7,
+            severity = Severity.ERROR,
+            implementation = Implementation(
+                WrongDowelUsageDetector::class.java,
+                Scope.JAVA_FILE_SCOPE
+            )
+        )
+    }
+
+    internal object InaccessibleConstructorIssue {
+
+        internal const val ISSUE_ID: String = "InaccessibleConstructorIssueForDowel"
+
+        internal const val MESSAGE: String =
+            "@Dowel annotation can't be applied classes with private / inaccessible constructors"
+
+        internal val Definition: Issue = Issue.create(
+            id = ISSUE_ID,
+            briefDescription = MESSAGE,
+            explanation = "@Dowel annotation can't be applied to classes with private / inaccessible constructors as Dowel would be unable create instances for that class.",
+            category = Category.CORRECTNESS,
+            priority = 7,
+            severity = Severity.ERROR,
+            implementation = Implementation(
+                WrongDowelUsageDetector::class.java,
+                Scope.JAVA_FILE_SCOPE
+            )
+        )
+    }
+
+    companion object {
+
+        internal val ISSUES: Array<Issue> = arrayOf(
+            InvalidClassKindIssue.Definition,
+            PrivateClassIssue.Definition,
+            InaccessibleConstructorIssue.Definition,
         )
     }
 }
