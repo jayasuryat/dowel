@@ -39,7 +39,7 @@ public class DowelIssueRegistry : IssueRegistry() {
         val AllIssues: List<Issue> = listOf(
             *WrongDowelUsageDetector.ISSUES,
             *WrongDowelListUsageDetector.ISSUES,
-            WrongConsiderForDowelUsageDetector.IssueInfo.Definition,
+            *WrongConsiderForDowelUsageDetector.ISSUES,
         )
     }
 }

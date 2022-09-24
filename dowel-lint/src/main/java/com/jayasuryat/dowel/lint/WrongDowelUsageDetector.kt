@@ -128,7 +128,7 @@ internal class WrongDowelUsageDetector : Detector(), SourceCodeScanner {
 
     internal object InaccessibleConstructorIssue {
 
-        internal const val ISSUE_ID: String = "InaccessibleConstructorIssueForDowel"
+        internal const val ISSUE_ID: String = "InaccessibleConstructorForDowel"
 
         internal const val MESSAGE: String =
             "@Dowel annotation can't be applied classes with private / inaccessible constructors"
