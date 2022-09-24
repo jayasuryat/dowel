@@ -18,12 +18,13 @@ package com.jayasuryat.dowel.lint
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import com.android.tools.lint.detector.api.Issue
+import com.jayasuryat.dowel.lint.WrongDowelUsageDetector.*
 import org.junit.Test
 
 @Suppress("UnstableApiUsage")
 class WrongDowelUsageDetectorTest {
 
-    private val issue: Issue = WrongDowelUsageDetector.IssueInfo.Definition
+    private val issue: Array<Issue> = WrongDowelUsageDetector.ISSUES
 
     @Suppress("PrivatePropertyName")
     private val DowelStub = kotlin(
@@ -40,20 +41,19 @@ class WrongDowelUsageDetectorTest {
     @Test
     fun `should be clean for dowel with class`() {
 
-        lint()
-            .files(
-                DowelStub,
-                kotlin(
-                    """
-                    package dowel
-                    import com.jayasuryat.dowel.annotation.Dowel
-                    @Dowel
-                    class Person(
-                        val age : Int,
-                    )
-                    """.trimIndent()
-                )
-            ).issues(issue)
+        val source = kotlin(
+            """
+            package dowel
+            import com.jayasuryat.dowel.annotation.Dowel
+            @Dowel
+            class Person(
+                val age : Int,
+            )
+            """.trimIndent()
+        )
+
+        lint().files(DowelStub, source)
+            .issues(*issue)
             .run()
             .expectClean()
     }
@@ -61,20 +61,20 @@ class WrongDowelUsageDetectorTest {
     @Test
     fun `should be clean for dowel with data class`() {
 
+        val source = kotlin(
+            """
+            package dowel
+            import com.jayasuryat.dowel.annotation.Dowel
+            @Dowel
+            data class Person(
+                val age : Int,
+            )
+            """.trimIndent()
+        )
+
         lint()
-            .files(
-                DowelStub,
-                kotlin(
-                    """
-                    package dowel
-                    import com.jayasuryat.dowel.annotation.Dowel
-                    @Dowel
-                    data class Person(
-                        val age : Int,
-                    )
-                    """.trimIndent()
-                )
-            ).issues(issue)
+            .files(DowelStub, source)
+            .issues(*issue)
             .run()
             .expectClean()
     }
@@ -82,20 +82,20 @@ class WrongDowelUsageDetectorTest {
     @Test
     fun `should be clean for dowel with internal class`() {
 
+        val source = kotlin(
+            """
+            package dowel
+            import com.jayasuryat.dowel.annotation.Dowel
+            @Dowel
+            internal class Person(
+                val age : Int,
+            )
+            """.trimIndent()
+        )
+
         lint()
-            .files(
-                DowelStub,
-                kotlin(
-                    """
-                    package dowel
-                    import com.jayasuryat.dowel.annotation.Dowel
-                    @Dowel
-                    internal class Person(
-                        val age : Int,
-                    )
-                    """.trimIndent()
-                )
-            ).issues(issue)
+            .files(DowelStub, source)
+            .issues(*issue)
             .run()
             .expectClean()
     }
@@ -103,26 +103,26 @@ class WrongDowelUsageDetectorTest {
     @Test
     fun `should raise error for dowel with abstract class`() {
 
+        val source = kotlin(
+            """
+            package dowel
+            import com.jayasuryat.dowel.annotation.Dowel
+            @Dowel
+            abstract class Person(
+                val age : Int,
+            )
+            """.trimIndent()
+        )
+
         lint()
-            .files(
-                DowelStub,
-                kotlin(
-                    """
-                    package dowel
-                    import com.jayasuryat.dowel.annotation.Dowel
-                    @Dowel
-                    abstract class Person(
-                        val age : Int,
-                    )
-                    """.trimIndent()
-                )
-            ).issues(issue)
+            .files(DowelStub, source)
+            .issues(*issue)
             .run()
             .expectContains(
                 """
-                src/dowel/Person.kt:3: Error: ${WrongDowelUsageDetector.IssueInfo.MESSAGE} [${issue.id}]
+                src/dowel/Person.kt:3: Error: ${InvalidClassKindIssue.MESSAGE} [${InvalidClassKindIssue.ISSUE_ID}]
                 @Dowel
-                ^
+                ~~~~~~
                 1 errors, 0 warnings
                 """.trimIndent()
             )
@@ -131,26 +131,26 @@ class WrongDowelUsageDetectorTest {
     @Test
     fun `should raise error for dowel with sealed class`() {
 
+        val source = kotlin(
+            """
+            package dowel
+            import com.jayasuryat.dowel.annotation.Dowel
+            @Dowel
+            sealed class Person(
+                val age : Int,
+            )
+            """.trimIndent()
+        )
+
         lint()
-            .files(
-                DowelStub,
-                kotlin(
-                    """
-                    package dowel
-                    import com.jayasuryat.dowel.annotation.Dowel
-                    @Dowel
-                    sealed class Person(
-                        val age : Int,
-                    )
-                    """.trimIndent()
-                )
-            ).issues(issue)
+            .files(DowelStub, source)
+            .issues(*issue)
             .run()
             .expectContains(
                 """
-                src/dowel/Person.kt:3: Error: ${WrongDowelUsageDetector.IssueInfo.MESSAGE} [${issue.id}]
+                src/dowel/Person.kt:3: Error: ${InvalidClassKindIssue.MESSAGE} [${InvalidClassKindIssue.ISSUE_ID}]
                 @Dowel
-                ^
+                ~~~~~~
                 1 errors, 0 warnings
                 """.trimIndent()
             )
@@ -159,24 +159,24 @@ class WrongDowelUsageDetectorTest {
     @Test
     fun `should raise error for dowel with interface`() {
 
+        val source = kotlin(
+            """
+            package dowel
+            import com.jayasuryat.dowel.annotation.Dowel
+            @Dowel
+            interface Person
+            """.trimIndent()
+        )
+
         lint()
-            .files(
-                DowelStub,
-                kotlin(
-                    """
-                    package dowel
-                    import com.jayasuryat.dowel.annotation.Dowel
-                    @Dowel
-                    interface Person
-                    """.trimIndent()
-                )
-            ).issues(issue)
+            .files(DowelStub, source)
+            .issues(*issue)
             .run()
             .expectContains(
                 """
-                src/dowel/Person.kt:3: Error: ${WrongDowelUsageDetector.IssueInfo.MESSAGE} [${issue.id}]
+                src/dowel/Person.kt:3: Error: ${InvalidClassKindIssue.MESSAGE} [${InvalidClassKindIssue.ISSUE_ID}]
                 @Dowel
-                ^
+                ~~~~~~
                 1 errors, 0 warnings
                 """.trimIndent()
             )
@@ -185,54 +185,120 @@ class WrongDowelUsageDetectorTest {
     @Test
     fun `should raise error for dowel with annotation class`() {
 
+        val source = kotlin(
+            """
+            package dowel
+            import com.jayasuryat.dowel.annotation.Dowel
+            @Dowel
+            annotation class Person
+            """.trimIndent()
+        )
+
         lint()
-            .files(
-                DowelStub,
-                kotlin(
-                    """
-                    package dowel
-                    import com.jayasuryat.dowel.annotation.Dowel
-                    @Dowel
-                    annotation class Person
-                    """.trimIndent()
-                )
-            ).issues(issue)
+            .files(DowelStub, source)
+            .issues(*issue)
             .run()
             .expectContains(
                 """
-                src/dowel/Person.kt:3: Error: ${WrongDowelUsageDetector.IssueInfo.MESSAGE} [${issue.id}]
+                src/dowel/Person.kt:3: Error: ${InvalidClassKindIssue.MESSAGE} [${InvalidClassKindIssue.ISSUE_ID}]
                 @Dowel
-                ^
+                ~~~~~~
                 1 errors, 0 warnings
                 """.trimIndent()
             )
     }
 
+    @Test
+    fun `should raise error for dowel with private class`() {
+
+        val source = kotlin(
+            """
+            package dowel
+            import com.jayasuryat.dowel.annotation.Dowel
+            @Dowel
+            private data class Person(
+                val name : String,
+                val age : Int,
+            )
+            """.trimIndent()
+        )
+
+        lint()
+            .files(DowelStub, source)
+            .issues(*issue)
+            .run()
+            .expectContains(
+                """
+                src/dowel/Person.kt:3: Error: ${PrivateClassIssue.MESSAGE} [${PrivateClassIssue.ISSUE_ID}]
+                @Dowel
+                ~~~~~~
+                1 errors, 0 warnings
+                """.trimIndent()
+            )
+    }
+
+    @Test
+    fun `should raise error for dowel with class with private constructor`() {
+
+        val source = kotlin(
+            """
+            package dowel
+            import com.jayasuryat.dowel.annotation.Dowel
+            @Dowel
+            class Person private constructor(
+                val name : String,
+                val age : Int,
+            )
+            """.trimIndent()
+        )
+
+        lint()
+            .files(DowelStub, source)
+            .issues(*issue)
+            .run()
+            .expectContains(
+                """
+                src/dowel/Person.kt:3: Error: ${InaccessibleConstructorIssue.MESSAGE} [${InaccessibleConstructorIssue.ISSUE_ID}]
+                @Dowel
+                ~~~~~~
+                1 errors, 0 warnings
+                """.trimIndent()
+            )
+    }
+
+    @Test
+    fun `should raise errors for dowel with private class with private constructor`() {
+
+        val source = kotlin(
+            """
+            package dowel
+            import com.jayasuryat.dowel.annotation.Dowel
+            @Dowel
+            private class Person private constructor(
+                val name : String,
+                val age : Int,
+            )
+            """.trimIndent()
+        )
+
+        lint()
+            .files(DowelStub, source)
+            .issues(*issue)
+            .run()
+            .expectContains(
+                """
+                src/dowel/Person.kt:3: Error: ${InaccessibleConstructorIssue.MESSAGE} [${InaccessibleConstructorIssue.ISSUE_ID}]
+                @Dowel
+                ~~~~~~
+                src/dowel/Person.kt:3: Error: ${PrivateClassIssue.MESSAGE} [${PrivateClassIssue.ISSUE_ID}]
+                @Dowel
+                ~~~~~~
+                2 errors, 0 warnings
+                """.trimIndent()
+            )
+    }
+
     /*
-
-    TODO: Need to add support for checking for private class
-
-   @Test
-   fun `check dowel with private class`() {
-
-       lint()
-           .files(
-               DowelStub,
-               kotlin(
-                   """
-                   package dowel
-                   import com.jayasuryat.dowel.annotation.Dowel
-                   @Dowel
-                   private class Person(
-                       val age : Int,
-                   )
-                   """.trimIndent()
-               )
-           ).issues(issue)
-           .run()
-           .expectClean()
-   }
-
    TODO: Need to add support for checking for objects
 
    @Test
