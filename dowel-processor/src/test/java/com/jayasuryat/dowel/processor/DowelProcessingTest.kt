@@ -51,26 +51,6 @@ internal class DowelProcessingTest {
         """.trimIndent()
         SourceFile.kotlin(name = "PreviewParameterProvider.kt", contents = source)
     }
-
-    private val FlowStub: SourceFile by lazy {
-        val source = """
-            package kotlinx.coroutines.flow
-            interface Flow<T>
-                        
-            fun <T> flowOf(vararg elements: T): Flow<T> = object : Flow<T> {}
-        """.trimIndent()
-        SourceFile.kotlin(name = "Flow.kt", contents = source)
-    }
-
-    private val StateStub: SourceFile by lazy {
-        val source = """
-            package androidx.compose.runtime
-            interface State<T>
-                        
-            fun <T> mutableStateOf(value: T): State<T> = object : State<T> {}
-        """.trimIndent()
-        SourceFile.kotlin(name = "SnapshotState.kt", contents = source)
-    }
     // endregion
 
     @Test
@@ -386,8 +366,6 @@ internal class DowelProcessingTest {
         val result: KotlinCompilation.Result = compile(
             kotlinSource,
             PreviewParameterProviderStub,
-            StateStub,
-            FlowStub,
         )
 
         val expectedMessage = """
@@ -429,8 +407,6 @@ internal class DowelProcessingTest {
         val result: KotlinCompilation.Result = compile(
             kotlinSource,
             PreviewParameterProviderStub,
-            StateStub,
-            FlowStub,
         )
 
         val expectedMessage = """
@@ -439,6 +415,42 @@ internal class DowelProcessingTest {
             Sealed sub types can only be Objects, Enum classes, or concrete classes annotated with @Dowel annotation
             e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:9: 
             Unexpected type encountered : Data @ Person.data.
+            See documentation of @Dowel annotation class to read more about the supported types or how to potentially fix this issue.
+            Alternatively, provide a pre-defined PreviewParameterProvider via the @ConsiderForDowel annotation.
+
+        """.trimIndent()
+
+        Assert.assertTrue(result.messages.contains(expectedMessage))
+    }
+
+    @Test
+    fun `should raise error for dowel with Nothing property type`() {
+
+        val source = """
+            package dowel
+            
+            import com.jayasuryat.dowel.annotation.Dowel
+            
+            @Dowel
+            class Person(
+                val name: String,
+                val data : Nothing,
+                val height : Double,
+            )
+            
+            class Test
+        """.trimIndent()
+
+        val kotlinSource: SourceFile = SourceFile.kotlin(name = "Person.kt", contents = source)
+        val result: KotlinCompilation.Result = compile(
+            kotlinSource,
+            PreviewParameterProviderStub,
+        )
+
+        val expectedMessage = """
+            e: Error occurred in KSP, check log for detail
+            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:8: 
+            Unexpected type encountered : Nothing @ Person.data.
             See documentation of @Dowel annotation class to read more about the supported types or how to potentially fix this issue.
             Alternatively, provide a pre-defined PreviewParameterProvider via the @ConsiderForDowel annotation.
 

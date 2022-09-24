@@ -81,11 +81,11 @@ internal class ClassRepresentationMapper(
     }
     private val stateDeclaration: KSType by unsafeLazy {
         val ksName = resolver.getKSNameFromString(Names.stateName.canonicalName)
-        resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
+        resolver.getClassDeclarationByName(ksName)?.asStarProjectedType() ?: builtIns.nothingType
     }
     private val flowDeclaration: KSType by unsafeLazy {
         val ksName = resolver.getKSNameFromString(Names.flowName.canonicalName)
-        resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
+        resolver.getClassDeclarationByName(ksName)?.asStarProjectedType() ?: builtIns.nothingType
     }
     private val pairDeclaration: KSType by unsafeLazy {
         val ksName = resolver.getKSNameFromString(Pair::class.qualifiedName!!)
@@ -149,6 +149,9 @@ internal class ClassRepresentationMapper(
 
         // Ordering is crucial here. Only checks for the first matching type
         val paramSpec: MaybeParamSpec = when {
+
+            // Defensive checks against the `Nothing` type
+            builtIns.nothingType.isAssignableFrom(propType) -> UnsupportedType.left()
 
             // User has pre-defined a PreviewParameterProvider for this type
             // As this check is done first, this spec takes precedence over all the other specs
