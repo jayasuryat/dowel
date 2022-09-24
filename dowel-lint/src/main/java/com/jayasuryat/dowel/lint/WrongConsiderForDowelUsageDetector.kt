@@ -16,6 +16,7 @@
 package com.jayasuryat.dowel.lint
 
 import com.android.tools.lint.detector.api.*
+import com.intellij.lang.jvm.JvmClassKind
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 
@@ -57,6 +58,24 @@ internal class WrongConsiderForDowelUsageDetector : Detector(), SourceCodeScanne
             return
         }
 
+        // Class-kind is not 'class' or class is not concrete
+        if (parent.classKind != JvmClassKind.CLASS ||
+            evaluator.isAbstract(parent) ||
+            evaluator.isCompanion(parent)
+        ) {
+
+            // TODO: This check does not check for objects, need to add that
+
+            context.report(
+                issue = InvalidClassKindIssue.Definition,
+                scope = element,
+                location = context.getLocation(element),
+                message = InvalidClassKindIssue.MESSAGE,
+            )
+
+            return
+        }
+
         // Class is private in file
         // The check is not evaluator.isPrivate(parent) because that's how Java representation works
         if (!evaluator.isPublic(parent)) {
@@ -80,6 +99,27 @@ internal class WrongConsiderForDowelUsageDetector : Detector(), SourceCodeScanne
                 message = InaccessibleConstructorIssue.MESSAGE,
             )
         }
+    }
+
+    internal object InvalidClassKindIssue {
+
+        internal const val ISSUE_ID: String = "InvalidClassKindForConsiderForDowel"
+
+        internal const val MESSAGE: String =
+            "@ConsiderForDowel annotation can only be applied to concrete classes."
+
+        internal val Definition: Issue = Issue.create(
+            id = ISSUE_ID,
+            briefDescription = MESSAGE,
+            explanation = "@ConsiderForDowel annotation should only be applied to concrete classes.",
+            category = Category.CORRECTNESS,
+            priority = 7,
+            severity = Severity.ERROR,
+            implementation = Implementation(
+                WrongDowelUsageDetector::class.java,
+                Scope.JAVA_FILE_SCOPE
+            )
+        )
     }
 
     internal object MissingSuperTypeIssue {
@@ -126,7 +166,7 @@ internal class WrongConsiderForDowelUsageDetector : Detector(), SourceCodeScanne
 
     internal object InaccessibleConstructorIssue {
 
-        internal const val ISSUE_ID: String = "InaccessibleConstructorForConsiderForDowel"
+        internal const val ISSUE_ID: String = "InaccessibleConstructorConsiderForDowel"
 
         internal const val MESSAGE: String =
             "@ConsiderForDowel annotation can't be applied classes with private / inaccessible constructors"
@@ -149,6 +189,7 @@ internal class WrongConsiderForDowelUsageDetector : Detector(), SourceCodeScanne
 
         internal val ISSUES: Array<Issue> = arrayOf(
             MissingSuperTypeIssue.Definition,
+            InvalidClassKindIssue.Definition,
             PrivateClassIssue.Definition,
             InaccessibleConstructorIssue.Definition,
         )

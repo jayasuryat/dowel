@@ -96,6 +96,93 @@ class WrongConsiderForDowelUsageDetectorTest {
     }
 
     @Test
+    fun `should raise error for considerForDowel with abstract class`() {
+
+        val source = kotlin(
+            """
+            package dowel
+
+            import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+            import com.jayasuryat.dowel.annotation.ConsiderForDowel
+
+            @ConsiderForDowel
+            abstract class CustomPreviewParamProvider : PreviewParameterProvider<String>
+            """.trimIndent()
+        )
+
+        TestLintTask.lint()
+            .files(ConsiderForDowelStub, PreviewParameterProviderStub, source)
+            .issues(*issue)
+            .run()
+            .expectContains(
+                """
+                src/dowel/CustomPreviewParamProvider.kt:6: Error: ${InvalidClassKindIssue.MESSAGE} [${InvalidClassKindIssue.ISSUE_ID}]
+                @ConsiderForDowel
+                ~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
+                """.trimIndent()
+            )
+    }
+
+    @Test
+    fun `should raise error for considerForDowel with sealed class`() {
+
+        val source = kotlin(
+            """
+            package dowel
+
+            import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+            import com.jayasuryat.dowel.annotation.ConsiderForDowel
+
+            @ConsiderForDowel
+            sealed class CustomPreviewParamProvider : PreviewParameterProvider<String>
+            """.trimIndent()
+        )
+
+        TestLintTask.lint()
+            .files(ConsiderForDowelStub, PreviewParameterProviderStub, source)
+            .issues(*issue)
+            .run()
+            .expectContains(
+                """
+                src/dowel/CustomPreviewParamProvider.kt:6: Error: ${InvalidClassKindIssue.MESSAGE} [${InvalidClassKindIssue.ISSUE_ID}]
+                @ConsiderForDowel
+                ~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
+                """.trimIndent()
+            )
+    }
+
+    @Test
+    fun `should raise error for considerForDowel with interface`() {
+
+        val source = kotlin(
+            """
+            package dowel
+
+            import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+            import com.jayasuryat.dowel.annotation.ConsiderForDowel
+
+            @ConsiderForDowel
+            abstract class CustomPreviewParamProvider : PreviewParameterProvider<String>
+            """.trimIndent()
+        )
+
+        TestLintTask.lint()
+            .files(ConsiderForDowelStub, PreviewParameterProviderStub, source)
+            .issues(*issue)
+            .run()
+            .expectContains(
+                """
+                src/dowel/CustomPreviewParamProvider.kt:6: Error: ${InvalidClassKindIssue.MESSAGE} [${InvalidClassKindIssue.ISSUE_ID}]
+                @ConsiderForDowel
+                ~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
+                """.trimIndent()
+            )
+    }
+
+    @Test
     fun `should raise error for considerForDowel with private class`() {
 
         val source = kotlin(
