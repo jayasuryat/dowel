@@ -166,6 +166,11 @@ There are only 3 annotations you need to know about:
 - As far as a type is in above mentioned supported list, there are no practical limitations on how many times they may be nested.
 Like `List<Map<String, List<@Dowel class>>>`
 
+## `Dowel` ships with `lint` rules
+`Dowel` ships with `lint` rules and these rules cover all of the basic issues and will warn you even before you might compile the code.
+
+And for the things that `lint` doesn't catch, like issues with unsupported types of properties, meaningful error messages will be logged from KSP to nudge you in the right direction.
+
 ## License
 ```
  Copyright 2022 Jaya Surya Thotapalli
