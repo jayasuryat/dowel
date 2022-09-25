@@ -33,7 +33,9 @@ In cases like these [`PreviewParameterProvider`](https://developer.android.com/r
 
 Due to the amount of sheer verbosity involved in writing `PreviewParameterProvider` *by hand*, it becomes tedious to write `PreviewParameterProvider` for each and every UI model. And as writing `PreviewParameterProvider` for every model becomes an uninteresting task, it becomes a barrier to entry for writing `Previews` for all the `Composables`.
 
-That is where `Dowel` comes in and takes care of generating `PreviewParameterProvider` for your UI models. 
+That is where `Dowel` comes in and takes care of generating all of the boilerplate `PreviewParameterProvider` logic for your UI models. This also encourages writing more `Previews` for `Composables`.
+
+Apart from that, with `Dowel` you can also *`Fuzz test`* your `Composables` with all of the random values of random length or range being generated for all of the properties of the inputs.
 </details>
 
 ## 3. How?
@@ -133,11 +135,16 @@ public class NewsArticlePreviewParamProvider : PreviewParameterProvider<NewsArti
 ```
 </details>
 
-## 4. How do I use `@Dowel`?
-There are only 3 annotations you need to know about:
-1. `@Dowel` : The primary entry point into `Dowel`, triggeres generation `PreviewParameterProvider` for that class.
-2. `@DowelList` : Same as `@Dowel`, but generates a `PreviewParameterProvider` of type `List<T>` where `T` is the class annotated with `@DowelList` annotation. Rest of the behavior is same as the `@Dowel` annotation.
-3. `@ConsiderForDowel` : If you want to add support for an unsupported type, or override provider logic for a particular type, then you can do that with `@ConsiderForDowel` annotation. Only classes already extending `androidx.compose.ui.tooling.preview.PreviewParameterProvider` can be annotated with `@ConsiderForDowel`.
+## 4. How do I use `Dowel`?
+There are only 3 `Dowel` annotations you need to know about:
+1. [`@Dowel`](https://github.com/JayaSuryaT/Dowel/blob/main/dowel-annotation/src/main/java/com/jayasuryat/dowel/annotation/Dowel.kt) : The primary entry point into `Dowel`, triggeres generation `PreviewParameterProvider` for that class.
+2. [`@DowelList`](https://github.com/JayaSuryaT/Dowel/blob/main/dowel-annotation/src/main/java/com/jayasuryat/dowel/annotation/DowelList.kt) : Same as `@Dowel`, but generates a `PreviewParameterProvider` of type `List<T>` where `T` is the class annotated with `@DowelList` annotation. Rest of the behavior is same as the `@Dowel` annotation.
+3. [`@ConsiderForDowel`](https://github.com/JayaSuryaT/Dowel/blob/main/dowel-annotation/src/main/java/com/jayasuryat/dowel/annotation/ConsiderForDowel.kt) : If you want to add support for an unsupported type, or override provider logic for a particular type, then you can do that with `@ConsiderForDowel` annotation. Only classes already extending `androidx.compose.ui.tooling.preview.PreviewParameterProvider` can be annotated with `@ConsiderForDowel`.
+
+Apart from that if you want to controll range / legnth / size of the values being generated, you can do that with `androidx.annotations`. Currently these 3 are the only supported ones:
+* `androidx.annotation.IntRange` : Control the range of `Int` and `Long` properties
+* `androidx.annotation.FloatRange` : Control the range of `Float` and `Double` properties
+* `androidx.annotation.Size` : Control the size of `String`, `List` and `Map` properties
 
 
 ## 5. What all is possible?
