@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm'
+    id 'maven-publish'
 }
 
 java {
@@ -35,4 +36,17 @@ dependencies {
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.4.9")
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.java
+                groupId = 'com.github.jayasuryat'
+                artifactId = 'dowel-processor'
+                version = '0.1'
+            }
+        }
+    }
 }

@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'maven-publish'
 }
 
 android {
@@ -47,4 +48,18 @@ dependencies {
     api project(":dowel-annotation")
     implementation project(':dowel-lint')
     lintPublish project(':dowel-lint')
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+
+                groupId = 'com.github.jayasuryat'
+                artifactId = 'dowel'
+                version = '0.1'
+            }
+        }
+    }
 }
