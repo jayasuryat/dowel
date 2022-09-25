@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm'
+    id 'maven-publish'
 }
 
 java {
@@ -10,4 +11,17 @@ java {
 
 kotlin {
     explicitApi()
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.java
+                groupId = 'com.github.jayasuryat'
+                artifactId = 'dowel-annotation'
+                version = '0.1'
+            }
+        }
+    }
 }

@@ -2,6 +2,7 @@ plugins {
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm'
     id 'com.android.lint'
+    id 'maven-publish'
 }
 
 java {
@@ -21,4 +22,17 @@ dependencies {
     testImplementation "junit:junit:4.13.2"
     testImplementation "com.android.tools.lint:lint:$lint_version"
     testImplementation "com.android.tools.lint:lint-tests:$lint_version"
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.java
+                groupId = 'com.github.jayasuryat'
+                artifactId = 'dowel-lint'
+                version = '0.1'
+            }
+        }
+    }
 }
