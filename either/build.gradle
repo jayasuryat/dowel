@@ -17,3 +17,16 @@ dependencies {
 
     testImplementation 'junit:junit:4.13.2'
 }
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.java
+                groupId = 'com.github.jayasuryat'
+                artifactId = 'either'
+                version = '0.1'
+            }
+        }
+    }
+}
