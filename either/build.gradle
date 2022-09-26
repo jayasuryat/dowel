@@ -25,7 +25,6 @@ afterEvaluate {
                 from components.java
                 groupId = 'com.github.jayasuryat'
                 artifactId = 'either'
-                version = '0.1'
             }
         }
     }

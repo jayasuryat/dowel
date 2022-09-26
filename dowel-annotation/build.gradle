@@ -20,7 +20,6 @@ afterEvaluate {
                 from components.java
                 groupId = 'com.github.jayasuryat'
                 artifactId = 'dowel-annotation'
-                version = '0.1'
             }
         }
     }

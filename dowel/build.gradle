@@ -55,10 +55,8 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.release
-
                 groupId = 'com.github.jayasuryat'
                 artifactId = 'dowel'
-                version = '0.1'
             }
         }
     }
