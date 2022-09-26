@@ -48,7 +48,23 @@ plugins {
 ```
 > **Note** : Make sure your project's `Kotlin` version and `KSP version` are the same. Learn more about the available versions [here](https://github.com/google/ksp/releases)
 
-#### 3.2. Add the `Dowel` dependencies in your **module's** `build.gradle` file
+#### 3.2. Add `jitpack.io` to the `repositories` blocks in your project's `settings.gradle` file
+```gradle
+pluginManagement {
+    repositories {
+        // Other repos
+        maven { url 'https://jitpack.io' } // <----- This is the line to add
+    }
+}
+dependencyResolutionManagement {
+    repositories {
+        // Other repos
+        maven { url 'https://jitpack.io' } // <----- This is the line to add
+    }
+}
+```
+
+#### 3.3. Add the `Dowel` dependencies in your **module's** `build.gradle` file
 ```gradle
 dependencies {
     implementation("com.github.jayasuryat.dowel:dowel:<version>")
@@ -56,7 +72,7 @@ dependencies {
 }
 ```
 
-#### 3.3. Add `KSP` generated files as sources in your **module's** `build.gradle` file
+#### 3.4. Add `KSP` generated files as sources in your **module's** `build.gradle` file
 ```gradle
 kotlin {
     sourceSets.configureEach {
@@ -65,16 +81,14 @@ kotlin {
 }
 ```
 
-## 3. How?
+## 4. How?
 `Dowel` uses [`Kotlin Symbol Processing API`](https://kotlinlang.org/docs/ksp-overview.html) under the hood to read, parse, and process source code to generate appropriate `PreviewParameterProviders`.
 
 The primary entry point into `Dowel` is with [`@Dowel`](https://github.com/JayaSuryaT/Dowel/blob/main/dowel-annotation/src/main/java/com/jayasuryat/dowel/annotation/Dowel.kt) annotation.
 
 `Dowel` goes through all the classes annotated with `@Dowel` annotation and generates `PreviewParameterProvider` for each class.
 
-<details>
-
-  <summary><h2>For example (click to expand) :<h2/></summary>
+### For example
 
 ```kotlin
 // File : NewsArticle.kt
@@ -160,13 +174,12 @@ public class NewsArticlePreviewParamProvider : PreviewParameterProvider<NewsArti
 }
 
 ```
-</details>
 
-## 4. How do I use `Dowel`?
+## 5. How do I use `Dowel`?
 There are only 3 `Dowel` annotations you need to know about:
 1. [`@Dowel`](https://github.com/JayaSuryaT/Dowel/blob/main/dowel-annotation/src/main/java/com/jayasuryat/dowel/annotation/Dowel.kt) : The primary entry point into `Dowel`, triggeres generation `PreviewParameterProvider` for that class.
 2. [`@DowelList`](https://github.com/JayaSuryaT/Dowel/blob/main/dowel-annotation/src/main/java/com/jayasuryat/dowel/annotation/DowelList.kt) : Same as `@Dowel`, but generates a `PreviewParameterProvider` of type `List<T>` where `T` is the class annotated with `@DowelList` annotation. Rest of the behavior is same as the `@Dowel` annotation.
-3. [`@ConsiderForDowel`](https://github.com/JayaSuryaT/Dowel/blob/main/dowel-annotation/src/main/java/com/jayasuryat/dowel/annotation/ConsiderForDowel.kt) : If you want to add support for an unsupported type, or override provider logic for a particular type, then you can do that with `@ConsiderForDowel` annotation. Only classes already extending `androidx.compose.ui.tooling.preview.PreviewParameterProvider` can be annotated with `@ConsiderForDowel`.
+3. [`@ConsiderForDowel`](https://github.com/JayaSuryaT/Dowel/blob/main/dowel-annotation/src/main/java/com/jayasuryat/dowel/annotation/ConsiderForDowel.kt) : If you want to add support for an unsupported type, or override provider logic for a particular type, then you can do that with `@ConsiderForDowel` annotation.
 
 Apart from that if you want to controll range / legnth / size of the values being generated, you can do that with `androidx.annotations`. Currently these 3 are the only supported ones:
 * `androidx.annotation.IntRange` : Control the range of `Int` and `Long` properties
@@ -174,7 +187,7 @@ Apart from that if you want to controll range / legnth / size of the values bein
 * `androidx.annotation.Size` : Control the size of `String`, `List` and `Map` properties
 
 
-## 5. What all is possible?
+## 6. What all is possible?
 `Dowel` is quite flexible with the types it already supports, but there are certain limits on what all types are supported, and in general how `Dowel` works :
 
 - Classes annotated with any of the `Dowel` annotations (`@Dowel`, `@DowelList` or `@ConsdierForDowel`) should be concrete (non-abstract)
@@ -201,7 +214,7 @@ Apart from that if you want to controll range / legnth / size of the values bein
 Like `List<Map<String, List<@Dowel class>>>`
 
 ## `Dowel` ships with `lint` rules
-`Dowel` ships with `lint` rules and these rules cover all of the basic issues and will warn you even before you might compile the code.
+`Dowel` ships with `lint` rules which cover all of the basic scenarios and will warn you even before you might compile the code.
 
 And for the things that `lint` doesn't catch, like issues with unsupported types of properties, meaningful error messages will be logged from KSP to nudge you in the right direction.
 
