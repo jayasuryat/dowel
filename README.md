@@ -36,7 +36,7 @@ Due to the amount of sheer verbosity involved in writing `PreviewParameterProvid
 
 This makes writing `Previews` simple and hence encourages writing more `Previews` for `Composables` in general. Apart from that, with `Dowel` you can also *`Fuzz test`* your `Composables` with all of the random values of random length or range being generated for all of the properties of the inputs. 
 
-> **Note** : These random lengths or ranges can also be regulated, read more at [How do I use Dowel?](https://github.com/jayasuryat/dowel/blob/bd9afe6595d652e6a8b376567188554223b80ce5/README.md?plain=1#L165)
+> **Note** : These random lengths or ranges can also be regulated, read more at *"4. How do I use Dowel?"* section.
 
 ## 3. Gradle setup
 
