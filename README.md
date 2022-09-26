@@ -28,15 +28,42 @@ In cases like these [`PreviewParameterProvider`](https://developer.android.com/r
 
 </details>
 
-<details>
-    <summary><h3>2. Why Dowel?<h3/></summary>
+## 2. Why Dowel?
 
-Due to the amount of sheer verbosity involved in writing `PreviewParameterProvider` *by hand*, it becomes tedious to write `PreviewParameterProvider` for each and every UI model. And as writing `PreviewParameterProvider` for every model becomes an uninteresting task, it becomes a barrier to entry for writing `Previews` for all the `Composables`.
+Due to the amount of sheer verbosity involved in writing `PreviewParameterProvider` *by hand*, it becomes tedious to write `PreviewParameterProvider` for each and every UI model. And as writing `PreviewParameterProvider` for every model becomes an uninteresting task it becomes a barrier to entry for writing `Previews` for all the `Composables`.
 
-That is where `Dowel` comes in and takes care of generating all of the boilerplate `PreviewParameterProvider` logic for your UI models. This also encourages writing more `Previews` for `Composables`.
+#### That is where `Dowel` comes in and takes care of generating all of the boilerplate `PreviewParameterProvider` logic for your UI models.
 
-Apart from that, with `Dowel` you can also *`Fuzz test`* your `Composables` with all of the random values of random length or range being generated for all of the properties of the inputs.
-</details>
+This makes writing `Previews` simple and hence encourages writing more `Previews` for `Composables` in general. Apart from that, with `Dowel` you can also *`Fuzz test`* your `Composables` with all of the random values of random length or range being generated for all of the properties of the inputs. 
+
+> **Note** : These random lengths or ranges can also be regulated, read more at [How do I use Dowel?](?plain=165)
+
+## 3. Gradle setup
+
+#### 3.1. Add KSP plugin to your **module's** `build.gradle` file
+```kotlin
+plugins {
+    id("com.google.devtools.ksp") version "1.7.0-1.0.6"
+}
+```
+> **Note** : Make sure your project's `Kotlin` version and `KSP version` are the same. Learn more about the available versions [here](https://github.com/google/ksp/releases)
+
+#### 3.2. Add the `Dowel` dependencies in your **module's** `build.gradle` file
+```gradle
+dependencies {
+    implementation("com.github.jayasuryat.dowel:dowel:<version>")
+    ksp("com.github.jayasuryat.dowel:dowel-processor:<version>")
+}
+```
+
+#### 3.3. Add `KSP` generated files as sources in your **module's** `build.gradle` file
+```gradle
+kotlin {
+    sourceSets.configureEach {
+        kotlin.srcDir("$buildDir/generated/ksp/$name/kotlin/")
+    }
+}
+```
 
 ## 3. How?
 `Dowel` uses [`Kotlin Symbol Processing API`](https://kotlinlang.org/docs/ksp-overview.html) under the hood to read, parse, and process source code to generate appropriate `PreviewParameterProviders`.
