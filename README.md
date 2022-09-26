@@ -2,14 +2,14 @@
 <div align="center">
 
   <img src="https://user-images.githubusercontent.com/37530409/192136328-7f566157-6a3f-46b9-8703-780ea1da625f.svg#gh-dark-mode-only" alt="Dowel" height="200"/>
-  
+
   <img src="https://user-images.githubusercontent.com/37530409/192136329-18987de1-1d36-4c62-a608-2b02d4b92e83.svg#gh-light-mode-only" alt="Dowel" height="200"/>
-  
+
   <p align="center">
     <a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/></a>
     <a href="https://android-arsenal.com/api?level=21"><img alt="API" src="https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat"/></a>
   </p>
-  
+
   <h2>A Kotlin Symbol Processor to generate Compose PreviewParameterProviders</h2>
 
 </div>
@@ -20,9 +20,9 @@
 
 In [`Jetpack Compose`](https://developer.android.com/jetpack/compose), we use something called [`Previews`](https://developer.android.com/jetpack/compose/tooling), which are `Composable` functions written specifically to preview (or interact with) the UI rendered by `Compose` in the editor itself without needing to run the app on a device.
 
-And `Composable` methods generally have some parameters based on which the UI is rendered. More often than not, `Composable` methods have a significant amount of data inputs which are needed to be passed from the preview methods for the previews to render. 
+And `Composable` methods generally have some parameters based on which the UI is rendered. More often than not, `Composable` methods have a significant amount of data inputs which are needed to be passed from the preview methods for the previews to render.
 
-In cases like these [`PreviewParameterProvider`](https://developer.android.com/reference/kotlin/androidx/compose/ui/tooling/preview/PreviewParameterProvider) (a class from the Compose tooling library) can be used to provide data for the previews. 
+In cases like these [`PreviewParameterProvider`](https://developer.android.com/reference/kotlin/androidx/compose/ui/tooling/preview/PreviewParameterProvider) (a class from the Compose tooling library) can be used to provide data for the previews.
 
 `PreviewParameterProvider` makes the `Preview` methods less verbose and easy to read by abstracting away the input data construction logic. And these providers can be reused across various `Preview` methods to render different previews.
 
@@ -74,7 +74,7 @@ data class NewsArticle(
 ### Generates 👇
 
 ```kotlin
-// File in generated sources : NewsArticlePreviewParamProvider.kt 
+// File in generated sources : NewsArticlePreviewParamProvider.kt
 package com.yourapp.module
 
 import androidx.compose.runtime.mutableStateOf
