@@ -7,6 +7,7 @@
 
   <p align="center">
     <a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/></a>
+    <a href="https://github.com/jayasuryat/dowel/releases"><img alt="artifact_version" src="https://jitpack.io/v/jayasuryat/dowel.svg"/></a>    
     <a href="https://android-arsenal.com/api?level=21"><img alt="API" src="https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat"/></a>
   </p>
 
@@ -67,8 +68,8 @@ dependencyResolutionManagement {
 #### 3.3. Add the `Dowel` dependencies in your **module's** `build.gradle` file
 ```gradle
 dependencies {
-    implementation("com.github.jayasuryat.dowel:dowel:<version>")
-    ksp("com.github.jayasuryat.dowel:dowel-processor:<version>")
+    implementation("com.github.jayasuryat.dowel:dowel:0.5.0")
+    ksp("com.github.jayasuryat.dowel:dowel-processor:0.5.0")
 }
 ```
 
