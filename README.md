@@ -89,7 +89,9 @@ The primary entry point into `Dowel` is with [`@Dowel`](https://github.com/JayaS
 
 `Dowel` goes through all the classes annotated with `@Dowel` annotation and generates `PreviewParameterProvider` for each class.
 
-### For example
+## For example
+
+https://user-images.githubusercontent.com/37530409/192849433-42d4d116-4d68-4147-8ba2-c5781f34af8f.mp4
 
 ```kotlin
 // File : NewsArticle.kt
