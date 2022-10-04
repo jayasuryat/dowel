@@ -231,6 +231,14 @@ internal class DowelSymbolProcessor(
                 return false
             }
 
+            if (declaration.modifiers.contains(Modifier.INNER)) {
+                logger.error(
+                    message = "\n@${Dowel::class.simpleName} annotation can't be applied to inner classes",
+                    symbol = declaration,
+                )
+                return false
+            }
+
             if (declaration.modifiers.contains(Modifier.PRIVATE)) {
                 logger.error(
                     "\n@${Dowel::class.simpleName} cannot create an instance for `${declaration.simpleName.asString()}` class: it is private in file.",
