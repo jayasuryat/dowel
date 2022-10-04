@@ -17,6 +17,7 @@ package com.jayasuryat.dowel.lint
 
 import com.android.tools.lint.detector.api.*
 import com.intellij.lang.jvm.JvmClassKind
+import com.intellij.psi.PsiModifier
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 
@@ -59,6 +60,22 @@ internal class WrongDowelUsageDetector : Detector(), SourceCodeScanner {
             return
         }
 
+        // Inner class. (Nested and non-inner classes have the static modifier in the Java code)
+        val declarationClass = parent.uastParent
+        if (declarationClass != null &&
+            declarationClass is UClass &&
+            declarationClass.classKind == JvmClassKind.CLASS &&
+            !parent.hasModifierProperty(PsiModifier.STATIC)
+        ) {
+
+            context.report(
+                issue = InnerClassIssue.Definition,
+                scope = element,
+                location = context.getLocation(element),
+                message = InnerClassIssue.MESSAGE,
+            )
+        }
+
         // Class is private in file
         // The check is not evaluator.isPrivate(parent) because that's how Java representation works
         if (!evaluator.isPublic(parent)) {
@@ -95,6 +112,27 @@ internal class WrongDowelUsageDetector : Detector(), SourceCodeScanner {
             id = ISSUE_ID,
             briefDescription = MESSAGE,
             explanation = "@Dowel annotation should only be applied to concrete classes.",
+            category = Category.CORRECTNESS,
+            priority = 7,
+            severity = Severity.ERROR,
+            implementation = Implementation(
+                WrongDowelUsageDetector::class.java,
+                Scope.JAVA_FILE_SCOPE
+            )
+        )
+    }
+
+    internal object InnerClassIssue {
+
+        internal const val ISSUE_ID: String = "InnerClassForDowel"
+
+        internal const val MESSAGE: String =
+            "@Dowel annotation can't be applied to inner classes"
+
+        internal val Definition: Issue = Issue.create(
+            id = ISSUE_ID,
+            briefDescription = MESSAGE,
+            explanation = "@Dowel annotation can't be applied to inner classes",
             category = Category.CORRECTNESS,
             priority = 7,
             severity = Severity.ERROR,
@@ -151,6 +189,7 @@ internal class WrongDowelUsageDetector : Detector(), SourceCodeScanner {
 
         internal val ISSUES: Array<Issue> = arrayOf(
             InvalidClassKindIssue.Definition,
+            InnerClassIssue.Definition,
             PrivateClassIssue.Definition,
             InaccessibleConstructorIssue.Definition,
         )
