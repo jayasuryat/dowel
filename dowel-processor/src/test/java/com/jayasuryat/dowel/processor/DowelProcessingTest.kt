@@ -120,6 +120,41 @@ internal class DowelProcessingTest {
     }
 
     @Test
+    fun `should compile success for dowel with nested internal class`() {
+
+        val source = """
+            package dowel
+            
+            import com.jayasuryat.dowel.annotation.Dowel
+            
+            @Dowel
+            internal data class Person(
+                val name: String,
+                val age: String,
+            ){
+            
+                @Dowel
+                data class Location(
+                    val lat : Long,
+                    val lon : Long,
+                ){
+                
+                    @Dowel
+                    data class GeoData(
+                        val data : Long,
+                    )
+                }
+            }
+        """.trimIndent()
+
+        val kotlinSource: SourceFile = SourceFile.kotlin(name = "Person.kt", contents = source)
+        val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
+
+        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals("", result.messages)
+    }
+
+    @Test
     fun `should raise error for dowel with abstract class`() {
 
         val source = """

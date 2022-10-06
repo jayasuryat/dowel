@@ -15,7 +15,6 @@
  */
 package com.jayasuryat.dowel.processor.generator
 
-import com.google.devtools.ksp.getVisibility
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
@@ -30,6 +29,7 @@ import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.Do
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.PreDefinedProviderSpec
 import com.jayasuryat.dowel.processor.model.ClassRepresentationMapper
 import com.jayasuryat.dowel.processor.model.UserPredefinedParamProviders
+import com.jayasuryat.dowel.processor.util.getEffectiveModuleVisibility
 import com.jayasuryat.dowel.processor.util.unsafeLazy
 import com.jayasuryat.dowel.processor.util.writeTo
 import com.squareup.kotlinpoet.*
@@ -118,7 +118,7 @@ internal class DowelGenerator(
             .first { it.name!!.asString() == Dowel.Companion.COUNT_PROPERTY_NAME }
             .value as Int
 
-        val visibility: KModifier = classDeclaration.getVisibility().toKModifier()
+        val visibility: KModifier = classDeclaration.getEffectiveModuleVisibility().toKModifier()
             ?: KModifier.PUBLIC
 
         val classSpec: TypeSpec = TypeSpec

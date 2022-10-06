@@ -152,7 +152,7 @@ internal class DowelWholeEnchiladaProcessingTest {
             import com.jayasuryat.dowel.annotation.Dowel
             
             @Dowel
-            data class Location(
+            internal data class Location(
                 val lat: Long?,
                 val lon: Long?,
             )
@@ -193,7 +193,7 @@ internal class DowelWholeEnchiladaProcessingTest {
             import dowel.location.Location
             
             @Dowel(count = 30)
-            data class Person(
+            internal data class Person(
                 @Size(value = 5) val name: String,
                 @Size(value = 300) val bio: String?,
                 val age: Int,

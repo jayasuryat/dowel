@@ -126,6 +126,69 @@ internal class DowelListProcessingTest {
         """.trimIndent(), result.messages)
     }
 
+    @Test
+    fun `should compile success for dowelList with internal class`() {
+
+        val source = """
+            package dowel
+            
+            import com.jayasuryat.dowel.annotation.Dowel
+            import com.jayasuryat.dowel.annotation.DowelList
+            
+            @DowelList
+            @Dowel
+            internal class Person(
+                val name: String,
+                val age: String,
+            )
+        """.trimIndent()
+
+        val kotlinSource: SourceFile = SourceFile.kotlin(name = "Person.kt", contents = source)
+        val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
+
+        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals("", result.messages)
+    }
+
+    @Test
+    fun `should compile success for dowelList with nested internal class`() {
+
+        val source = """
+            package dowel
+            
+            import com.jayasuryat.dowel.annotation.Dowel
+            import com.jayasuryat.dowel.annotation.DowelList
+            
+            @DowelList
+            @Dowel
+            internal data class Person(
+                val name: String,
+                val age: String,
+            ){
+            
+                @DowelList
+                @Dowel
+                data class Location(
+                    val lat : Long,
+                    val lon : Long,
+                ){
+
+                    @DowelList
+                    @Dowel
+                    data class GeoData(
+                        val data : Long,
+                    )
+                }
+            }
+        """.trimIndent()
+
+        val kotlinSource: SourceFile = SourceFile.kotlin(name = "Person.kt", contents = source)
+        val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
+
+        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals("", result.messages)
+    }
+
     //spotless:on
 
     private fun compile(
