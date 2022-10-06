@@ -20,10 +20,12 @@ import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.jayasuryat.dowel.annotation.DowelList
 import com.jayasuryat.dowel.processor.*
+import com.jayasuryat.dowel.processor.util.getEffectiveModuleVisibility
 import com.jayasuryat.dowel.processor.util.writeTo
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toKModifier
 
 /**
  * Generates a file containing an implementation of
@@ -93,8 +95,12 @@ internal class DowelListGenerator(
             .first { it.name!!.asString() == DowelList.Companion.COUNT_PROPERTY_NAME }
             .value as Int
 
+        val visibility: KModifier = classDeclaration.getEffectiveModuleVisibility().toKModifier()
+            ?: KModifier.PUBLIC
+
         val classSpec: TypeSpec = TypeSpec
             .classBuilder(outputClassName)
+            .addModifiers(visibility)
             .addSuperinterface(outputSuperType)
             .addDowelListProperty(declaration = classDeclaration)
             .addValuesProperty(
