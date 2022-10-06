@@ -209,6 +209,41 @@ class WrongDowelUsageDetectorTest {
     }
 
     @Test
+    fun `should raise error for dowel with inner class`() {
+
+        val source = kotlin(
+            """
+            package dowel
+            import com.jayasuryat.dowel.annotation.Dowel
+            @Dowel
+            class Person(
+                val name: String,
+                val age: String,
+            ){
+
+                @Dowel
+                inner class Author(
+                    val id : Long,
+                )
+            }
+            """.trimIndent()
+        )
+
+        lint()
+            .files(DowelStub, source)
+            .issues(*issue)
+            .run()
+            .expectContains(
+                """
+                src/dowel/Person.kt:9: Error: ${InnerClassIssue.MESSAGE} [${InnerClassIssue.ISSUE_ID}]
+                    @Dowel
+                    ~~~~~~
+                1 errors, 0 warnings
+                """.trimIndent()
+            )
+    }
+
+    @Test
     fun `should raise error for dowel with private class`() {
 
         val source = kotlin(

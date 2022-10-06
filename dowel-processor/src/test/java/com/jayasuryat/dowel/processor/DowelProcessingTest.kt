@@ -256,6 +256,41 @@ internal class DowelProcessingTest {
     }
 
     @Test
+    fun `should raise error for dowel with inner class`() {
+
+        val source = """
+            package dowel
+            
+            import com.jayasuryat.dowel.annotation.Dowel
+            
+            @Dowel
+            class Person(
+                val name: String,
+                val age: String,
+            ){
+                
+                @Dowel
+                inner class Author(
+                    val id : Long,
+                )
+            }
+        """.trimIndent()
+
+        val kotlinSource: SourceFile = SourceFile.kotlin(name = "Person.kt", contents = source)
+        val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
+
+        Assert.assertEquals(
+            """
+            e: Error occurred in KSP, check log for detail
+            e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:12: 
+            @Dowel annotation can't be applied to inner classes
+
+            """.trimIndent(),
+            result.messages
+        )
+    }
+
+    @Test
     fun `should raise error for dowel with private class`() {
 
         val source = """
