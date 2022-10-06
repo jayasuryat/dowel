@@ -104,6 +104,14 @@ internal class UserPredefinedParamProviderMapper(
                 return false
             }
 
+            if (declaration.modifiers.contains(Modifier.INNER)) {
+                logger.error(
+                    message = "\n@${ConsiderForDowel::class.simpleName} annotation can't be applied to inner classes",
+                    symbol = declaration,
+                )
+                return false
+            }
+
             return true
         }
 

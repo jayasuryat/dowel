@@ -270,6 +270,40 @@ internal class ConsiderForDowelProcessingTest {
         """.trimIndent(), result.messages)
     }
 
+    @Test
+    fun `should raise error for considerForDowel with inner class`() {
+
+        val source = """
+            package dowel
+            
+            import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+            import com.jayasuryat.dowel.annotation.ConsiderForDowel
+            
+            class Person(
+                val name: String,
+                val age: String,
+            ){
+                
+                @ConsiderForDowel
+                inner class CustomPreviewParamProvider : PreviewParameterProvider<String>{
+                    override val values : Sequence<String> = sequenceOf("", "", "")
+                }
+            }
+        """.trimIndent()
+
+        val kotlinSource: SourceFile =
+            SourceFile.kotlin(name = "CustomPreviewParamProvider.kt", contents = source)
+        val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
+
+        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals("""
+            e: Error occurred in KSP, check log for detail
+            e: [ksp] ${temporaryFolder.root.path}/sources/CustomPreviewParamProvider.kt:12: 
+            @ConsiderForDowel annotation can't be applied to inner classes
+
+        """.trimIndent(), result.messages)
+    }
+
     //spotless:on
 
     private fun compile(
