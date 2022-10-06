@@ -183,6 +183,43 @@ class WrongConsiderForDowelUsageDetectorTest {
     }
 
     @Test
+    fun `should raise error for considerForDowel with inner class`() {
+
+        val source = kotlin(
+            """
+            package dowel
+
+            import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+            import com.jayasuryat.dowel.annotation.ConsiderForDowel
+
+            class Person(
+                val name: String,
+                val age: String,
+            ){
+
+                @ConsiderForDowel
+                inner class CustomPreviewParamProvider : PreviewParameterProvider<String>{
+                    override val values : Sequence<String> = sequenceOf("", "", "")
+                }
+            }
+            """.trimIndent()
+        )
+
+        TestLintTask.lint()
+            .files(ConsiderForDowelStub, PreviewParameterProviderStub, source)
+            .issues(*issue)
+            .run()
+            .expectContains(
+                """
+                src/dowel/Person.kt:11: Error: ${InnerClassIssue.MESSAGE} [${InnerClassIssue.ISSUE_ID}]
+                    @ConsiderForDowel
+                    ~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
+                """.trimIndent()
+            )
+    }
+
+    @Test
     fun `should raise error for considerForDowel with private class`() {
 
         val source = kotlin(
