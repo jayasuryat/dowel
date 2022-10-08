@@ -18,14 +18,21 @@ package com.jayasuryat.dowel.processor.model
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.*
+import com.google.devtools.ksp.validate
 import com.jayasuryat.dowel.annotation.ConsiderForDowel
+import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.processor.Names
+import com.jayasuryat.dowel.processor.dowelClassName
+import com.jayasuryat.dowel.processor.model.UserPredefinedParamProviderMapper.ProcessedConsiderForDowelSymbols
 import com.jayasuryat.dowel.processor.util.unsafeLazy
+import com.jayasuryat.either.Either
+import com.jayasuryat.either.left
+import com.jayasuryat.either.right
 
 /**
- * Mapper class to map [List]&lt;[KSAnnotated]&gt; to [UserPredefinedParamProviders].
+ * Mapper class to map [List]&lt;[KSAnnotated]&gt; to [ProcessedConsiderForDowelSymbols].
  *
- * This mapper assumes that all of the [KSAnnotated] are annotated with [ConsiderForDowel]
+ * This mapper assumes that all of the [KSAnnotated] symbols are annotated with [ConsiderForDowel]
  * annotation. And expects all of the [KSAnnotated] to be instances of [KSClassDeclaration]
  * type and all of them to be extending [androidx.compose.ui.tooling.preview.PreviewParameterProvider],
  * and there should only be a single [KSAnnotated] per [KSType].
@@ -38,6 +45,7 @@ import com.jayasuryat.dowel.processor.util.unsafeLazy
  * @param logger to log errors when unexpected or invalid inputs are encountered
  *
  * @see [UserPredefinedParamProviders]
+ * @see [ProcessedConsiderForDowelSymbols]
  * @see [KSTypeReference.resolve]
  */
 @Suppress("KDocUnresolvedReference")
@@ -53,72 +61,108 @@ internal class UserPredefinedParamProviderMapper(
 
     fun map(
         declarations: List<KSAnnotated>,
-    ): UserPredefinedParamProviders {
+    ): ProcessedConsiderForDowelSymbols {
 
-        return declarations
-            .validateAndMapAsClassDeclarations()
-            .validateAndMap()
+        val validSymbols: MutableList<KSClassDeclaration> = mutableListOf()
+        val invalidSymbols: MutableList<KSAnnotated> = mutableListOf()
+
+        declarations.forEach { symbol ->
+            when (val validated = symbol.validateAndMap()) {
+                is Either.Left -> invalidSymbols.add(validated.value)
+                is Either.Right -> validSymbols.add(validated.value)
+            }
+        }
+
+        val mapped: ProcessedConsiderForDowelSymbols = validSymbols.validateAndMap()
+
+        // Adding unprocessed invalid symbols to the invalidSymbols list
+        return mapped.copy(
+            invalidSymbols = mapped.invalidSymbols + invalidSymbols,
+        )
     }
 
     /**
-     * Validates that evey [KSAnnotated] in the list is of type [KSClassDeclaration] and is a
-     * concrete class. Maps valid symbols to [KSClassDeclaration] and returns the resultant.
-     *
-     * Logs error if any unexpected or invalid inputs are encountered
+     * Logs warning when overlapping providers are found for a [KSType]. Overlapping providers
+     * could be coming from different sources. For example, a class could be annotated with
+     * @[Dowel] annotation, and a user defined PreviewParameterProvider implementation exists
+     * for the same class which is annotated with @[ConsiderForDowel] annotation. At this point
+     * Dowel generates a provider for that type and a pre-defined provider already exists for the
+     * same type, which is redundant.
      */
-    private fun List<KSAnnotated>.validateAndMapAsClassDeclarations(): List<KSClassDeclaration> {
+    fun logWarningForOverlappingDowelClasses(
+        predefinedProviders: UserPredefinedParamProviders,
+        dowelDeclarations: List<KSClassDeclaration>,
+    ) {
 
-        fun KSAnnotated.validateAndLogIfError(): Boolean {
+        val declarations: Map<KSClassDeclaration, KSType> = dowelDeclarations
+            .associateWith { declaration -> declaration.asType(listOf()) }
 
-            val declaration = this
+        declarations.forEach { (declaration: KSClassDeclaration, type: KSType) ->
 
-            // Checking if type is concrete class or not
-            if (declaration !is KSClassDeclaration ||
-                declaration.classKind != ClassKind.CLASS ||
-                declaration.modifiers.contains(Modifier.ABSTRACT) ||
-                declaration.modifiers.contains(Modifier.SEALED)
-            ) {
-                logger.error(
-                    message = "\nOnly concrete classes can be annotated with @${ConsiderForDowel::class.simpleName} annotation",
-                    symbol = declaration,
+            val existingProvider: KSClassDeclaration? = predefinedProviders[type]
+
+            if (existingProvider != null) {
+
+                val existingName = existingProvider.simpleName.asString()
+                val generatedName = declaration.dowelClassName
+
+                logger.warn(
+                    "Duplicate/redundant providers found for type : $type, $existingName and $generatedName.\n" +
+                        "$existingName will take precedence and will be used in outputs. $generatedName will be ignored.\n" +
+                        "Consider either removing the redundant @${Dowel::class.simpleName!!} annotation from the ${declaration.simpleName.asString()} class or removing $existingName class itself.",
+                    existingProvider
                 )
-                return false
             }
+        }
+    }
 
-            // Checking for private classes
-            if (declaration.modifiers.contains(Modifier.PRIVATE)) {
-                logger.error(
-                    message = "\nCannot create an instance for `${declaration.simpleName.asString()}` class: it is private in file.",
-                    declaration,
-                )
-                return false
-            }
+    private fun KSAnnotated.validateAndMap(): Either<KSAnnotated, KSClassDeclaration> {
 
-            // Checking for private constructors
-            val constructor = declaration.primaryConstructor!!
-            if (constructor.modifiers.contains(Modifier.PRIVATE)) {
-                logger.error(
-                    message = "\nCannot create an instance of class ${declaration.simpleName.asString()} as it's constructor is private.",
-                    constructor,
-                )
-                return false
-            }
+        val declaration = this
 
-            if (declaration.modifiers.contains(Modifier.INNER)) {
-                logger.error(
-                    message = "\n@${ConsiderForDowel::class.simpleName} annotation can't be applied to inner classes",
-                    symbol = declaration,
-                )
-                return false
-            }
+        if (!declaration.validate()) return declaration.left()
 
-            return true
+        // Checking if type is concrete class or not
+        if (declaration !is KSClassDeclaration ||
+            declaration.classKind != ClassKind.CLASS ||
+            declaration.modifiers.contains(Modifier.ABSTRACT) ||
+            declaration.modifiers.contains(Modifier.SEALED)
+        ) {
+            logger.error(
+                message = "\nOnly concrete classes can be annotated with @${ConsiderForDowel::class.simpleName} annotation",
+                symbol = declaration,
+            )
+            return declaration.left()
         }
 
-        return this.mapNotNull { declaration ->
-            val isValid: Boolean = declaration.validateAndLogIfError()
-            if (isValid) declaration as KSClassDeclaration else null
+        // Checking for private classes
+        if (declaration.modifiers.contains(Modifier.PRIVATE)) {
+            logger.error(
+                message = "\nCannot create an instance for `${declaration.simpleName.asString()}` class: it is private in file.",
+                declaration,
+            )
+            return declaration.left()
         }
+
+        // Checking for private constructors
+        val constructor = declaration.primaryConstructor!!
+        if (constructor.modifiers.contains(Modifier.PRIVATE)) {
+            logger.error(
+                message = "\nCannot create an instance of class ${declaration.simpleName.asString()} as it's constructor is private.",
+                constructor,
+            )
+            return declaration.left()
+        }
+
+        if (declaration.modifiers.contains(Modifier.INNER)) {
+            logger.error(
+                message = "\n@${ConsiderForDowel::class.simpleName} annotation can't be applied to inner classes",
+                symbol = declaration,
+            )
+            return declaration.left()
+        }
+
+        return declaration.right()
     }
 
     /**
@@ -126,15 +170,17 @@ internal class UserPredefinedParamProviderMapper(
      * [androidx.compose.ui.tooling.preview.PreviewParameterProvider] and that there is only a single
      * provider per type, annotated with @[ConsiderForDowel] annotation.
      *
-     * Maps valid [KSType] to it's providing [KSClassDeclaration] and return the resultant.
+     * Maps valid [KSType] to it's providing [KSClassDeclaration] and return the resultant as
+     * [ProcessedConsiderForDowelSymbols].
      *
      * Logs error if any unexpected or invalid inputs are encountered
      */
-    private fun List<KSClassDeclaration>.validateAndMap(): Map<KSType, KSClassDeclaration> {
+    private fun List<KSClassDeclaration>.validateAndMap(): ProcessedConsiderForDowelSymbols {
 
         val declarations = this
 
         val mapOfTypes: MutableMap<KSType, KSClassDeclaration> = mutableMapOf()
+        val invalidSymbols: MutableList<KSClassDeclaration> = mutableListOf()
 
         for (declaration in declarations) {
 
@@ -145,6 +191,7 @@ internal class UserPredefinedParamProviderMapper(
                     message = "\nClass ${declaration.qualifiedName!!.asString()} is annotated with @${ConsiderForDowel::class.simpleName}, but does not extend ${Names.previewParamProvider.canonicalName}.",
                     symbol = declaration,
                 )
+                invalidSymbols.add(declaration)
                 continue
             }
 
@@ -162,7 +209,11 @@ internal class UserPredefinedParamProviderMapper(
             mapOfTypes[type] = declaration
         }
 
-        return mapOfTypes
+        return ProcessedConsiderForDowelSymbols(
+            providers = mapOfTypes,
+            invalidSymbols = invalidSymbols,
+            validSymbols = declarations - invalidSymbols.toSet(),
+        )
     }
 
     /**
@@ -193,4 +244,16 @@ internal class UserPredefinedParamProviderMapper(
 
         return null
     }
+
+    /**
+     * A container class to hold processed @[ConsiderForDowel] symbols.
+     * @param validSymbols Valid symbols which fit the @[ConsiderForDowel] criteria
+     * @param invalidSymbols Invalid symbols which didn't fit the @[ConsiderForDowel] criteria
+     * @param providers Processed and mapped valid [KSAnnotated] symbols into [UserPredefinedParamProviders]
+     */
+    data class ProcessedConsiderForDowelSymbols(
+        val validSymbols: List<KSClassDeclaration>,
+        val invalidSymbols: List<KSAnnotated>,
+        val providers: UserPredefinedParamProviders,
+    )
 }
