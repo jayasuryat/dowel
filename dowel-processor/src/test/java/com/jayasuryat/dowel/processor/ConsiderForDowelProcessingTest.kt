@@ -87,6 +87,7 @@ internal class ConsiderForDowelProcessingTest {
             @Dowel
             data class Person(
                 val name : String,
+                val location : Location,
             )
             
             data class Location(
