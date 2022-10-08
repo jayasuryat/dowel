@@ -7,7 +7,7 @@
 
   <p align="center">
     <a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/></a>
-    <a href="https://github.com/jayasuryat/dowel/releases"><img alt="artifact_version" src="https://jitpack.io/v/jayasuryat/dowel.svg"/></a>    
+    <a href="https://github.com/jayasuryat/dowel/releases"><img alt="artifact_version" src="https://jitpack.io/v/jayasuryat/dowel.svg"/></a>
     <a href="https://android-arsenal.com/api?level=21"><img alt="API" src="https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat"/></a>
     <a href="https://androidweekly.net/issues/issue-538"><img alt="API" src="https://img.shields.io/badge/AndroidWeekly-%23538-2299cc.svg?style=flat&logo=android"/></a>
     <a href="https://mailchi.mp/kotlinweekly/kotlin-weekly-322"><img alt="API" src="https://img.shields.io/badge/KotlinWeekly-%23322-7549b5.svg?style=flat&logo=kotlin"/></a>
@@ -37,7 +37,7 @@ Due to the amount of sheer verbosity involved in writing `PreviewParameterProvid
 
 #### That is where `Dowel` comes in and takes care of generating all of the boilerplate `PreviewParameterProvider` logic for your UI models.
 
-This makes writing `Previews` simple and hence encourages writing more `Previews` for `Composables` in general. Apart from that, with `Dowel` you can also *`Fuzz test`* your `Composables` with all of the random values of random length or range being generated for all of the properties of the inputs. 
+This makes writing `Previews` simple and hence encourages writing more `Previews` for `Composables` in general. Apart from that, with `Dowel` you can also *`Fuzz test`* your `Composables` with all of the random values of random length or range being generated for all of the properties of the inputs.
 
 > **Note** : These random lengths or ranges can also be regulated, read more at *"4. How do I use Dowel?"* section.
 
