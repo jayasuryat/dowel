@@ -13,54 +13,43 @@ jobs:
   lint:
     name: Spotless check
     runs-on: ubuntu-18.04
-    
     steps:
       - name: Check out code
         uses: actions/checkout@v2
-        
       - name: Set up JDK
-      - uses: actions/setup-java@v3
+        uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 11
-          
       - name: Spotless check
         run: ./gradlew spotlessCheck
 
   test:
     name: Run tests
     runs-on: ubuntu-latest
-    
     steps:
       - name: Check out code
         uses: actions/checkout@v2
-        
       - name: Set up JDK
-      - uses: actions/setup-java@v3
+        uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 11
-          
       - name: Run dowel-processor tests
         run: ./gradlew dowel-processor:test
-        
       - name: Run dowel-lint tests
         run: ./gradlew dowel-lint:test
-        
+
   build:
     name: Build project
     runs-on: ubuntu-latest
-    
     steps:
       - name: Check out code
         uses: actions/checkout@v2
-        
       - name: Set up JDK
-      - uses: actions/setup-java@v3
+        uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: 11
-        
       - name: Build project
         run: ./gradlew assemble
-        
