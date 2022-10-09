@@ -154,6 +154,20 @@ internal class UserPredefinedParamProviderMapper(
             return declaration.left()
         }
 
+        // The primary constructor should either be a no-args constructor, or all of the parameters
+        // of the primary constructor should have default values
+        val isConstructorInvokable = constructor.parameters.isEmpty() ||
+            constructor.parameters.all { parameter -> parameter.hasDefault }
+
+        if (!isConstructorInvokable) {
+            logger.error(
+                message = "\nClasses annotated with @${ConsiderForDowel::class.simpleName} must have a no-args primary constructor.\n" +
+                    "If constructor parameters are necessary for this class, consider adding default values to the properties of the primary constructor.",
+                constructor,
+            )
+            return declaration.left()
+        }
+
         if (declaration.modifiers.contains(Modifier.INNER)) {
             logger.error(
                 message = "\n@${ConsiderForDowel::class.simpleName} annotation can't be applied to inner classes",

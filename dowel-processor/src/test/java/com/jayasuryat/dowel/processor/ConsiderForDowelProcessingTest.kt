@@ -244,6 +244,63 @@ internal class ConsiderForDowelProcessingTest {
     }
 
     @Test
+    fun `should raise error for considerForDowel with non-empty constructor`() {
+
+        val source = """
+            package dowel
+            
+            import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+            import com.jayasuryat.dowel.annotation.ConsiderForDowel
+            
+            @ConsiderForDowel
+            class CustomPreviewParamProvider(
+                val param : String,
+            ): PreviewParameterProvider<String>{
+                override val values : Sequence<String> = sequenceOf("", "", "")
+            }
+            """.trimIndent()
+
+        val kotlinSource: SourceFile =
+            SourceFile.kotlin(name = "CustomPreviewParamProvider.kt", contents = source)
+        val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
+
+        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals("""
+            e: Error occurred in KSP, check log for detail
+            e: [ksp] ${temporaryFolder.root.path}/sources/CustomPreviewParamProvider.kt:7: 
+            Classes annotated with @ConsiderForDowel must have a no-args primary constructor.
+            If constructor parameters are necessary for this class, consider adding default values to the properties of the primary constructor.
+
+        """.trimIndent(), result.messages)
+    }
+
+    @Test
+    fun `should compile success for considerForDowel with non-empty constructor with default values`() {
+
+        val source = """
+            package dowel
+            
+            import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+            import com.jayasuryat.dowel.annotation.ConsiderForDowel
+            
+            @ConsiderForDowel
+            class CustomPreviewParamProvider(
+                param1 : String = "",
+                param2 : Int = -1,
+            ): PreviewParameterProvider<String>{
+                override val values : Sequence<String> = sequenceOf(param1, param2.toString(), "")
+            }
+            """.trimIndent()
+
+        val kotlinSource: SourceFile =
+            SourceFile.kotlin(name = "CustomPreviewParamProvider.kt", contents = source)
+        val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
+
+        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals("", result.messages)
+    }
+
+    @Test
     fun `should raise error for considerForDowel with class with private constructor`() {
 
         val source = """
