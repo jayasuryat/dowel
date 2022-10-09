@@ -5,18 +5,21 @@
 
   <img src="https://user-images.githubusercontent.com/37530409/192136329-18987de1-1d36-4c62-a608-2b02d4b92e83.svg#gh-light-mode-only" alt="Dowel" height="200"/>
 
+  <h1>A Kotlin Symbol Processor to generate Compose PreviewParameterProviders</h1>
+
   <p align="center">
     <a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"/></a>
-    <a href="https://github.com/jayasuryat/dowel/releases"><img alt="artifact_version" src="https://jitpack.io/v/jayasuryat/dowel.svg"/></a>
+    <a href="https://github.com/jayasuryat/dowel/releases"><img alt="ArtifactVersion" src="https://jitpack.io/v/jayasuryat/dowel.svg"/></a>
     <a href="https://android-arsenal.com/api?level=21"><img alt="API" src="https://img.shields.io/badge/API-21%2B-brightgreen.svg?style=flat"/></a>
-    <a href="https://androidweekly.net/issues/issue-538"><img alt="API" src="https://img.shields.io/badge/AndroidWeekly-%23538-2299cc.svg?style=flat&logo=android"/></a>
-    <a href="https://mailchi.mp/kotlinweekly/kotlin-weekly-322"><img alt="API" src="https://img.shields.io/badge/KotlinWeekly-%23322-7549b5.svg?style=flat&logo=kotlin"/></a>
   </p>
 
-  <h2>A Kotlin Symbol Processor to generate Compose PreviewParameterProviders</h2>
+  <p align="center">
+    <a href="https://androidweekly.net/issues/issue-538"><img alt="AndroidWeekly" src="https://img.shields.io/badge/AndroidWeekly-%23538-2299cc.svg?style=flat&logo=android"/></a>
+    <a href="https://mailchi.mp/kotlinweekly/kotlin-weekly-322"><img alt="KotlinWeekly" src="https://img.shields.io/badge/KotlinWeekly-%23322-7549b5.svg?style=flat&logo=kotlin"/></a>
+    <a href="https://jetc.dev/issues/135.html"><img alt="jetc.dev" src="https://img.shields.io/badge/jetc.dev-%23135-343a40.svg?style=flat&logo=jetpackcompose"/></a>
+  </p>
 
 </div>
-
 
 <details>
   <summary><h3>1. What are PreviewParameterProviders to begin with?<h3/></summary>
