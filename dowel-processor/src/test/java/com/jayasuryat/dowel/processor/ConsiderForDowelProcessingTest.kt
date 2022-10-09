@@ -244,6 +244,34 @@ internal class ConsiderForDowelProcessingTest {
     }
 
     @Test
+    fun `should raise error for considerForDowel with private constructor`() {
+
+        val source = """
+            package dowel
+            
+            import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+            import com.jayasuryat.dowel.annotation.ConsiderForDowel
+            
+            @ConsiderForDowel
+            class CustomPreviewParamProvider private constructor(): PreviewParameterProvider<String>{
+                override val values : Sequence<String> = sequenceOf("", "", "")
+            }
+            """.trimIndent()
+
+        val kotlinSource: SourceFile =
+            SourceFile.kotlin(name = "CustomPreviewParamProvider.kt", contents = source)
+        val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
+
+        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals("""
+            e: Error occurred in KSP, check log for detail
+            e: [ksp] ${temporaryFolder.root.path}/sources/CustomPreviewParamProvider.kt:7: 
+            Classes annotated with @ConsiderForDowel must have at-least a single non-private constructor
+
+        """.trimIndent(), result.messages)
+    }
+
+    @Test
     fun `should raise error for considerForDowel with non-empty constructor`() {
 
         val source = """
@@ -268,10 +296,66 @@ internal class ConsiderForDowelProcessingTest {
         Assert.assertEquals("""
             e: Error occurred in KSP, check log for detail
             e: [ksp] ${temporaryFolder.root.path}/sources/CustomPreviewParamProvider.kt:7: 
-            Classes annotated with @ConsiderForDowel must have a no-args primary constructor.
-            If constructor parameters are necessary for this class, consider adding default values to the properties of the primary constructor.
+            Classes annotated with @ConsiderForDowel must have at-least a single no-args constructor and it must be non-private.
+            If constructor parameters are necessary for this class, consider adding a secondary no-args constructor. Or specify default values to all of the properties of any of the constructor.
 
         """.trimIndent(), result.messages)
+    }
+
+    @Test
+    fun `should compile success for considerForDowel with secondary constructor`() {
+
+        val source = """
+            package dowel
+            
+            import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+            import com.jayasuryat.dowel.annotation.ConsiderForDowel
+            
+            @ConsiderForDowel
+            class CustomPreviewParamProvider(
+                val param : String,
+            ): PreviewParameterProvider<String>{
+                
+                constructor() : this("")
+            
+                override val values : Sequence<String> = sequenceOf("", "", "")
+            }
+            """.trimIndent()
+
+        val kotlinSource: SourceFile =
+            SourceFile.kotlin(name = "CustomPreviewParamProvider.kt", contents = source)
+        val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
+
+        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals("", result.messages)
+    }
+
+    @Test
+    fun `should compile success for considerForDowel with secondary constructor with default values`() {
+
+        val source = """
+            package dowel
+            
+            import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+            import com.jayasuryat.dowel.annotation.ConsiderForDowel
+            
+            @ConsiderForDowel
+            class CustomPreviewParamProvider(
+                val param : String,
+            ): PreviewParameterProvider<String>{
+                
+                constructor(param: Int = -1) : this(param.toString())
+            
+                override val values : Sequence<String> = sequenceOf("", "", "")
+            }
+            """.trimIndent()
+
+        val kotlinSource: SourceFile =
+            SourceFile.kotlin(name = "CustomPreviewParamProvider.kt", contents = source)
+        val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
+
+        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals("", result.messages)
     }
 
     @Test
@@ -298,34 +382,6 @@ internal class ConsiderForDowelProcessingTest {
 
         Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
         Assert.assertEquals("", result.messages)
-    }
-
-    @Test
-    fun `should raise error for considerForDowel with class with private constructor`() {
-
-        val source = """
-            package dowel
-            
-            import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-            import com.jayasuryat.dowel.annotation.ConsiderForDowel
-            
-            @ConsiderForDowel
-            class CustomPreviewParamProvider private constructor(): PreviewParameterProvider<String>{
-                override val values : Sequence<String> = sequenceOf("", "", "")
-            }
-            """.trimIndent()
-
-        val kotlinSource: SourceFile =
-            SourceFile.kotlin(name = "CustomPreviewParamProvider.kt", contents = source)
-        val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
-
-        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
-        Assert.assertEquals("""
-            e: Error occurred in KSP, check log for detail
-            e: [ksp] ${temporaryFolder.root.path}/sources/CustomPreviewParamProvider.kt:7: 
-            Cannot create an instance of class CustomPreviewParamProvider as it's constructor is private.
-
-        """.trimIndent(), result.messages)
     }
 
     @Test
