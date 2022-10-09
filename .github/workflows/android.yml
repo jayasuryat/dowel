@@ -1,0 +1,35 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  workflow_dispatch:
+
+jobs:
+
+  test_and_build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
+        
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.5.1
+        with:
+          java-version: 1.8
+          
+      - name: Run dowel-processor tests
+        run: ./gradlew dowel-processor:test
+        
+      - name: Run dowel-lint tests
+        run: ./gradlew dowel-lint:test
+        
+      - name: Spotless check
+        run: ./gradlew spotlessCheck
+        
+      - name: Build project
+        run: ./gradlew assemble
+        
