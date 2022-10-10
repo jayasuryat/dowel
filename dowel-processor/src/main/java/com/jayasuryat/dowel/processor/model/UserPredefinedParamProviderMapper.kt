@@ -15,6 +15,7 @@
  */
 package com.jayasuryat.dowel.processor.model
 
+import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.*
@@ -144,12 +145,32 @@ internal class UserPredefinedParamProviderMapper(
             return declaration.left()
         }
 
-        // Checking for private constructors
-        val constructor = declaration.primaryConstructor!!
-        if (constructor.modifiers.contains(Modifier.PRIVATE)) {
+        // All of the non-private constructors
+        val accessibleConstructors: List<KSFunctionDeclaration> =
+            declaration.getConstructors()
+                .filter { constructor -> !constructor.modifiers.contains(Modifier.PRIVATE) }
+                .toList()
+
+        if (accessibleConstructors.isEmpty()) {
             logger.error(
-                message = "\nCannot create an instance of class ${declaration.simpleName.asString()} as it's constructor is private.",
-                constructor,
+                message = "\nClasses annotated with @${ConsiderForDowel::class.simpleName} must have at-least a single non-private constructor",
+                declaration,
+            )
+            return declaration.left()
+        }
+
+        // Is any of the available constructor is invokable without passing arguments
+        val isConstructorInvokable: Boolean = accessibleConstructors.any { constructor ->
+            // Can invoke this constructor without passing any args
+            constructor.parameters.isEmpty() ||
+                constructor.parameters.all { parameter -> parameter.hasDefault }
+        }
+
+        if (!isConstructorInvokable) {
+            logger.error(
+                message = "\nClasses annotated with @${ConsiderForDowel::class.simpleName} must have at-least a single no-args constructor and it must be non-private.\n" +
+                    "If constructor parameters are necessary for this class, consider adding a secondary no-args constructor. Or specify default values to all of the properties of any of the constructor.",
+                declaration,
             )
             return declaration.left()
         }
