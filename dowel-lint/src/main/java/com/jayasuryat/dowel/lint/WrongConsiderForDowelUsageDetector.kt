@@ -17,6 +17,7 @@ package com.jayasuryat.dowel.lint
 
 import com.android.tools.lint.detector.api.*
 import com.intellij.lang.jvm.JvmClassKind
+import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiModifier
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
@@ -87,11 +88,16 @@ internal class WrongConsiderForDowelUsageDetector : Detector(), SourceCodeScanne
                 location = context.getLocation(element),
                 message = PrivateClassIssue.MESSAGE,
             )
+            return
         }
 
-        // Constructor is private
-        val constructor = parent.constructors.firstOrNull()
-        if (constructor == null || evaluator.isPrivate(constructor)) {
+        // List of all non-private constructors
+        val accessibleConstructor: List<PsiMethod> = parent.constructors.filter { constructor ->
+            !evaluator.isPrivate(constructor)
+        }
+
+        // None of the constructors are accessible
+        if (accessibleConstructor.isEmpty()) {
 
             context.report(
                 issue = InaccessibleConstructorIssue.Definition,
@@ -99,6 +105,22 @@ internal class WrongConsiderForDowelUsageDetector : Detector(), SourceCodeScanne
                 location = context.getLocation(element),
                 message = InaccessibleConstructorIssue.MESSAGE,
             )
+            return
+        }
+
+        val isConstructorInvokable: Boolean = accessibleConstructor
+            .any { const: PsiMethod -> const.parameterList.isEmpty }
+
+        // No `no-args constructor` exists for this class
+        if (!isConstructorInvokable) {
+
+            context.report(
+                issue = UnInvokableConstructorIssue.Definition,
+                scope = element,
+                location = context.getLocation(element),
+                message = UnInvokableConstructorIssue.MESSAGE,
+            )
+            return
         }
 
         // Inner class. (Nested and non-inner classes have the static modifier in the Java code)
@@ -207,12 +229,33 @@ internal class WrongConsiderForDowelUsageDetector : Detector(), SourceCodeScanne
         internal const val ISSUE_ID: String = "InaccessibleConstructorConsiderForDowel"
 
         internal const val MESSAGE: String =
-            "@ConsiderForDowel annotation can't be applied classes with private / inaccessible constructors"
+            "Classes annotated with @ConsiderForDowel must have at-least a single non-private constructor"
 
         internal val Definition: Issue = Issue.create(
             id = ISSUE_ID,
             briefDescription = MESSAGE,
-            explanation = "@ConsiderForDowel annotation can't be applied to classes with private / inaccessible constructors as Dowel would be unable create instances for that class.",
+            explanation = "Classes annotated with @ConsiderForDowel must have at-least a single non-private constructor, otherwise Dowel will not be able to create instances of this class.",
+            category = Category.CORRECTNESS,
+            priority = 7,
+            severity = Severity.ERROR,
+            implementation = Implementation(
+                WrongConsiderForDowelUsageDetector::class.java,
+                Scope.JAVA_FILE_SCOPE
+            )
+        )
+    }
+
+    internal object UnInvokableConstructorIssue {
+
+        internal const val ISSUE_ID: String = "UnInvokableConstructorConsiderForDowel"
+
+        internal const val MESSAGE: String =
+            "Classes annotated with @ConsiderForDowel must have at-least a single no-args constructor and it must be non-private."
+
+        internal val Definition: Issue = Issue.create(
+            id = ISSUE_ID,
+            briefDescription = MESSAGE,
+            explanation = "Classes annotated with @ConsiderForDowel must have at-least a single no-args constructor and it must be non-private. If constructor parameters are necessary for this class, consider adding a secondary no-args constructor. Or specify default values to all of the properties of any of the constructor.",
             category = Category.CORRECTNESS,
             priority = 7,
             severity = Severity.ERROR,
@@ -231,6 +274,7 @@ internal class WrongConsiderForDowelUsageDetector : Detector(), SourceCodeScanne
             InnerClassIssue.Definition,
             PrivateClassIssue.Definition,
             InaccessibleConstructorIssue.Definition,
+            UnInvokableConstructorIssue.Definition,
         )
     }
 }
