@@ -4,6 +4,13 @@
   <img src="https://user-images.githubusercontent.com/37530409/192136328-7f566157-6a3f-46b9-8703-780ea1da625f.svg#gh-dark-mode-only" alt="Dowel" height="200"/>
 
   <img src="https://user-images.githubusercontent.com/37530409/192136329-18987de1-1d36-4c62-a608-2b02d4b92e83.svg#gh-light-mode-only" alt="Dowel" height="200"/>
+  
+  <a href="https://github.com/anuraghazra/github-readme-stats">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/37530409/192136328-7f566157-6a3f-46b9-8703-780ea1da625f.svg" height="200">
+      <img alt="Dowel banner" src="https://user-images.githubusercontent.com/37530409/192136329-18987de1-1d36-4c62-a608-2b02d4b92e83.svg" height="200">
+    </picture>
+  </a>
 
   <h1>A Kotlin Symbol Processor to generate Compose PreviewParameterProviders</h1>
 
