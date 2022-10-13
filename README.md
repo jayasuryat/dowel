@@ -1,6 +1,6 @@
 
 <div align="center">
-  
+
   <a href="https://github.com/anuraghazra/github-readme-stats">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/37530409/192136328-7f566157-6a3f-46b9-8703-780ea1da625f.svg" height="200">
