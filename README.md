@@ -18,6 +18,7 @@
   </p>
 
   <p align="center">
+    <a href="https://devlibrary.withgoogle.com/products/android/repos/jayasuryat-dowel"><img alt="GoogleDevLibrary" src="https://img.shields.io/badge/Google%20Dev%20Library-Entry-2872e8.svg?style=flat&logo=google"/></a>
     <a href="https://androidweekly.net/issues/issue-538"><img alt="AndroidWeekly" src="https://img.shields.io/badge/AndroidWeekly-%23538-2299cc.svg?style=flat&logo=android"/></a>
     <a href="https://mailchi.mp/kotlinweekly/kotlin-weekly-322"><img alt="KotlinWeekly" src="https://img.shields.io/badge/KotlinWeekly-%23322-7549b5.svg?style=flat&logo=kotlin"/></a>
     <a href="https://jetc.dev/issues/135.html"><img alt="jetc.dev" src="https://img.shields.io/badge/jetc.dev-%23135-343a40.svg?style=flat&logo=jetpackcompose"/></a>
