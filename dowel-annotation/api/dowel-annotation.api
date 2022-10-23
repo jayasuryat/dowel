@@ -1,0 +1,21 @@
+public abstract interface annotation class com/jayasuryat/dowel/annotation/ConsiderForDowel : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class com/jayasuryat/dowel/annotation/Dowel : java/lang/annotation/Annotation {
+	public static final field COUNT_PROPERTY_NAME Ljava/lang/String;
+	public static final field Companion Lcom/jayasuryat/dowel/annotation/Dowel$Companion;
+	public abstract fun count ()I
+}
+
+public final class com/jayasuryat/dowel/annotation/Dowel$Companion {
+}
+
+public abstract interface annotation class com/jayasuryat/dowel/annotation/DowelList : java/lang/annotation/Annotation {
+	public static final field COUNT_PROPERTY_NAME Ljava/lang/String;
+	public static final field Companion Lcom/jayasuryat/dowel/annotation/DowelList$Companion;
+	public abstract fun count ()I
+}
+
+public final class com/jayasuryat/dowel/annotation/DowelList$Companion {
+}
+
