@@ -149,6 +149,15 @@ internal data class ClassRepresentation(
         ) : ParameterSpec, BackedSpec
 
         /**
+         * Types whose instances can be created by invoking a no-args constructor. It could be that
+         * the class has a no-args constructor, or all of the arguments of a at-least a single
+         * constructor have default values.
+         */
+        data class NoArgsConstructorSpec(
+            val classDeclarations: KSClassDeclaration,
+        ) : ParameterSpec
+
+        /**
          * Types which are not directly supported by Dowel for code generation, but are nullable
          */
         object UnsupportedNullableSpec : ParameterSpec

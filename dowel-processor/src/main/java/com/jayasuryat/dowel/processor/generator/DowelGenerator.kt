@@ -251,6 +251,7 @@ internal class DowelGenerator(
                 is ClassRepresentation.ParameterSpec.FunctionSpec,
                 is ClassRepresentation.ParameterSpec.EnumSpec,
                 is ClassRepresentation.ParameterSpec.ObjectSpec,
+                is ClassRepresentation.ParameterSpec.NoArgsConstructorSpec,
                 is ClassRepresentation.ParameterSpec.UnsupportedNullableSpec,
                 -> emptyList()
 
