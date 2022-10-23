@@ -206,14 +206,25 @@ internal class DowelWholeEnchiladaProcessingTest {
                 val vehicle: Vehicle,
                 val liveLocation: Flow<Location?>,
                 val latLon: Pair<Long, Long>,
-                val meta: SomeStaticInfo,
+                val info: SomeStaticInfo,
                 @Size(value = 2) val locations: List<Location>,
                 val isExpanded: State<Boolean>,
                 @Size(value = 1) val preferences: Map<Long, Location>,
                 val title: Char,
                 @Size(value = 1) val interests: List<Float>,
+                val meta : MetaInfo,
+                val subjects : Subjects,
                 val onClick: suspend (a: Person, b: Int) -> Unit,
-            )
+            ){
+                
+                class MetaInfo {
+                    var info : Long = -1
+                }
+            
+                data class Subjects(
+                    val subjects : List<String> = emptyList(),
+                )
+            }
         """.trimIndent()
 
         val kotlinSource: SourceFile = SourceFile.kotlin(name = "Person.kt", contents = source)

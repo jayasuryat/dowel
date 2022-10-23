@@ -131,6 +131,8 @@ internal class DowelProcessingTest {
             internal data class Person(
                 val name: String,
                 val age: String,
+                val location : Location,
+                val geoData : Location.GeoData,
             ){
             
                 @Dowel
@@ -147,6 +149,40 @@ internal class DowelProcessingTest {
             }
         """.trimIndent()
 
+        val kotlinSource: SourceFile = SourceFile.kotlin(name = "Person.kt", contents = source)
+        val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
+
+        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals("", result.messages)
+    }
+
+    @Test
+    fun `should compile success for dowel with non-dowel types with no-args constructor`() {
+
+
+        val source = """
+            package dowel
+            
+            import com.jayasuryat.dowel.annotation.Dowel
+            
+            @Dowel
+            internal data class Person(
+                val name: String,
+                val age: String,
+                val location : Location,
+                val geoData : Location.GeoData,
+            ){
+            
+                class Location {
+                    val lat : Long = 0
+                    val lon : Long = 0
+                
+                    data class GeoData(
+                        val data : Long = -1,
+                    )                
+                }
+            }
+        """.trimIndent()
         val kotlinSource: SourceFile = SourceFile.kotlin(name = "Person.kt", contents = source)
         val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
 
