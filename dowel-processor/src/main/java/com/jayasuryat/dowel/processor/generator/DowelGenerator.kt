@@ -228,14 +228,14 @@ internal class DowelGenerator(
      * implementations of [androidx.compose.ui.tooling.preview.PreviewParameterProvider] which are
      * being reused to get instances of different types of properties.
      *
-     * Looks recursively for [DowelSpec] and [PreDefinedProviderSpec] and flat-maps their
-     * info into [ProviderInfo]
+     * Looks recursively for instances of [ClassRepresentation.BackedSpec] in the
+     * [ClassRepresentation.parameters] and returns the resultant list
      */
     private fun ClassRepresentation.getAllSupportingProvidersRecursively(): List<ClassRepresentation.BackedSpec> {
 
         /**
-         * Finds instances of [DowelSpec] and [PreDefinedProviderSpec] recursively and returns list
-         * of all the mapped instances of the [ProviderInfo] accumulated found along the way.
+         * Finds instances of [ClassRepresentation.BackedSpec] recursively and returns the list of
+         * instances accumulated along the way.
          */
         fun ClassRepresentation.ParameterSpec.getAllSupportingProvidersRecursively(): List<ClassRepresentation.BackedSpec> {
 
