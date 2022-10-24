@@ -34,7 +34,9 @@ package com.jayasuryat.dowel.annotation
  * [androidx.compose.ui.tooling.preview.PreviewParameterProvider] - instances will be retrieved from
  * an instance of that provider for that type, instead of building instances by *hand*.
  *
- * **Note** : Only a single class can be annotated with @[ConsiderForDowel] per type.
+ * **Note** : Only a single class can be annotated with @[ConsiderForDowel] per type. Classes
+ * annotated with @[ConsiderForDowel] must have at-least a single non-private no-args constructor,
+ * alternatively all of the properties of that constructor must default values.
  *
  * @see [Dowel]
  */
