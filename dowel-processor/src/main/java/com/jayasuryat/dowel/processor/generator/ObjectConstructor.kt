@@ -95,7 +95,9 @@ internal class ObjectConstructor {
             is ObjectSpec -> spec.getObjectAssigner()
             is DowelSpec -> spec.getDowelAssigner()
 
-            is PreDefinedProviderSpec -> spec.getPreDefinedProviderSpecAssigner()
+            is PreDefinedProviderSpec -> spec.getPreDefinedProviderAssigner()
+
+            is NoArgsConstructorSpec -> spec.getNoArgsConstructorAssigner()
 
             is UnsupportedNullableSpec -> spec.getUnsupportedNullableAssigner()
         }
@@ -317,7 +319,7 @@ internal class ObjectConstructor {
         }
     }
 
-    private fun PreDefinedProviderSpec.getPreDefinedProviderSpecAssigner(): CodeBlock {
+    private fun PreDefinedProviderSpec.getPreDefinedProviderAssigner(): CodeBlock {
 
         val spec = this
 
@@ -325,6 +327,13 @@ internal class ObjectConstructor {
         return buildCodeBlock {
             val propName = spec.propertyName
             add("$propName.random()")
+        }
+    }
+
+    private fun NoArgsConstructorSpec.getNoArgsConstructorAssigner(): CodeBlock {
+        val className = this.classDeclarations.toClassName()
+        return buildCodeBlock {
+            add("%T()", className)
         }
     }
 

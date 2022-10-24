@@ -34,9 +34,11 @@ import com.jayasuryat.dowel.annotation.internal.DowelInternal
  * * [kotlinx.coroutines.flow.Flow]
  * * Functional types (high-order functions)
  * * @[Dowel] classes (@[Dowel] classes can be nested. A @[Dowel] annotated class can have
- *   properties of type of classes which are again annotated with @[Dowel])
+ * properties of type of classes which are again annotated with @[Dowel])
  * * Types for which a user-defined PreviewParameterProvider exist (via the @[ConsiderForDowel]
  * annotation)
+ * * Types which have a no-args constructor, or all of the properties of at-least a single constructor
+ * have default values
  * * Sealed types
  * * Kotlin Objects
  * * [Enum]
@@ -55,8 +57,8 @@ import com.jayasuryat.dowel.annotation.internal.DowelInternal
  * have @[Dowel] supported types as their type parameters.
  * Like List&lt;String&gt;, Map&lt;String, @[Dowel] class&gt;.
  *
- * As far as a type is in this supported list, there are no practical limitations on how many times they may be nested.
- * Like List&lt;Map&lt;String, List&lt;@[Dowel] class&gt;&gt;&gt;
+ * As far as a type is in this supported list, there are no practical limitations on how many times
+ * they may be nested. Like List&lt;Map&lt;String, List&lt;@[Dowel] class&gt;&gt;&gt;
  *
  * **Note** : More meta information about a property can be given to Dowel using [androidx.annotation]
  * annotations. Currently, following are the supported annotations:

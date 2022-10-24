@@ -214,12 +214,14 @@ Apart from that if you want to controll range / legnth / size of the values bein
   - Functional types (high-order functions, lambdas)
   - `@Dowel` classes (`@Dowel` classes can be nested. A `@Dowel` annotated class can have properties of the type of classes which are again annotated with `@Dowel`)
   - Types for which a user-defined `PreviewParameterProvider` exist (via the `@ConsiderForDowel` annotation)
+  - Types which have a no-args constructor, or all of the properties of at-least a single constructor have default values
   - `Sealed` types
   - Kotlin Objects
   - `Enum`
   - `List`
   - `Map`
   - `Pair`
+  - Nullable types
   - Properties with **unsupported** types which are nullable are allowed, and the generated value would always be null
   - Properties with default values can have *any type*, as they are not considered while generating code
   - Types in the above mentioned list having generic type parameters (like `List` and `Map`) can only have `@Dowel` supported types as their type parameters. Like `List<String>`, `Map<String, @Dowel class>`

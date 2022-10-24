@@ -15,6 +15,7 @@
  */
 package com.jayasuryat.dowel.processor.model
 
+import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.processing.KSBuiltIns
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
@@ -204,6 +205,10 @@ internal class ClassRepresentationMapper(
 
             // Class annotated with @Dowel annotation
             propTypeDeclaration.isDowelClass() -> propTypeDeclaration.getDowelSpec().right()
+
+            // Classes with no-args constructor
+            propTypeDeclaration.hasNoArgsConstructor() ->
+                propTypeDeclaration.getNoArgsConstructorSpec().right()
 
             // Unsupported types which are nullable
             propType.isMarkedNullable -> getUnsupportedNullableSpec().right()
@@ -528,6 +533,13 @@ internal class ClassRepresentationMapper(
         )
     }
 
+    private fun KSDeclaration.getNoArgsConstructorSpec(): NoArgsConstructorSpec {
+        val declaration = this as KSClassDeclaration
+        return NoArgsConstructorSpec(
+            classDeclarations = declaration,
+        )
+    }
+
     private fun getUnsupportedNullableSpec(): UnsupportedNullableSpec = UnsupportedNullableSpec
 
     private fun KSDeclaration.isDowelClass(): Boolean {
@@ -535,6 +547,21 @@ internal class ClassRepresentationMapper(
         val dowelName = Dowel::class.java.simpleName
         val annotation = declaration.annotations.find { it.shortName.asString() == dowelName }
         return annotation != null
+    }
+
+    private fun KSDeclaration.hasNoArgsConstructor(): Boolean {
+        val declaration = this as? KSClassDeclaration ?: return false
+        val constructors = declaration.getConstructors()
+
+        val hasNoArgsConstructor = constructors
+            .any { constructor -> constructor.parameters.isEmpty() }
+        if (hasNoArgsConstructor) return true
+
+        val hasAllDefaultValueConstructor = constructors
+            .any { constructor -> constructor.parameters.all { param -> param.hasDefault } }
+        if (hasAllDefaultValueConstructor) return true
+
+        return false
     }
 
     private fun KSPLogger.logUnsupportedTypeError(
