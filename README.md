@@ -78,8 +78,8 @@ dependencyResolutionManagement {
 #### 3.3. Add the `Dowel` dependencies in your **module's** `build.gradle` file
 ```gradle
 dependencies {
-    implementation("com.github.jayasuryat.dowel:dowel:0.6.0")
-    ksp("com.github.jayasuryat.dowel:dowel-processor:0.6.0")
+    implementation("com.github.jayasuryat.dowel:dowel:0.7.0")
+    ksp("com.github.jayasuryat.dowel:dowel-processor:0.7.0")
 }
 ```
 
