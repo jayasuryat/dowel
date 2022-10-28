@@ -204,7 +204,7 @@ Apart from that if you want to controll range / legnth / size of the values bein
 `Dowel` is quite flexible with the types it already supports, but there are certain limits on what all types are supported, and in general how `Dowel` works :
 
 - Classes annotated with any of the `Dowel` annotations (`@Dowel`, `@DowelList` or `@ConsdierForDowel`) should be concrete (non-abstract)
-- Primary constructors of classes annotated with any of the `Dowel` annotations should not be private
+- Primary constructors of classes annotated with `@Dowel` annotation should not be private
 - Only classes extending `androidx.compose.ui.tooling.preview.PreviewParameterProvider` can be annotated with `@ConsiderForDowel`
 - Only classes already annotated with `@Dowel` can be annotated with `@DowelList`
 - All of the properties listed in the primary constructor of class annotated with `@Dowel` can only be of the following types:
@@ -229,7 +229,7 @@ Apart from that if you want to controll range / legnth / size of the values bein
 Like `List<Map<String, List<@Dowel class>>>`
 
 ## `Dowel` ships with `lint` rules
-`Dowel` ships with `lint` rules which cover all of the basic scenarios and will warn you even before you might compile the code.
+`Dowel` ships with `lint` rules which cover all of the basic validation scenarios, and it will warn you even before you might compile the code if any improper usage is detected.
 
 And for the things that `lint` doesn't catch, like issues with unsupported types of properties, meaningful error messages will be logged from KSP to nudge you in the right direction.
 
