@@ -261,6 +261,9 @@ internal class DowelGenerator(
                 is ClassRepresentation.ParameterSpec.ListSpec ->
                     spec.elementSpec.getAllSupportingProvidersRecursively()
 
+                is ClassRepresentation.ParameterSpec.SetSpec ->
+                    spec.elementSpec.getAllSupportingProvidersRecursively()
+
                 is ClassRepresentation.ParameterSpec.MapSpec ->
                     spec.keySpec.getAllSupportingProvidersRecursively() +
                         spec.valueSpec.getAllSupportingProvidersRecursively()
