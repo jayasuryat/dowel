@@ -18,6 +18,7 @@ package com.jayasuryat.dowel.sample.ui.home.model
 import androidx.annotation.DrawableRes
 import androidx.annotation.Size
 import androidx.compose.runtime.State
+import androidx.compose.ui.graphics.Color
 import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.annotation.DowelList
 import com.jayasuryat.dowel.sample.R
@@ -31,6 +32,7 @@ import kotlinx.coroutines.flow.Flow
 @DowelList(count = 5)
 @Dowel(count = 30)
 data class Person(
+    val id: Long,
     @Size(value = 5) val name: String,
     @Size(value = 300) val bio: String?,
     @DrawableRes val avatar: Int = R.drawable.ic_launcher_foreground,
@@ -54,4 +56,5 @@ data class Person(
     val title: Char,
     @Size(value = 1) val interests: List<Float>,
     val onClick: suspend (a: Person, b: Int) -> Unit,
+    val color: Color = Color(0xFFe5efab),
 )

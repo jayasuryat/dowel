@@ -41,7 +41,7 @@ fun HomeScreen(
 
             items(
                 items = people,
-                key = { person -> person.name },
+                key = { person -> person.id },
             ) { person ->
 
                 ItemPerson(
