@@ -219,6 +219,7 @@ Apart from that if you want to controll range / legnth / size of the values bein
   - Kotlin Objects
   - `Enum`
   - `List`
+  - `Set`
   - `Map`
   - `Pair`
   - Nullable types
@@ -226,7 +227,7 @@ Apart from that if you want to controll range / legnth / size of the values bein
   - Properties with default values can have *any type*, as they are not considered while generating code
   - Types in the above mentioned list having generic type parameters (like `List` and `Map`) can only have `@Dowel` supported types as their type parameters. Like `List<String>`, `Map<String, @Dowel class>`
 - As far as a type is in above mentioned supported list, there are no practical limitations on how many times they may be nested.
-Like `List<Map<String, List<@Dowel class>>>`
+Like `List<Map<Set<String>, List<@Dowel class>>>`
 
 ## `Dowel` ships with `lint` rules
 `Dowel` ships with `lint` rules which cover all of the basic validation scenarios, and it will warn you even before you might compile the code if any improper usage is detected.
