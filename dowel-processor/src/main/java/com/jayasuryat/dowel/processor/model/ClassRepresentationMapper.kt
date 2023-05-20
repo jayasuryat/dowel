@@ -84,10 +84,6 @@ internal class ClassRepresentationMapper(
         val ksName = resolver.getKSNameFromString(Map::class.qualifiedName!!)
         resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
     }
-    private val stateDeclaration: KSType by unsafeLazy {
-        val ksName = resolver.getKSNameFromString(Names.stateName.canonicalName)
-        resolver.getClassDeclarationByName(ksName)?.asStarProjectedType() ?: builtIns.nothingType
-    }
     private val flowDeclaration: KSType by unsafeLazy {
         val ksName = resolver.getKSNameFromString(Names.flowName.canonicalName)
         resolver.getClassDeclarationByName(ksName)?.asStarProjectedType() ?: builtIns.nothingType
@@ -95,6 +91,14 @@ internal class ClassRepresentationMapper(
     private val pairDeclaration: KSType by unsafeLazy {
         val ksName = resolver.getKSNameFromString(Pair::class.qualifiedName!!)
         resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
+    }
+    private val stateDeclaration: KSType by unsafeLazy {
+        val ksName = resolver.getKSNameFromString(Names.stateName.canonicalName)
+        resolver.getClassDeclarationByName(ksName)?.asStarProjectedType() ?: builtIns.nothingType
+    }
+    private val colorDeclaration: KSType by unsafeLazy {
+        val ksName = resolver.getKSNameFromString(Names.colorName.canonicalName)
+        resolver.getClassDeclarationByName(ksName)?.asStarProjectedType() ?: builtIns.nothingType
     }
     // endregion
 
@@ -173,9 +177,6 @@ internal class ClassRepresentationMapper(
             propType.isAssignableFrom(builtIns.booleanType) -> getBooleanSpec().right()
             propType.isAssignableFrom(builtIns.stringType) -> getStringSpec(annotations).right()
 
-            // State
-            stateDeclaration.isAssignableFrom(propType) -> propType.getStateSpec()
-
             // List
             listDeclaration.isAssignableFrom(propType) -> propType.getListSpec(annotations)
 
@@ -216,6 +217,13 @@ internal class ClassRepresentationMapper(
             // Classes with no-args constructor
             propTypeDeclaration.hasNoArgsConstructor() ->
                 propTypeDeclaration.getNoArgsConstructorSpec().right()
+
+            // Compose types
+            // State
+            stateDeclaration.isAssignableFrom(propType) -> propType.getStateSpec()
+
+            // Color
+            colorDeclaration.isAssignableFrom(propType) -> ColorSpec.right()
 
             // Unsupported types which are nullable
             propType.isMarkedNullable -> getUnsupportedNullableSpec().right()
@@ -330,23 +338,6 @@ internal class ClassRepresentationMapper(
         return StringSpec(
             size = size,
         )
-    }
-
-    private fun KSType.getStateSpec(): MaybeSpec<StateSpec> {
-
-        require(this.arguments.size == 1) { "State must have have exactly one type argument. Current size = ${this.arguments.size}" }
-        val arg = this.arguments.first()
-
-        val resolvedType = arg.type!!.resolve()
-        val spec = resolvedType.getSpec(
-            annotations = arg.annotations.toList(),
-        )
-
-        return either {
-            StateSpec(
-                elementSpec = spec.bind(),
-            )
-        }
     }
 
     private fun KSType.getListSpec(
@@ -572,6 +563,23 @@ internal class ClassRepresentationMapper(
         return NoArgsConstructorSpec(
             classDeclarations = declaration,
         )
+    }
+
+    private fun KSType.getStateSpec(): MaybeSpec<StateSpec> {
+
+        require(this.arguments.size == 1) { "State must have have exactly one type argument. Current size = ${this.arguments.size}" }
+        val arg = this.arguments.first()
+
+        val resolvedType = arg.type!!.resolve()
+        val spec = resolvedType.getSpec(
+            annotations = arg.annotations.toList(),
+        )
+
+        return either {
+            StateSpec(
+                elementSpec = spec.bind(),
+            )
+        }
     }
 
     private fun getUnsupportedNullableSpec(): UnsupportedNullableSpec = UnsupportedNullableSpec
