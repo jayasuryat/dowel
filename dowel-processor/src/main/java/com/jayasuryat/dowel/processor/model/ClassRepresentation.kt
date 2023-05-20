@@ -90,6 +90,11 @@ internal data class ClassRepresentation(
             val elementSpec: ParameterSpec,
         ) : ParameterSpec
 
+        data class SetSpec(
+            val size: Size,
+            val elementSpec: ParameterSpec,
+        ) : ParameterSpec
+
         data class MapSpec(
             val size: Size,
             val keySpec: ParameterSpec,

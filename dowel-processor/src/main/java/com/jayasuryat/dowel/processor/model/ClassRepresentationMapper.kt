@@ -76,6 +76,10 @@ internal class ClassRepresentationMapper(
         val ksName = resolver.getKSNameFromString(List::class.qualifiedName!!)
         resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
     }
+    private val setDeclaration: KSType by unsafeLazy {
+        val ksName = resolver.getKSNameFromString(Set::class.qualifiedName!!)
+        resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
+    }
     private val mapDeclaration: KSType by unsafeLazy {
         val ksName = resolver.getKSNameFromString(Map::class.qualifiedName!!)
         resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
@@ -174,6 +178,9 @@ internal class ClassRepresentationMapper(
 
             // List
             listDeclaration.isAssignableFrom(propType) -> propType.getListSpec(annotations)
+
+            // Set
+            setDeclaration.isAssignableFrom(propType) -> propType.getSetSpec(annotations)
 
             // Map
             mapDeclaration.isAssignableFrom(propType) -> propType.getMapSpec(annotations)
@@ -363,6 +370,33 @@ internal class ClassRepresentationMapper(
 
         return either {
             ListSpec(
+                size = size,
+                elementSpec = spec.bind(),
+            )
+        }
+    }
+
+    private fun KSType.getSetSpec(
+        annotations: List<KSAnnotation>,
+    ): MaybeSpec<SetSpec> {
+
+        val size: Size = Size.find(
+            annotations = annotations.toList(),
+            defaultValue = DefaultRange.DEFAULT_LIST_LEN_VALUE,
+            defaultMin = DefaultRange.DEFAULT_LIST_LEN_MIN,
+            defaultMax = DefaultRange.DEFAULT_LIST_LEN_MAX,
+        )
+
+        require(this.arguments.size == 1) { "Set must have have exactly one type argument. Current size = ${this.arguments.size}" }
+
+        val arg = this.arguments.first()
+        val resolvedType = arg.type!!.resolve()
+        val spec = resolvedType.getSpec(
+            annotations = arg.annotations.toList(),
+        )
+
+        return either {
+            SetSpec(
                 size = size,
                 elementSpec = spec.bind(),
             )
