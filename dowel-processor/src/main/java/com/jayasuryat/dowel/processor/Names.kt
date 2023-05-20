@@ -22,11 +22,6 @@ import com.squareup.kotlinpoet.ksp.toClassName
 
 internal object Names {
 
-    val previewParamProvider: ClassName = ClassName(
-        packageName = "androidx.compose.ui.tooling.preview",
-        "PreviewParameterProvider"
-    )
-
     val intRangeName: ClassName = ClassName(
         packageName = "androidx.annotation",
         "IntRange"
@@ -42,11 +37,6 @@ internal object Names {
         "Size"
     )
 
-    val stateName: ClassName = ClassName(
-        packageName = "androidx.compose.runtime",
-        "State"
-    )
-
     val flowName: ClassName = ClassName(
         packageName = "kotlinx.coroutines.flow",
         "Flow"
@@ -55,6 +45,21 @@ internal object Names {
     val listName: ClassName = List::class.asTypeName()
 
     val sequenceName: ClassName = Sequence::class.asTypeName()
+
+    val previewParamProvider: ClassName = ClassName(
+        packageName = "androidx.compose.ui.tooling.preview",
+        "PreviewParameterProvider"
+    )
+
+    val stateName: ClassName = ClassName(
+        packageName = "androidx.compose.runtime",
+        "State"
+    )
+
+    val colorName: ClassName = ClassName(
+        packageName = "androidx.compose.ui.graphics",
+        "Color"
+    )
 
     const val dowelClassNameSuffix: String = "PreviewParamProvider"
     const val dowelListClassNameSuffix: String = "ListPreviewParamProvider"

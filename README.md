@@ -209,7 +209,7 @@ Apart from that if you want to controll range / legnth / size of the values bein
 - Only classes already annotated with `@Dowel` can be annotated with `@DowelList`
 - All of the properties listed in the primary constructor of class annotated with `@Dowel` can only be of the following types:
   - Primitives (`Int`, `Long`, `Float`, `Double`, `Char`, `Boolean`, `String`)
-  - `androidx.compose.runtime.State`
+  - `androidx.compose.runtime.State`, `androidx.compose.ui.graphics.Color`
   - `kotlinx.coroutines.flow.Flow`
   - Functional types (high-order functions, lambdas)
   - `@Dowel` classes (`@Dowel` classes can be nested. A `@Dowel` annotated class can have properties of the type of classes which are again annotated with `@Dowel`)

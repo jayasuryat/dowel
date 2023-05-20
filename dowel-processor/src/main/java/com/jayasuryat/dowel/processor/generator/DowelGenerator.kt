@@ -255,9 +255,6 @@ internal class DowelGenerator(
                 is ClassRepresentation.ParameterSpec.UnsupportedNullableSpec,
                 -> emptyList()
 
-                is ClassRepresentation.ParameterSpec.StateSpec ->
-                    spec.elementSpec.getAllSupportingProvidersRecursively()
-
                 is ClassRepresentation.ParameterSpec.ListSpec ->
                     spec.elementSpec.getAllSupportingProvidersRecursively()
 
@@ -284,6 +281,11 @@ internal class DowelGenerator(
                 is DowelSpec -> listOf(spec)
 
                 is PreDefinedProviderSpec -> listOf(spec)
+
+                is ClassRepresentation.ParameterSpec.StateSpec ->
+                    spec.elementSpec.getAllSupportingProvidersRecursively()
+
+                is ClassRepresentation.ParameterSpec.ColorSpec -> emptyList()
             }
 
             return specs

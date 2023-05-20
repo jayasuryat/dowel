@@ -81,10 +81,6 @@ internal data class ClassRepresentation(
         ) : ParameterSpec
         // endregion
 
-        data class StateSpec(
-            val elementSpec: ParameterSpec,
-        ) : ParameterSpec
-
         data class ListSpec(
             val size: Size,
             val elementSpec: ParameterSpec,
@@ -161,6 +157,13 @@ internal data class ClassRepresentation(
         data class NoArgsConstructorSpec(
             val classDeclarations: KSClassDeclaration,
         ) : ParameterSpec
+
+        // Compose types
+        data class StateSpec(
+            val elementSpec: ParameterSpec,
+        ) : ParameterSpec
+
+        object ColorSpec : ParameterSpec
 
         /**
          * Types which are not directly supported by Dowel for code generation, but are nullable

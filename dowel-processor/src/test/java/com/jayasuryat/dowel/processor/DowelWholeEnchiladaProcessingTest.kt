@@ -83,6 +83,20 @@ internal class DowelWholeEnchiladaProcessingTest {
         SourceFile.kotlin(name = "SnapshotState.kt", contents = source)
     }
 
+    private val ColorStub: SourceFile by lazy {
+        val source = """
+            package androidx.compose.ui.graphics
+            
+            class Color(val value: ULong)
+            
+            @Suppress("TestFunctionName")
+            fun Color(color: Long): Color {
+               return Color(value = (color.toULong() and 0xffffffffUL) shl 32)
+            }
+        """.trimIndent()
+        SourceFile.kotlin(name = "Color.kt", contents = source)
+    }
+
     private val VehicleSource: SourceFile by lazy {
         val source = """
             package dowel.vehicle
@@ -191,6 +205,7 @@ internal class DowelWholeEnchiladaProcessingTest {
             import dowel.vehicle.Vehicle
             import dowel.static.info.SomeStaticInfo
             import dowel.location.Location
+            import androidx.compose.ui.graphics.Color
             
             @Dowel(count = 30)
             internal data class Person(
@@ -207,6 +222,7 @@ internal class DowelWholeEnchiladaProcessingTest {
                 val liveLocation: Flow<Location?>,
                 val latLon: Pair<Long, Long>,
                 val info: SomeStaticInfo,
+                val bannerColor : Color,
                 @Size(value = 2) val locations: List<Location>,
                 @Size(value = 3) val uniqueLocations: Set<Location>,
                 val isExpanded: State<Boolean>,
@@ -241,6 +257,7 @@ internal class DowelWholeEnchiladaProcessingTest {
             StatusSource,
             StaticInfoSource,
             LocationSource,
+            ColorStub,
             /*AmbiguityLocationSource*/
         )
 

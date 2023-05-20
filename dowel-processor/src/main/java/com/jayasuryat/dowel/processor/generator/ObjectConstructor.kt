@@ -15,6 +15,7 @@
  */
 package com.jayasuryat.dowel.processor.generator
 
+import com.jayasuryat.dowel.processor.Names
 import com.jayasuryat.dowel.processor.StringSource
 import com.jayasuryat.dowel.processor.model.ClassRepresentation
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.*
@@ -83,7 +84,6 @@ internal class ObjectConstructor {
             is BooleanSpec -> spec.getBoolAssigner()
             is StringSpec -> spec.getStringAssigner()
 
-            is StateSpec -> spec.getStateAssigner() // This would be a recursive call
             is ListSpec -> spec.getListAssigner() // This would be a recursive call
             is SetSpec -> spec.getSetAssigner() // This would be a recursive call
             is MapSpec -> spec.getMapAssigner() // This would be a recursive call
@@ -99,6 +99,10 @@ internal class ObjectConstructor {
             is PreDefinedProviderSpec -> spec.getPreDefinedProviderAssigner()
 
             is NoArgsConstructorSpec -> spec.getNoArgsConstructorAssigner()
+
+            // Compose types
+            is StateSpec -> spec.getStateAssigner() // This would be a recursive call
+            is ColorSpec -> spec.getColorAssigner()
 
             is UnsupportedNullableSpec -> spec.getUnsupportedNullableAssigner()
         }
@@ -176,16 +180,6 @@ internal class ObjectConstructor {
             .toString()
 
         return buildCodeBlock { add("%S", value) }
-    }
-
-    private fun StateSpec.getStateAssigner(): CodeBlock {
-
-        val spec = this
-
-        return buildCodeBlock {
-            val mutableStateOf = MemberName("androidx.compose.runtime", "mutableStateOf")
-            add("%M(%L)", mutableStateOf, spec.elementSpec.getAssigner())
-        }
     }
 
     private fun ListSpec.getListAssigner(): CodeBlock {
@@ -362,6 +356,27 @@ internal class ObjectConstructor {
         val className = this.classDeclarations.toClassName()
         return buildCodeBlock {
             add("%T()", className)
+        }
+    }
+
+    private fun StateSpec.getStateAssigner(): CodeBlock {
+
+        val spec = this
+
+        return buildCodeBlock {
+            val mutableStateOf = MemberName("androidx.compose.runtime", "mutableStateOf")
+            add("%M(%L)", mutableStateOf, spec.elementSpec.getAssigner())
+        }
+    }
+
+    @Suppress("unused")
+    private fun ColorSpec.getColorAssigner(): CodeBlock {
+
+        return buildCodeBlock {
+            val member = MemberName(Names.colorName.packageName, Names.colorName.simpleName)
+            val colorValue = Random.nextInt(0xffffff + 1)
+            val hexColor = String.format("0xFF%06x", colorValue)
+            add("%M($hexColor)", member)
         }
     }
 

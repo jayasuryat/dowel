@@ -73,7 +73,7 @@ internal fun ItemPerson(
                     .padding(8.dp)
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(color = Color.Gray.copy(alpha = 0.8f)),
+                    .background(color = person.color),
                 painter = painterResource(id = person.avatar),
                 contentDescription = "Person avatar",
             )
