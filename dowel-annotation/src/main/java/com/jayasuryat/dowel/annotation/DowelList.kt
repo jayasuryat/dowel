@@ -21,7 +21,9 @@ import com.jayasuryat.dowel.annotation.internal.DowelInternal
  * This annotation builds on top of what already @[Dowel] annotation is doing.
  *
  * Generates a PreviewParameterProvider of type List&lt;T&gt; where T is the class annotated
- * with [DowelList] annotation. Rest of the behavior is same as the @[Dowel] annotation.
+ * with [DowelList] annotation. **The name of the generated PreviewParameterProvider class will
+ * follow "&lt;Annotated class's name&gt;ListPreviewParamProvider" format**. Rest of the behavior is
+ * same as the @[Dowel] annotation.
  *
  * **Note** : Only classes already annotated with @[Dowel] can be annotated with @[DowelList].
  *

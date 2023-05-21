@@ -26,6 +26,8 @@ import com.jayasuryat.dowel.annotation.internal.DowelInternal
  * The generated PreviewParameterProvider will have [count] number of objects in the sequence of
  * values, and the objects would be constructed using the primary constructor of the annotated class.
  * All properties with default values would be ignored, and nullable types would be null randomly.
+ * **The name of the generated PreviewParameterProvider class will follow
+ * "&lt;Annotated class's name&gt;PreviewParameterProvider" format**.
  *
  * The annotated class must be a concrete class, class should not have any generic type parameters,
  * and all of the properties listed in the primary constructor can only be of the following types:
