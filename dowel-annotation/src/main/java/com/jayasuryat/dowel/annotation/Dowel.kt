@@ -30,7 +30,7 @@ import com.jayasuryat.dowel.annotation.internal.DowelInternal
  * The annotated class must be a concrete class, class should not have any generic type parameters,
  * and all of the properties listed in the primary constructor can only be of the following types:
  * * Primitives ([Int], [Long], [Float], [Double], [Char], [Boolean], [String])
- * * [androidx.compose.runtime.State]
+ * * [androidx.compose.runtime.State], [androidx.compose.ui.graphics.Color]
  * * [kotlinx.coroutines.flow.Flow]
  * * Functional types (high-order functions)
  * * @[Dowel] classes (@[Dowel] classes can be nested. A @[Dowel] annotated class can have
@@ -43,6 +43,7 @@ import com.jayasuryat.dowel.annotation.internal.DowelInternal
  * * Kotlin Objects
  * * [Enum]
  * * [List]
+ * * [Set]
  * * [Map]
  * * [Pair]
  * * Nullable types
