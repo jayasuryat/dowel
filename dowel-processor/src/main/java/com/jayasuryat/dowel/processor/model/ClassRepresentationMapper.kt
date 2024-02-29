@@ -73,15 +73,15 @@ internal class ClassRepresentationMapper(
     private val builtIns: KSBuiltIns = resolver.builtIns
 
     private val listDeclaration: KSType by unsafeLazy {
-        val ksName = resolver.getKSNameFromString(List::class.qualifiedName!!)
+        val ksName = resolver.getKSNameFromString(Names.mutableListName.canonicalName)
         resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
     }
     private val setDeclaration: KSType by unsafeLazy {
-        val ksName = resolver.getKSNameFromString(Set::class.qualifiedName!!)
+        val ksName = resolver.getKSNameFromString(Names.mutableSetName.canonicalName)
         resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
     }
     private val mapDeclaration: KSType by unsafeLazy {
-        val ksName = resolver.getKSNameFromString(Map::class.qualifiedName!!)
+        val ksName = resolver.getKSNameFromString(Names.mutableMapName.canonicalName)
         resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
     }
     private val flowDeclaration: KSType by unsafeLazy {
@@ -154,6 +154,7 @@ internal class ClassRepresentationMapper(
     ): MaybeParamSpec {
 
         val propType: KSType = this
+        val starProjectedType by lazy { propType.starProjection() }
         val propTypeDeclaration: KSDeclaration = propType.declaration
 
         // Ordering is crucial here. Only checks for the first matching type
@@ -178,13 +179,13 @@ internal class ClassRepresentationMapper(
             propType.isAssignableFrom(builtIns.stringType) -> getStringSpec(annotations).right()
 
             // List
-            listDeclaration.isAssignableFrom(propType) -> propType.getListSpec(annotations)
+            starProjectedType.isAssignableFrom(listDeclaration) -> propType.getListSpec(annotations)
 
             // Set
-            setDeclaration.isAssignableFrom(propType) -> propType.getSetSpec(annotations)
+            starProjectedType.isAssignableFrom(setDeclaration) -> propType.getSetSpec(annotations)
 
             // Map
-            mapDeclaration.isAssignableFrom(propType) -> propType.getMapSpec(annotations)
+            starProjectedType.isAssignableFrom(mapDeclaration) -> propType.getMapSpec(annotations)
 
             // Flow
             flowDeclaration.isAssignableFrom(propType) -> propType.getFlowSpec()

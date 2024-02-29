@@ -44,6 +44,21 @@ internal object Names {
 
     val listName: ClassName = List::class.asTypeName()
 
+    val mutableListName: ClassName = ClassName(
+        packageName = "kotlin.collections",
+        "MutableList"
+    )
+
+    val mutableSetName: ClassName = ClassName(
+        packageName = "kotlin.collections",
+        "MutableSet"
+    )
+
+    val mutableMapName: ClassName = ClassName(
+        packageName = "kotlin.collections",
+        "MutableMap"
+    )
+
     val sequenceName: ClassName = Sequence::class.asTypeName()
 
     val previewParamProvider: ClassName = ClassName(
