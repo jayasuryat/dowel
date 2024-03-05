@@ -272,7 +272,7 @@ internal class ObjectConstructor {
         val spec = this
 
         return buildCodeBlock {
-            val mutableStateOf = MemberName("kotlinx.coroutines.flow", "flowOf")
+            val mutableStateOf = MemberName("kotlinx.coroutines.flow", "MutableStateFlow")
             add("%M(%L)", mutableStateOf, spec.elementSpec.getAssigner())
         }
     }
