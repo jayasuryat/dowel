@@ -189,7 +189,7 @@ internal class ObjectConstructor {
         val listSize = spec.size.value.toSafeRangeInt()
 
         if (listSize == 0) {
-            return buildCodeBlock { add("listOf()") }
+            return buildCodeBlock { add("mutableListOf()") }
         }
 
         val modListSize: Int = if (listSize != -1) listSize
@@ -199,7 +199,7 @@ internal class ObjectConstructor {
         ).toSafeRangeInt()
 
         return buildCodeBlock {
-            add("listOf(\n")
+            add("mutableListOf(\n")
             withIndent {
                 repeat(modListSize) {
                     add("%L,\n", spec.elementSpec.getAssigner())
@@ -216,7 +216,7 @@ internal class ObjectConstructor {
         val setSize = spec.size.value.toSafeRangeInt()
 
         if (setSize == 0) {
-            return buildCodeBlock { add("setOf()") }
+            return buildCodeBlock { add("mutableSetOf()") }
         }
 
         val modSetSize: Int = if (setSize != -1) setSize
@@ -226,7 +226,7 @@ internal class ObjectConstructor {
         ).toSafeRangeInt()
 
         return buildCodeBlock {
-            add("setOf(\n")
+            add("mutableSetOf(\n")
             withIndent {
                 repeat(modSetSize) {
                     add("%L,\n", spec.elementSpec.getAssigner())
@@ -243,7 +243,7 @@ internal class ObjectConstructor {
         val listSize = spec.size.value.toSafeRangeInt()
 
         if (listSize == 0) {
-            return buildCodeBlock { add("mapOf()") }
+            return buildCodeBlock { add("mutableMapOf()") }
         }
 
         val modSize: Int = if (listSize != -1) listSize
@@ -253,7 +253,7 @@ internal class ObjectConstructor {
         ).toSafeRangeInt()
 
         return buildCodeBlock {
-            add("mapOf(\n")
+            add("mutableMapOf(\n")
             withIndent {
                 repeat(modSize) {
                     add(

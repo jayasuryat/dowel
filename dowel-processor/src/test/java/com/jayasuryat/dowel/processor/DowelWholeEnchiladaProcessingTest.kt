@@ -77,8 +77,9 @@ internal class DowelWholeEnchiladaProcessingTest {
         val source = """
             package androidx.compose.runtime
             interface State<T>
+            interface MutableState<T> : State<T>
             
-            fun <T> mutableStateOf(value: T): State<T> = object : State<T> {}
+            fun <T> mutableStateOf(value: T): MutableState<T> = object : MutableState<T> {}
         """.trimIndent()
         SourceFile.kotlin(name = "SnapshotState.kt", contents = source)
     }
@@ -200,6 +201,7 @@ internal class DowelWholeEnchiladaProcessingTest {
             import com.jayasuryat.dowel.annotation.Dowel
             import androidx.annotation.Size
             import androidx.compose.runtime.State
+            import androidx.compose.runtime.MutableState
             import kotlinx.coroutines.flow.Flow
             import dowel.status.Status
             import dowel.vehicle.Vehicle
@@ -224,10 +226,15 @@ internal class DowelWholeEnchiladaProcessingTest {
                 val info: SomeStaticInfo,
                 val bannerColor : Color,
                 @Size(value = 2) val locations: List<Location>,
+                @Size(value = 2) val mutableLocations: MutableList<Location>,
                 @Size(value = 3) val uniqueLocations: Set<Location>,
+                @Size(value = 3) val uniqueMutableLocations: MutableSet<Location>,
                 val isExpanded: State<Boolean>,
+                val mutableIsExpanded: MutableState<Boolean>,
                 @Size(value = 1) val preferences: Map<Long, Location>,
+                @Size(value = 1) val mutablePreferences: MutableMap<Long, Location>,
                 @Size(value = 2) val preferredLocations: Map<Long, Set<Location>>,
+                @Size(value = 2) val preferredMutableLocations: Map<Long, MutableSet<Location>>,
                 val title: Char,
                 @Size(value = 1) val interests: List<Float>,
                 @Size(value = 2) val uniqueInterests: Set<Float>,
