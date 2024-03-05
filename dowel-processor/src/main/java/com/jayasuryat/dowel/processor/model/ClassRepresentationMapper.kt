@@ -86,7 +86,7 @@ internal class ClassRepresentationMapper(
     }
     private val mutableStateFlowNameDeclaration: KSType by unsafeLazy {
         val ksName = resolver.getKSNameFromString(Names.mutableStateFlowName.canonicalName)
-        resolver.getClassDeclarationByName(ksName)?.asStarProjectedType() ?: builtIns.nothingType
+        resolver.getClassDeclarationByName(ksName)?.asStarProjectedType() ?: builtIns.unitType
     }
     private val pairDeclaration: KSType by unsafeLazy {
         val ksName = resolver.getKSNameFromString(Pair::class.qualifiedName!!)
