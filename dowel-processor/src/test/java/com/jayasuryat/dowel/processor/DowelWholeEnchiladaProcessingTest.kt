@@ -25,7 +25,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
-@Suppress("PrivatePropertyName")
+@Suppress("PrivatePropertyName", "RedundantSuppression")
 internal class DowelWholeEnchiladaProcessingTest {
 
     @Rule
@@ -51,7 +51,7 @@ internal class DowelWholeEnchiladaProcessingTest {
 
     private val SizeStub: SourceFile by lazy {
         val source = """
-            package androidx.annotation;
+            package androidx.annotation
             
             annotation class Size(
                 val value : Long = -1,
@@ -67,8 +67,13 @@ internal class DowelWholeEnchiladaProcessingTest {
         val source = """
             package kotlinx.coroutines.flow
             interface Flow<T>
+            interface SharedFlow<T> : Flow<T>
+            interface MutableSharedFlow<T> : SharedFlow<T>
+            interface StateFlow<T> : SharedFlow<T>
+            interface MutableStateFlow<T> : StateFlow<T>, MutableSharedFlow<T>
             
-            fun <T> flowOf(vararg elements: T): Flow<T> = object : Flow<T> {}
+            @Suppress("TestFunctionName", "RedundantSuppression")
+            fun <T> MutableStateFlow(vararg elements: T): MutableStateFlow<T> = object : MutableStateFlow<T> {}
         """.trimIndent()
         SourceFile.kotlin(name = "Flow.kt", contents = source)
     }
@@ -90,7 +95,7 @@ internal class DowelWholeEnchiladaProcessingTest {
             
             class Color(val value: ULong)
             
-            @Suppress("TestFunctionName")
+            @Suppress("TestFunctionName", "RedundantSuppression")
             fun Color(color: Long): Color {
                return Color(value = (color.toULong() and 0xffffffffUL) shl 32)
             }
@@ -202,7 +207,7 @@ internal class DowelWholeEnchiladaProcessingTest {
             import androidx.annotation.Size
             import androidx.compose.runtime.State
             import androidx.compose.runtime.MutableState
-            import kotlinx.coroutines.flow.Flow
+            import kotlinx.coroutines.flow.*
             import dowel.status.Status
             import dowel.vehicle.Vehicle
             import dowel.static.info.SomeStaticInfo
@@ -240,6 +245,11 @@ internal class DowelWholeEnchiladaProcessingTest {
                 @Size(value = 2) val uniqueInterests: Set<Float>,
                 val meta : MetaInfo,
                 val subjects : Subjects,
+                val flow1: Flow<Int>,
+                val flow2: SharedFlow<Int>,
+                val flow3: MutableSharedFlow<Int>,
+                val flow4: StateFlow<Int>,
+                val flow5: MutableStateFlow<Int>,
                 val onClick: suspend (a: Person, b: Int) -> Unit,
             ){
                 

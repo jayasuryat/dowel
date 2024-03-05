@@ -210,7 +210,7 @@ Apart from that if you want to control range / length / size of the values being
 - All of the properties listed in the primary constructor of class annotated with `@Dowel` can only be of the following types:
   - Primitives (`Int`, `Long`, `Float`, `Double`, `Char`, `Boolean`, `String`)
   - `androidx.compose.runtime.State`, `androidx.compose.runtime.MutableState`, `androidx.compose.ui.graphics.Color`
-  - `kotlinx.coroutines.flow.Flow`
+  - `kotlinx.coroutines.flow.Flow`, `SharedFlow`, `StateFlow` (and their mutable types)
   - Functional types (high-order functions, lambdas)
   - `@Dowel` classes (`@Dowel` classes can be nested. A `@Dowel` annotated class can have properties of the type of classes which are again annotated with `@Dowel`)
   - Types for which a user-defined `PreviewParameterProvider` exist (via the `@ConsiderForDowel` annotation)

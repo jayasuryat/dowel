@@ -37,9 +37,9 @@ internal object Names {
         "Size"
     )
 
-    val flowName: ClassName = ClassName(
+    val mutableStateFlowName: ClassName = ClassName(
         packageName = "kotlinx.coroutines.flow",
-        "Flow"
+        "MutableStateFlow"
     )
 
     val listName: ClassName = List::class.asTypeName()
