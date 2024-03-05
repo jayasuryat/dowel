@@ -17,6 +17,7 @@ package com.jayasuryat.dowel.sample.ui.home.model
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.Size
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.ui.graphics.Color
 import com.jayasuryat.dowel.annotation.Dowel
@@ -49,10 +50,15 @@ data class Person(
     val meta: SomeStaticInfo,
     val customType: UnsupportedType = UnsupportedType.SomeType,
     @Size(value = 2) val locations: List<Location>,
+    @Size(value = 2) val mutableLocations: MutableList<Location>,
     @Size(value = 3) val uniqueLocations: Set<Location>,
+    @Size(value = 3) val mutableUniqueLocations: MutableSet<Location>,
     val isExpanded: State<Boolean>,
+    val mutableIsExpanded: MutableState<Boolean>,
     @Size(value = 1) val preferences: Map<Long, Location>,
+    @Size(value = 1) val mutablePreferences: MutableMap<Long, Location>,
     @Size(value = 2) val preferredLocations: Map<Long, Set<Location>>,
+    @Size(value = 2) val mutablePreferredLocations: Map<Long, MutableSet<Location>>,
     val title: Char,
     @Size(value = 1) val interests: List<Float>,
     val onClick: suspend (a: Person, b: Int) -> Unit,
