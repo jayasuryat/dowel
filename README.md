@@ -27,7 +27,7 @@
 </div>
 
 <details>
-  <summary><h3>1. What are PreviewParameterProviders to begin with?<h3/></summary>
+  <summary><h3>1. What are PreviewParameterProviders to begin with?</h3></summary>
 
 In [`Jetpack Compose`](https://developer.android.com/jetpack/compose), we use something called [`Previews`](https://developer.android.com/jetpack/compose/tooling), which are `Composable` functions written specifically to preview (or interact with) the UI rendered by `Compose` in the editor itself without needing to run the app on a device.
 
@@ -190,11 +190,11 @@ public class NewsArticlePreviewParamProvider : PreviewParameterProvider<NewsArti
 
 ## 5. How do I use `Dowel`?
 There are only 3 `Dowel` annotations you need to know about:
-1. [`@Dowel`](https://github.com/JayaSuryaT/Dowel/blob/main/dowel-annotation/src/main/java/com/jayasuryat/dowel/annotation/Dowel.kt) : The primary entry point into `Dowel`, triggeres generation `PreviewParameterProvider` for that class.
+1. [`@Dowel`](https://github.com/JayaSuryaT/Dowel/blob/main/dowel-annotation/src/main/java/com/jayasuryat/dowel/annotation/Dowel.kt) : The primary entry point into `Dowel`, triggers generation `PreviewParameterProvider` for that class.
 2. [`@DowelList`](https://github.com/JayaSuryaT/Dowel/blob/main/dowel-annotation/src/main/java/com/jayasuryat/dowel/annotation/DowelList.kt) : Same as `@Dowel`, but generates a `PreviewParameterProvider` of type `List<T>` where `T` is the class annotated with `@DowelList` annotation. Rest of the behavior is same as the `@Dowel` annotation.
 3. [`@ConsiderForDowel`](https://github.com/JayaSuryaT/Dowel/blob/main/dowel-annotation/src/main/java/com/jayasuryat/dowel/annotation/ConsiderForDowel.kt) : If you want to add support for an unsupported type, or override provider logic for a particular type, then you can do that with `@ConsiderForDowel` annotation.
 
-Apart from that if you want to controll range / legnth / size of the values being generated, you can do that with `androidx.annotations`. Currently these 3 are the only supported ones:
+Apart from that if you want to control range / length / size of the values being generated, you can do that with `androidx.annotations`. Currently these 3 are the only supported ones:
 * `androidx.annotation.IntRange` : Control the range of `Int` and `Long` properties
 * `androidx.annotation.FloatRange` : Control the range of `Float` and `Double` properties
 * `androidx.annotation.Size` : Control the size of `String`, `List` and `Map` properties
@@ -209,7 +209,7 @@ Apart from that if you want to controll range / legnth / size of the values bein
 - Only classes already annotated with `@Dowel` can be annotated with `@DowelList`
 - All of the properties listed in the primary constructor of class annotated with `@Dowel` can only be of the following types:
   - Primitives (`Int`, `Long`, `Float`, `Double`, `Char`, `Boolean`, `String`)
-  - `androidx.compose.runtime.State`, `androidx.compose.ui.graphics.Color`
+  - `androidx.compose.runtime.State`, `androidx.compose.runtime.MutableState`, `androidx.compose.ui.graphics.Color`
   - `kotlinx.coroutines.flow.Flow`
   - Functional types (high-order functions, lambdas)
   - `@Dowel` classes (`@Dowel` classes can be nested. A `@Dowel` annotated class can have properties of the type of classes which are again annotated with `@Dowel`)
@@ -218,9 +218,9 @@ Apart from that if you want to controll range / legnth / size of the values bein
   - `Sealed` types
   - Kotlin Objects
   - `Enum`
-  - `List`
-  - `Set`
-  - `Map`
+  - `List`, `MutableList`
+  - `Set`, `MutableSet`
+  - `Map`, `MutableMap`
   - `Pair`
   - Nullable types
   - Properties with **unsupported** types which are nullable are allowed, and the generated value would always be null
