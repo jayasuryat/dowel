@@ -70,7 +70,10 @@ internal class ObjectConstructor {
     }
 
     /**
-     * Returns [CodeBlock] representing assignment logic for the passed [ClassRepresentation.ParameterSpec]
+     * Returns [CodeBlock] representing assignment logic for the passed [ClassRepresentation.ParameterSpec].
+     *
+     * Note: For [SealedSpec], and all the other types which have generic type parameters,
+     * this method would get called recursively
      */
     private fun ClassRepresentation.ParameterSpec.getAssigner(): CodeBlock {
 
@@ -84,14 +87,19 @@ internal class ObjectConstructor {
             is BooleanSpec -> spec.getBoolAssigner()
             is StringSpec -> spec.getStringAssigner()
 
-            is ListSpec -> spec.getListAssigner() // This would be a recursive call
-            is SetSpec -> spec.getSetAssigner() // This would be a recursive call
-            is MapSpec -> spec.getMapAssigner() // This would be a recursive call
-            is FlowSpec -> spec.getFlowAssigner() // This would be a recursive call
-            is PairSpec -> spec.getPairAssigner() // This would be a recursive call
+            is ListSpec -> spec.getListAssigner()
+            is SetSpec -> spec.getSetAssigner()
+            is MapSpec -> spec.getMapAssigner()
+
+            is PersistentListSpec -> spec.getPersistentListSpecAssigner()
+            is PersistentSetSpec -> spec.getPersistentSetAssigner()
+            is PersistentMapSpec -> spec.getPersistentMapAssigner()
+
+            is FlowSpec -> spec.getFlowAssigner()
+            is PairSpec -> spec.getPairAssigner()
 
             is FunctionSpec -> spec.getFunctionAssigner()
-            is SealedSpec -> spec.getSealedAssigner() // This would be a recursive call
+            is SealedSpec -> spec.getSealedAssigner()
             is EnumSpec -> spec.getEnumAssigner()
             is ObjectSpec -> spec.getObjectAssigner()
             is DowelSpec -> spec.getDowelAssigner()
@@ -101,7 +109,7 @@ internal class ObjectConstructor {
             is NoArgsConstructorSpec -> spec.getNoArgsConstructorAssigner()
 
             // Compose types
-            is StateSpec -> spec.getStateAssigner() // This would be a recursive call
+            is StateSpec -> spec.getStateAssigner()
             is ColorSpec -> spec.getColorAssigner()
 
             is UnsupportedNullableSpec -> spec.getUnsupportedNullableAssigner()
@@ -147,13 +155,13 @@ internal class ObjectConstructor {
         return buildCodeBlock { add("%L", value) }
     }
 
-    @Suppress("unused")
+    @Suppress("UnusedReceiverParameter")
     private fun CharSpec.getCharAssigner(): CodeBlock {
         val range = 'a'..'z'
         return buildCodeBlock { add("\'%L\'", range.random()) }
     }
 
-    @Suppress("unused")
+    @Suppress("UnusedReceiverParameter")
     private fun BooleanSpec.getBoolAssigner(): CodeBlock {
         return buildCodeBlock { add("%L", Random.nextBoolean()) }
     }
@@ -254,6 +262,94 @@ internal class ObjectConstructor {
 
         return buildCodeBlock {
             add("mutableMapOf(\n")
+            withIndent {
+                repeat(modSize) {
+                    add(
+                        "%L to %L,\n",
+                        spec.keySpec.getAssigner(),
+                        spec.valueSpec.getAssigner(),
+                    )
+                }
+            }
+            add(")")
+        }
+    }
+
+    private fun PersistentListSpec.getPersistentListSpecAssigner(): CodeBlock {
+
+        val spec = this
+
+        val listSize = spec.size.value.toSafeRangeInt()
+        val persistentListOf = MemberName("kotlinx.collections.immutable", "persistentListOf")
+
+        if (listSize == 0) {
+            return buildCodeBlock { add("%M()", persistentListOf) }
+        }
+
+        val modListSize: Int = if (listSize != -1) listSize
+        else Random.nextLong(
+            from = spec.size.min,
+            until = spec.size.max,
+        ).toSafeRangeInt()
+
+        return buildCodeBlock {
+            add("%M(\n", persistentListOf)
+            withIndent {
+                repeat(modListSize) {
+                    add("%L,\n", spec.elementSpec.getAssigner())
+                }
+            }
+            add(")")
+        }
+    }
+
+    private fun PersistentSetSpec.getPersistentSetAssigner(): CodeBlock {
+
+        val spec = this
+
+        val setSize = spec.size.value.toSafeRangeInt()
+        val persistentSetOf = MemberName("kotlinx.collections.immutable", "persistentSetOf")
+
+        if (setSize == 0) {
+            return buildCodeBlock { add("%M()", persistentSetOf) }
+        }
+
+        val modSetSize: Int = if (setSize != -1) setSize
+        else Random.nextLong(
+            from = spec.size.min,
+            until = spec.size.max,
+        ).toSafeRangeInt()
+
+        return buildCodeBlock {
+            add("%M(\n", persistentSetOf)
+            withIndent {
+                repeat(modSetSize) {
+                    add("%L,\n", spec.elementSpec.getAssigner())
+                }
+            }
+            add(")")
+        }
+    }
+
+    private fun PersistentMapSpec.getPersistentMapAssigner(): CodeBlock {
+
+        val spec = this
+
+        val listSize = spec.size.value.toSafeRangeInt()
+        val persistentMapOf = MemberName("kotlinx.collections.immutable", "persistentMapOf")
+
+        if (listSize == 0) {
+            return buildCodeBlock { add("%M()", persistentMapOf) }
+        }
+
+        val modSize: Int = if (listSize != -1) listSize
+        else Random.nextLong(
+            from = spec.size.min,
+            until = spec.size.max,
+        ).toSafeRangeInt()
+
+        return buildCodeBlock {
+            add("%M(\n", persistentMapOf)
             withIndent {
                 repeat(modSize) {
                     add(
@@ -369,7 +465,7 @@ internal class ObjectConstructor {
         }
     }
 
-    @Suppress("unused")
+    @Suppress("UnusedReceiverParameter")
     private fun ColorSpec.getColorAssigner(): CodeBlock {
 
         return buildCodeBlock {
@@ -380,7 +476,7 @@ internal class ObjectConstructor {
         }
     }
 
-    @Suppress("unused")
+    @Suppress("UnusedReceiverParameter")
     private fun UnsupportedNullableSpec.getUnsupportedNullableAssigner(): CodeBlock {
         return buildCodeBlock { add("null") }
     }

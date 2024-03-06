@@ -25,6 +25,7 @@ import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.annotation.DowelList
 import com.jayasuryat.dowel.processor.generator.DowelGenerator
 import com.jayasuryat.dowel.processor.generator.DowelListGenerator
+import com.jayasuryat.dowel.processor.model.PreDefinedDeclarations
 import com.jayasuryat.dowel.processor.model.UserPredefinedParamProviderMapper
 import com.jayasuryat.dowel.processor.model.UserPredefinedParamProviderMapper.ProcessedConsiderForDowelSymbols
 import com.jayasuryat.dowel.processor.model.UserPredefinedParamProviders
@@ -69,6 +70,11 @@ internal class DowelSymbolProcessor(
             codeGenerator = codeGenerator,
         )
     }
+    private val declarations: PreDefinedDeclarations by unsafeLazy {
+        PreDefinedDeclarations(
+            resolver = resolver,
+        )
+    }
 
     /**
      * Entry point into processing of symbols, called by Kotlin Symbol Processing to run the processing task.
@@ -81,7 +87,8 @@ internal class DowelSymbolProcessor(
             resolver.processConsiderForDowelSymbols()
 
         val invalidDowelSymbols: List<KSAnnotated> = resolver.processDowelSymbols(
-            predefinedProviders = considerForDowelSymbols.providers
+            predefinedProviders = considerForDowelSymbols.providers,
+            declarations = declarations,
         )
 
         val invalidDowelListSymbols: List<KSAnnotated> = resolver.processDowelListSymbols()
@@ -95,6 +102,7 @@ internal class DowelSymbolProcessor(
      */
     private fun Resolver.processDowelSymbols(
         predefinedProviders: UserPredefinedParamProviders,
+        declarations: PreDefinedDeclarations,
     ): List<KSAnnotated> {
 
         val resolver = this
@@ -108,6 +116,7 @@ internal class DowelSymbolProcessor(
 
         val dowelGenerator: DowelGenerator = DowelGenerator.createInstance(
             predefinedProviders = predefinedProviders,
+            declarations = declarations,
         )
 
         // Triggering code generation for valid symbols
@@ -169,12 +178,14 @@ internal class DowelSymbolProcessor(
      */
     private fun DowelGenerator.Companion.createInstance(
         predefinedProviders: UserPredefinedParamProviders,
+        declarations: PreDefinedDeclarations,
     ): DowelGenerator {
         return DowelGenerator(
             resolver = resolver,
             codeGenerator = codeGenerator,
             logger = logger,
-            predefinedProviders = predefinedProviders
+            predefinedProviders = predefinedProviders,
+            declarations = declarations,
         )
     }
 }
