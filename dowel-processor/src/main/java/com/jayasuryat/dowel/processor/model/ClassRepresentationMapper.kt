@@ -23,7 +23,6 @@ import com.google.devtools.ksp.symbol.*
 import com.jayasuryat.dowel.annotation.ConsiderForDowel
 import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.processor.DefaultRange
-import com.jayasuryat.dowel.processor.Names
 import com.jayasuryat.dowel.processor.annotation.FloatRange
 import com.jayasuryat.dowel.processor.annotation.IntRange
 import com.jayasuryat.dowel.processor.annotation.Size
@@ -31,7 +30,6 @@ import com.jayasuryat.dowel.processor.dowelClassName
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.*
 import com.jayasuryat.dowel.processor.relativeClassName
-import com.jayasuryat.dowel.processor.util.unsafeLazy
 import com.jayasuryat.either.Either
 import com.jayasuryat.either.either
 import com.jayasuryat.either.left
@@ -67,39 +65,12 @@ internal class ClassRepresentationMapper(
     private val resolver: Resolver,
     private val logger: KSPLogger,
     private val predefinedProviders: UserPredefinedParamProviders,
+    private val declarations: PreDefinedDeclarations,
 ) {
 
     // region : Types
     private val builtIns: KSBuiltIns = resolver.builtIns
 
-    private val listDeclaration: KSType by unsafeLazy {
-        val ksName = resolver.getKSNameFromString(Names.mutableListName.canonicalName)
-        resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
-    }
-    private val setDeclaration: KSType by unsafeLazy {
-        val ksName = resolver.getKSNameFromString(Names.mutableSetName.canonicalName)
-        resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
-    }
-    private val mapDeclaration: KSType by unsafeLazy {
-        val ksName = resolver.getKSNameFromString(Names.mutableMapName.canonicalName)
-        resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
-    }
-    private val mutableStateFlowNameDeclaration: KSType by unsafeLazy {
-        val ksName = resolver.getKSNameFromString(Names.mutableStateFlowName.canonicalName)
-        resolver.getClassDeclarationByName(ksName)?.asStarProjectedType() ?: builtIns.unitType
-    }
-    private val pairDeclaration: KSType by unsafeLazy {
-        val ksName = resolver.getKSNameFromString(Pair::class.qualifiedName!!)
-        resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
-    }
-    private val stateDeclaration: KSType by unsafeLazy {
-        val ksName = resolver.getKSNameFromString(Names.stateName.canonicalName)
-        resolver.getClassDeclarationByName(ksName)?.asStarProjectedType() ?: builtIns.nothingType
-    }
-    private val colorDeclaration: KSType by unsafeLazy {
-        val ksName = resolver.getKSNameFromString(Names.colorName.canonicalName)
-        resolver.getClassDeclarationByName(ksName)?.asStarProjectedType() ?: builtIns.nothingType
-    }
     // endregion
 
     fun map(
@@ -178,20 +149,21 @@ internal class ClassRepresentationMapper(
             propType.isAssignableFrom(builtIns.booleanType) -> getBooleanSpec().right()
             propType.isAssignableFrom(builtIns.stringType) -> getStringSpec(annotations).right()
 
-            // List
-            starProjectedType.isAssignableFrom(listDeclaration) -> propType.getListSpec(annotations)
+            // kotlin.collections
+            starProjectedType.isAssignableFrom(declarations.list) -> propType.getListSpec(annotations)
+            starProjectedType.isAssignableFrom(declarations.set) -> propType.getSetSpec(annotations)
+            starProjectedType.isAssignableFrom(declarations.map) -> propType.getMapSpec(annotations)
 
-            // Set
-            starProjectedType.isAssignableFrom(setDeclaration) -> propType.getSetSpec(annotations)
-
-            // Map
-            starProjectedType.isAssignableFrom(mapDeclaration) -> propType.getMapSpec(annotations)
+            // kotlinx.collections.immutable
+            starProjectedType.isAssignableFrom(declarations.persistentList) -> propType.getPersistentListSpec(annotations)
+            starProjectedType.isAssignableFrom(declarations.persistentSet) -> propType.getPersistentSetSpec(annotations)
+            starProjectedType.isAssignableFrom(declarations.persistentMap) -> propType.getPersistentMapSpec(annotations)
 
             // Flow
-            starProjectedType.isAssignableFrom(mutableStateFlowNameDeclaration) -> propType.getFlowSpec()
+            starProjectedType.isAssignableFrom(declarations.mutableStateFlow) -> propType.getFlowSpec()
 
             // Pair
-            pairDeclaration.isAssignableFrom(propType) -> propType.getPairSpec()
+            declarations.pair.isAssignableFrom(propType) -> propType.getPairSpec()
 
             // High-order functions
             propType.isFunctionType || propType.isSuspendFunctionType ->
@@ -221,10 +193,10 @@ internal class ClassRepresentationMapper(
 
             // Compose types
             // State
-            stateDeclaration.isAssignableFrom(propType) -> propType.getStateSpec()
+            declarations.state.isAssignableFrom(propType) -> propType.getStateSpec()
 
             // Color
-            colorDeclaration.isAssignableFrom(propType) -> ColorSpec.right()
+            declarations.color.isAssignableFrom(propType) -> ColorSpec.right()
 
             // Unsupported types which are nullable
             propType.isMarkedNullable -> getUnsupportedNullableSpec().right()
@@ -420,6 +392,92 @@ internal class ClassRepresentationMapper(
 
         return either {
             MapSpec(
+                size = size,
+                keySpec = key.bind(),
+                valueSpec = value.bind(),
+            )
+        }
+    }
+
+    private fun KSType.getPersistentListSpec(
+        annotations: List<KSAnnotation>,
+    ): MaybeSpec<PersistentListSpec> {
+
+        val size: Size = Size.find(
+            annotations = annotations.toList(),
+            defaultValue = DefaultRange.DEFAULT_LIST_LEN_VALUE,
+            defaultMin = DefaultRange.DEFAULT_LIST_LEN_MIN,
+            defaultMax = DefaultRange.DEFAULT_LIST_LEN_MAX,
+        )
+
+        require(this.arguments.size == 1) { "Lst must have have exactly one type argument. Current size = ${this.arguments.size}" }
+
+        val arg = this.arguments.first()
+        val resolvedType = arg.type!!.resolve()
+        val spec = resolvedType.getSpec(
+            annotations = arg.annotations.toList(),
+        )
+
+        return either {
+            PersistentListSpec(
+                size = size,
+                elementSpec = spec.bind(),
+            )
+        }
+    }
+
+    private fun KSType.getPersistentSetSpec(
+        annotations: List<KSAnnotation>,
+    ): MaybeSpec<PersistentSetSpec> {
+
+        val size: Size = Size.find(
+            annotations = annotations.toList(),
+            defaultValue = DefaultRange.DEFAULT_LIST_LEN_VALUE,
+            defaultMin = DefaultRange.DEFAULT_LIST_LEN_MIN,
+            defaultMax = DefaultRange.DEFAULT_LIST_LEN_MAX,
+        )
+
+        require(this.arguments.size == 1) { "Set must have have exactly one type argument. Current size = ${this.arguments.size}" }
+
+        val arg = this.arguments.first()
+        val resolvedType = arg.type!!.resolve()
+        val spec = resolvedType.getSpec(
+            annotations = arg.annotations.toList(),
+        )
+
+        return either {
+            PersistentSetSpec(
+                size = size,
+                elementSpec = spec.bind(),
+            )
+        }
+    }
+
+    private fun KSType.getPersistentMapSpec(
+        annotations: List<KSAnnotation>,
+    ): MaybeSpec<PersistentMapSpec> {
+
+        fun KSTypeArgument.getSpec(): MaybeParamSpec {
+            val resolvedType = this.type!!.resolve()
+            return resolvedType.getSpec(
+                annotations = this.annotations.toList(),
+            )
+        }
+
+        val size: Size = Size.find(
+            annotations = annotations.toList(),
+            defaultValue = DefaultRange.DEFAULT_MAP_LEN_VALUE,
+            defaultMin = DefaultRange.DEFAULT_MAP_LEN_MIN,
+            defaultMax = DefaultRange.DEFAULT_MAP_LEN_MAX,
+        )
+
+        require(this.arguments.size == 2) { "Map must have have exactly two type arguments. Current size = ${this.arguments.size}" }
+
+        val key = this.arguments[0].getSpec()
+        val value = this.arguments[1].getSpec()
+
+        return either {
+            PersistentMapSpec(
                 size = size,
                 keySpec = key.bind(),
                 valueSpec = value.bind(),
