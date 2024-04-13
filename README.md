@@ -218,9 +218,8 @@ Apart from that if you want to control range / length / size of the values being
   - `Sealed` types
   - Kotlin Objects
   - `Enum`
-  - `List`, `MutableList`
-  - `Set`, `MutableSet`
-  - `Map`, `MutableMap`
+  - `List`, `MutableList`, `Set`, `MutableSet`, `Map`, `MutableMap`
+  - [Kotlinx immutable collections](https://github.com/Kotlin/kotlinx.collections.immutable) (`ImmutableList`, `PersistentList`, `ImmutableSet`, `PersistentSet`, `ImmutableMap`, `PersistentMap`)
   - `Pair`
   - Nullable types
   - Properties with **unsupported** types which are nullable are allowed, and the generated value would always be null
