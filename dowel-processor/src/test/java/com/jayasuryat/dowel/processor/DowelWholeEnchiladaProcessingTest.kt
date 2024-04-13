@@ -72,10 +72,30 @@ internal class DowelWholeEnchiladaProcessingTest {
             interface StateFlow<T> : SharedFlow<T>
             interface MutableStateFlow<T> : StateFlow<T>, MutableSharedFlow<T>
             
-            @Suppress("TestFunctionName", "RedundantSuppression")
+            @Suppress("TestFunctionName", "RedundantSuppression", "UNUSED_PARAMETER")
             fun <T> MutableStateFlow(vararg elements: T): MutableStateFlow<T> = object : MutableStateFlow<T> {}
         """.trimIndent()
         SourceFile.kotlin(name = "Flow.kt", contents = source)
+    }
+
+    private val ImmutableCollectionsStub: SourceFile by lazy {
+        val source = """
+            @file:Suppress("UNUSED_PARAMETER")
+
+            package kotlinx.collections.immutable
+            interface ImmutableList<out E>
+            interface PersistentList<out E> : ImmutableList<E>
+            interface ImmutableSet<out E>
+            interface PersistentSet<out E> : ImmutableSet<E>
+            interface ImmutableMap<K, out V>
+            interface PersistentMap<K, out V> : ImmutableMap<K, V>
+            
+            @Suppress("TestFunctionName", "RedundantSuppression")
+            fun <E> persistentListOf(vararg elements: E): PersistentList<E> = object : PersistentList<E> {}
+            fun <E> persistentSetOf(vararg elements: E): PersistentSet<E> = object : PersistentSet<E> {}
+            fun <K, V> persistentMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = object : PersistentMap<K, V> {}
+        """.trimIndent()
+        SourceFile.kotlin(name = "ImmutableCollections.kt", contents = source)
     }
 
     private val StateStub: SourceFile by lazy {
@@ -84,6 +104,7 @@ internal class DowelWholeEnchiladaProcessingTest {
             interface State<T>
             interface MutableState<T> : State<T>
             
+            @Suppress("UNUSED_PARAMETER")
             fun <T> mutableStateOf(value: T): MutableState<T> = object : MutableState<T> {}
         """.trimIndent()
         SourceFile.kotlin(name = "SnapshotState.kt", contents = source)
@@ -208,6 +229,7 @@ internal class DowelWholeEnchiladaProcessingTest {
             import androidx.compose.runtime.State
             import androidx.compose.runtime.MutableState
             import kotlinx.coroutines.flow.*
+            import kotlinx.collections.immutable.*
             import dowel.status.Status
             import dowel.vehicle.Vehicle
             import dowel.static.info.SomeStaticInfo
@@ -250,6 +272,12 @@ internal class DowelWholeEnchiladaProcessingTest {
                 val flow3: MutableSharedFlow<Int>,
                 val flow4: StateFlow<Int>,
                 val flow5: MutableStateFlow<Int>,
+                val immutableList: ImmutableList<Int>,
+                val persistentList: PersistentList<Int>,
+                val immutableSet: ImmutableSet<Int>,
+                val persistentSet: PersistentSet<Int>,
+                val immutableMap: ImmutableMap<Int, Int>,
+                val persistentMap: PersistentMap<Int, Int>,
                 val onClick: suspend (a: Person, b: Int) -> Unit,
             ){
                 
@@ -269,6 +297,7 @@ internal class DowelWholeEnchiladaProcessingTest {
             PreviewParameterProviderStub,
             SizeStub,
             FlowStub,
+            ImmutableCollectionsStub,
             StateStub,
             VehicleSource,
             StatusSource,
@@ -279,6 +308,7 @@ internal class DowelWholeEnchiladaProcessingTest {
         )
 
         Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals("", result.messages)
     }
 
     // spotless:on

@@ -51,6 +51,26 @@ internal class DowelProcessingTest {
         """.trimIndent()
         SourceFile.kotlin(name = "PreviewParameterProvider.kt", contents = source)
     }
+
+    private val ImmutableCollectionsStub: SourceFile by lazy {
+        val source = """
+            @file:Suppress("UNUSED_PARAMETER")
+            
+            package kotlinx.collections.immutable
+            interface ImmutableList<out E>
+            interface PersistentList<out E> : ImmutableList<E>
+            interface ImmutableSet<out E>
+            interface PersistentSet<out E> : ImmutableSet<E>
+            interface ImmutableMap<K, out V>
+            interface PersistentMap<K, out V> : ImmutableMap<K, V>
+            
+            @Suppress("TestFunctionName", "RedundantSuppression")
+            fun <E> persistentListOf(vararg elements: E): PersistentList<E> = object : PersistentList<E> {}
+            fun <E> persistentSetOf(vararg elements: E): PersistentSet<E> = object : PersistentSet<E> {}
+            fun <K, V> persistentMapOf(vararg pairs: Pair<K, V>): PersistentMap<K, V> = object : PersistentMap<K, V> {}
+        """.trimIndent()
+        SourceFile.kotlin(name = "ImmutableCollections.kt", contents = source)
+    }
     // endregion
 
     @Test
@@ -150,7 +170,11 @@ internal class DowelProcessingTest {
         """.trimIndent()
 
         val kotlinSource: SourceFile = SourceFile.kotlin(name = "Person.kt", contents = source)
-        val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
+        val result: KotlinCompilation.Result = compile(
+            kotlinSource,
+            PreviewParameterProviderStub,
+            ImmutableCollectionsStub,
+        )
 
         Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
         Assert.assertEquals("", result.messages)
@@ -184,7 +208,11 @@ internal class DowelProcessingTest {
             }
         """.trimIndent()
         val kotlinSource: SourceFile = SourceFile.kotlin(name = "Person.kt", contents = source)
-        val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
+        val result: KotlinCompilation.Result = compile(
+            kotlinSource,
+            PreviewParameterProviderStub,
+            ImmutableCollectionsStub,
+        )
 
         Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
         Assert.assertEquals("", result.messages)
@@ -472,6 +500,7 @@ internal class DowelProcessingTest {
         val result: KotlinCompilation.Result = compile(
             kotlinSource,
             PreviewParameterProviderStub,
+            ImmutableCollectionsStub,
         )
 
         val expectedMessage = """
@@ -513,6 +542,7 @@ internal class DowelProcessingTest {
         val result: KotlinCompilation.Result = compile(
             kotlinSource,
             PreviewParameterProviderStub,
+            ImmutableCollectionsStub,
         )
 
         val expectedMessage = """
