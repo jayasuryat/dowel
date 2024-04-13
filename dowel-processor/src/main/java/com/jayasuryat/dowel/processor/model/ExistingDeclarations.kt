@@ -45,15 +45,15 @@ internal class ExistingDeclarations(
     }
     internal val persistentList: KSType by unsafeLazy {
         val ksName = resolver.getKSNameFromString(Names.persistentList.canonicalName)
-        resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
+        resolver.getClassDeclarationByName(ksName)?.asStarProjectedType() ?: builtIns.unitType
     }
     internal val persistentSet: KSType by unsafeLazy {
         val ksName = resolver.getKSNameFromString(Names.persistentSet.canonicalName)
-        resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
+        resolver.getClassDeclarationByName(ksName)?.asStarProjectedType() ?: builtIns.unitType
     }
     internal val persistentMap: KSType by unsafeLazy {
         val ksName = resolver.getKSNameFromString(Names.persistentMap.canonicalName)
-        resolver.getClassDeclarationByName(ksName)!!.asStarProjectedType()
+        resolver.getClassDeclarationByName(ksName)?.asStarProjectedType() ?: builtIns.unitType
     }
     internal val mutableStateFlow: KSType by unsafeLazy {
         val ksName = resolver.getKSNameFromString(Names.mutableStateFlowName.canonicalName)
