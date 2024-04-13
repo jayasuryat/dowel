@@ -28,7 +28,7 @@ import com.jayasuryat.dowel.processor.model.ClassRepresentation
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.DowelSpec
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.PreDefinedProviderSpec
 import com.jayasuryat.dowel.processor.model.ClassRepresentationMapper
-import com.jayasuryat.dowel.processor.model.PreDefinedDeclarations
+import com.jayasuryat.dowel.processor.model.ExistingDeclarations
 import com.jayasuryat.dowel.processor.model.UserPredefinedParamProviders
 import com.jayasuryat.dowel.processor.util.getEffectiveModuleVisibility
 import com.jayasuryat.dowel.processor.util.unsafeLazy
@@ -55,7 +55,7 @@ internal class DowelGenerator(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
     private val predefinedProviders: UserPredefinedParamProviders,
-    private val declarations: PreDefinedDeclarations,
+    private val declarations: ExistingDeclarations,
 ) {
 
     private val mapper: ClassRepresentationMapper by unsafeLazy {

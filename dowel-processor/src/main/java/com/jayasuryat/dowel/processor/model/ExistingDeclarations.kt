@@ -25,7 +25,7 @@ import com.jayasuryat.dowel.processor.util.unsafeLazy
  * This class provides access to various Kotlin Symbol (KSType) declarations for commonly used types.
  * @param resolver The resolver used for symbol resolution.
  */
-internal class PreDefinedDeclarations(
+internal class ExistingDeclarations(
     private val resolver: Resolver,
 ) {
 

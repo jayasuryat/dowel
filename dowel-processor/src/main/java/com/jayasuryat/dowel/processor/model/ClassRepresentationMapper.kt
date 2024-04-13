@@ -65,7 +65,7 @@ internal class ClassRepresentationMapper(
     private val resolver: Resolver,
     private val logger: KSPLogger,
     private val predefinedProviders: UserPredefinedParamProviders,
-    private val declarations: PreDefinedDeclarations,
+    private val declarations: ExistingDeclarations,
 ) {
 
     // region : Types

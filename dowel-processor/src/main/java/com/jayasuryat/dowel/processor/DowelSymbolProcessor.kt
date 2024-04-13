@@ -25,7 +25,7 @@ import com.jayasuryat.dowel.annotation.Dowel
 import com.jayasuryat.dowel.annotation.DowelList
 import com.jayasuryat.dowel.processor.generator.DowelGenerator
 import com.jayasuryat.dowel.processor.generator.DowelListGenerator
-import com.jayasuryat.dowel.processor.model.PreDefinedDeclarations
+import com.jayasuryat.dowel.processor.model.ExistingDeclarations
 import com.jayasuryat.dowel.processor.model.UserPredefinedParamProviderMapper
 import com.jayasuryat.dowel.processor.model.UserPredefinedParamProviderMapper.ProcessedConsiderForDowelSymbols
 import com.jayasuryat.dowel.processor.model.UserPredefinedParamProviders
@@ -70,8 +70,8 @@ internal class DowelSymbolProcessor(
             codeGenerator = codeGenerator,
         )
     }
-    private val declarations: PreDefinedDeclarations by unsafeLazy {
-        PreDefinedDeclarations(
+    private val declarations: ExistingDeclarations by unsafeLazy {
+        ExistingDeclarations(
             resolver = resolver,
         )
     }
@@ -102,7 +102,7 @@ internal class DowelSymbolProcessor(
      */
     private fun Resolver.processDowelSymbols(
         predefinedProviders: UserPredefinedParamProviders,
-        declarations: PreDefinedDeclarations,
+        declarations: ExistingDeclarations,
     ): List<KSAnnotated> {
 
         val resolver = this
@@ -178,7 +178,7 @@ internal class DowelSymbolProcessor(
      */
     private fun DowelGenerator.Companion.createInstance(
         predefinedProviders: UserPredefinedParamProviders,
-        declarations: PreDefinedDeclarations,
+        declarations: ExistingDeclarations,
     ): DowelGenerator {
         return DowelGenerator(
             resolver = resolver,
