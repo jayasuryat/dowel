@@ -97,6 +97,22 @@ internal data class ClassRepresentation(
             val valueSpec: ParameterSpec,
         ) : ParameterSpec
 
+        data class PersistentListSpec(
+            val size: Size,
+            val elementSpec: ParameterSpec,
+        ) : ParameterSpec
+
+        data class PersistentSetSpec(
+            val size: Size,
+            val elementSpec: ParameterSpec,
+        ) : ParameterSpec
+
+        data class PersistentMapSpec(
+            val size: Size,
+            val keySpec: ParameterSpec,
+            val valueSpec: ParameterSpec,
+        ) : ParameterSpec
+
         data class FlowSpec(
             val elementSpec: ParameterSpec,
         ) : ParameterSpec

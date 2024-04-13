@@ -28,6 +28,7 @@ import com.jayasuryat.dowel.processor.model.ClassRepresentation
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.DowelSpec
 import com.jayasuryat.dowel.processor.model.ClassRepresentation.ParameterSpec.PreDefinedProviderSpec
 import com.jayasuryat.dowel.processor.model.ClassRepresentationMapper
+import com.jayasuryat.dowel.processor.model.ExistingDeclarations
 import com.jayasuryat.dowel.processor.model.UserPredefinedParamProviders
 import com.jayasuryat.dowel.processor.util.getEffectiveModuleVisibility
 import com.jayasuryat.dowel.processor.util.unsafeLazy
@@ -54,6 +55,7 @@ internal class DowelGenerator(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
     private val predefinedProviders: UserPredefinedParamProviders,
+    private val declarations: ExistingDeclarations,
 ) {
 
     private val mapper: ClassRepresentationMapper by unsafeLazy {
@@ -61,6 +63,7 @@ internal class DowelGenerator(
             resolver = resolver,
             logger = logger,
             predefinedProviders = predefinedProviders,
+            declarations = declarations,
         )
     }
     private val objectConstructor: ObjectConstructor by unsafeLazy { ObjectConstructor() }
@@ -262,6 +265,16 @@ internal class DowelGenerator(
                     spec.elementSpec.getAllSupportingProvidersRecursively()
 
                 is ClassRepresentation.ParameterSpec.MapSpec ->
+                    spec.keySpec.getAllSupportingProvidersRecursively() +
+                        spec.valueSpec.getAllSupportingProvidersRecursively()
+
+                is ClassRepresentation.ParameterSpec.PersistentListSpec ->
+                    spec.elementSpec.getAllSupportingProvidersRecursively()
+
+                is ClassRepresentation.ParameterSpec.PersistentSetSpec ->
+                    spec.elementSpec.getAllSupportingProvidersRecursively()
+
+                is ClassRepresentation.ParameterSpec.PersistentMapSpec ->
                     spec.keySpec.getAllSupportingProvidersRecursively() +
                         spec.valueSpec.getAllSupportingProvidersRecursively()
 

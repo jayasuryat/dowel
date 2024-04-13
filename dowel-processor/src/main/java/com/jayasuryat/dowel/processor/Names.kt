@@ -59,6 +59,21 @@ internal object Names {
         "MutableMap"
     )
 
+    val persistentList: ClassName = ClassName(
+        packageName = "kotlinx.collections.immutable",
+        "PersistentList",
+    )
+
+    val persistentSet: ClassName = ClassName(
+        packageName = "kotlinx.collections.immutable",
+        "PersistentSet",
+    )
+
+    val persistentMap: ClassName = ClassName(
+        packageName = "kotlinx.collections.immutable",
+        "PersistentMap",
+    )
+
     val sequenceName: ClassName = Sequence::class.asTypeName()
 
     val previewParamProvider: ClassName = ClassName(

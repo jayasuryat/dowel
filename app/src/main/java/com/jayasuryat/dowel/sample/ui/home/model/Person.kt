@@ -28,6 +28,12 @@ import com.jayasuryat.dowel.sample.ui.home.model.meta.SomeStaticInfo
 import com.jayasuryat.dowel.sample.ui.home.model.sealed.Vehicle
 import com.jayasuryat.dowel.sample.ui.home.model.status.Status
 import com.jayasuryat.dowel.sample.ui.home.model.unsupported.UnsupportedType
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.PersistentMap
+import kotlinx.collections.immutable.PersistentSet
 import kotlinx.coroutines.flow.Flow
 
 @DowelList(count = 5)
@@ -59,6 +65,12 @@ data class Person(
     @Size(value = 1) val mutablePreferences: MutableMap<Long, Location>,
     @Size(value = 2) val preferredLocations: Map<Long, Set<Location>>,
     @Size(value = 2) val mutablePreferredLocations: Map<Long, MutableSet<Location>>,
+    @Size(value = 2) val immutableList: ImmutableList<Int>,
+    @Size(value = 2) val immutableSet: ImmutableSet<Int>,
+    @Size(value = 2) val immutableMap: ImmutableMap<Int, Int>,
+    @Size(value = 2) val persistentList: PersistentList<Int>,
+    @Size(value = 2) val persistentSet: PersistentSet<Int>,
+    @Size(value = 2) val persistentMap: PersistentMap<Int, Int>,
     val title: Char,
     @Size(value = 1) val interests: List<Float>,
     val onClick: suspend (a: Person, b: Int) -> Unit,
