@@ -4,7 +4,9 @@ public abstract interface annotation class com/jayasuryat/dowel/annotation/Consi
 public abstract interface annotation class com/jayasuryat/dowel/annotation/Dowel : java/lang/annotation/Annotation {
 	public static final field COUNT_PROPERTY_NAME Ljava/lang/String;
 	public static final field Companion Lcom/jayasuryat/dowel/annotation/Dowel$Companion;
+	public static final field OVERRIDE_DEFAULT_VALUES_NAME Ljava/lang/String;
 	public abstract fun count ()I
+	public abstract fun overrideDefaultValues ()Z
 }
 
 public final class com/jayasuryat/dowel/annotation/Dowel$Companion {
