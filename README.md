@@ -223,7 +223,7 @@ Apart from that if you want to control range / length / size of the values being
   - `Pair`
   - Nullable types
   - Properties with **unsupported** types which are nullable are allowed, and the generated value would always be null
-  - Properties with default values can have *any type*, as they are not considered while generating code
+  - Properties with default values can have *any type*, as they are not considered while generating code, (unless the `overrideDefaultValues` property of the `Dowel` annotation is toggled to `true` for that class)
   - Types in the above mentioned list having generic type parameters (like `List` and `Map`) can only have `@Dowel` supported types as their type parameters. Like `List<String>`, `Map<String, @Dowel class>`
 - As far as a type is in above mentioned supported list, there are no practical limitations on how many times they may be nested.
 Like `List<Map<Set<String>, List<@Dowel class>>>`
