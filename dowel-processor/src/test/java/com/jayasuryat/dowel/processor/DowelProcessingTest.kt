@@ -595,6 +595,40 @@ internal class DowelProcessingTest {
         Assert.assertTrue(result.messages.contains(expectedMessage))
     }
 
+    @Test
+    fun `should compile success for dowel with overrideDefaultValues`() {
+
+        val source = """
+            package dowel
+            
+            import com.jayasuryat.dowel.annotation.Dowel
+            
+            @Dowel(overrideDefaultValues = true)
+            internal class Person(
+                val name: String = "",
+                val age: String,
+            )
+            
+            @Dowel(overrideDefaultValues = false)
+            internal class Address(
+                val name: String = "",
+                val place: String,
+            )
+            
+            @Dowel
+            internal class SomeData(
+                val name: String = "",
+                val data: String,
+            )
+
+        """.trimIndent()
+
+        val kotlinSource: SourceFile = SourceFile.kotlin(name = "Person.kt", contents = source)
+        val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
+
+        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals("", result.messages)
+    }
     //spotless:on
 
     private fun compile(

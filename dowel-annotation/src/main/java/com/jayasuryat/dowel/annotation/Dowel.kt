@@ -70,6 +70,7 @@ import com.jayasuryat.dowel.annotation.internal.DowelInternal
  * * [androidx.annotation.Size]
  *
  * @param [count] Number of items in the generated sequence of items
+ * @param [overrideDefaultValues] Flag indicating whether to override properties with default values
  * @see [DowelList]
  * @see [ConsiderForDowel]
  */
@@ -78,6 +79,7 @@ import com.jayasuryat.dowel.annotation.internal.DowelInternal
 @Target(AnnotationTarget.CLASS)
 public annotation class Dowel(
     val count: Int = DEFAULT_COUNT,
+    val overrideDefaultValues: Boolean = false,
 ) {
 
     public companion object {
@@ -86,5 +88,8 @@ public annotation class Dowel(
 
         @DowelInternal
         public const val COUNT_PROPERTY_NAME: String = "count"
+
+        @DowelInternal
+        public const val OVERRIDE_DEFAULT_VALUES_NAME: String = "overrideDefaultValues"
     }
 }

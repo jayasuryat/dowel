@@ -17,8 +17,8 @@ package com.jayasuryat.dowel.sample.ui.home.model.location
 
 import com.jayasuryat.dowel.annotation.Dowel
 
-@Dowel
+@Dowel(overrideDefaultValues = true)
 data class Location(
-    val lat: Long?,
+    val lat: Long? = 0L,
     val lon: Long?,
 )

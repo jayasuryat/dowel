@@ -80,8 +80,11 @@ internal class ClassRepresentationMapper(
         val constructor: KSFunctionDeclaration = classDeclaration.primaryConstructor!!
         val parameters: List<KSValueParameter> = constructor.parameters
 
+        // Flag to enable / disable code gen for properties with default values
+        val shouldOverrideDefaultValues: Boolean = classDeclaration.shouldOverrideDefaultValues()
+
         val mappedParameters: List<ClassRepresentation.Parameter> = parameters
-            .filter { !it.hasDefault } // Ignoring all properties with default values
+            .filter { shouldOverrideDefaultValues || it.hasDefault.not() }
             .mapNotNull { parameter -> // Filtering out UnsupportedType parameters
 
                 val resolvedType = parameter.type.resolve()
@@ -689,4 +692,17 @@ internal class ClassRepresentationMapper(
             .filter { it.isLetterOrDigit() }
             .replaceFirstChar { char -> char.lowercaseChar() } + "List"
     }
+}
+
+/**
+ * Checks if the given KSClassDeclaration should override default values.
+ * @return Boolean value indicating whether default values should be overridden.
+ */
+private fun KSClassDeclaration.shouldOverrideDefaultValues(): Boolean {
+    val classDeclaration = this
+    return classDeclaration.annotations
+        .first { it.shortName.asString() == Dowel::class.java.simpleName }
+        .arguments
+        .first { it.name!!.asString() == Dowel.Companion.OVERRIDE_DEFAULT_VALUES_NAME }
+        .value as Boolean
 }
