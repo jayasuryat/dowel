@@ -6,6 +6,8 @@ plugins {
 
 android {
 
+    namespace 'com.jayasuryat.dowel.sample'
+
     compileSdk 33
 
     defaultConfig {

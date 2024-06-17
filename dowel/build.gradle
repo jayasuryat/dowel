@@ -6,6 +6,8 @@ plugins {
 
 android {
 
+    namespace 'com.jayasuryat.dowel'
+
     compileSdk 33
 
     defaultConfig {
@@ -37,6 +39,13 @@ android {
         buildConfig = false
         resValues = false
     }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 kotlin {
@@ -54,7 +63,7 @@ afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                from components.release
+                components.getByName('release')
                 groupId = 'com.github.jayasuryat'
                 artifactId = 'dowel'
             }
