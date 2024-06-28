@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm'
@@ -13,9 +15,9 @@ kotlin {
     explicitApi()
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += '-opt-in=com.jayasuryat.dowel.annotation.internal.DowelInternal'
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-opt-in=com.jayasuryat.dowel.annotation.internal.DowelInternal")
     }
 }
 
