@@ -3,7 +3,7 @@ buildscript {
         kotlin_version = '1.9.24'
         compose_version = '1.5.14'
         ksp_api_version = '1.9.24-1.0.20'
-        lint_version = "30.2.1"
+        lint_version = "31.5.0"
     }
 }
 
@@ -14,7 +14,7 @@ plugins {
     id 'org.jetbrains.kotlin.android' version '1.9.24' apply false
     id 'org.jetbrains.kotlin.jvm' version '1.9.24' apply false
     id "com.diffplug.spotless" version "5.14.0" apply false
-    id "org.jetbrains.kotlinx.binary-compatibility-validator" version "0.11.1"
+    id "org.jetbrains.kotlinx.binary-compatibility-validator" version "0.14.0"
 }
 
 apply {

@@ -31,11 +31,11 @@ dependencies {
     implementation("com.google.devtools.ksp:symbol-processing-api:$ksp_api_version")
 
     // Kotlin-Poet
-    implementation("com.squareup:kotlinpoet:1.12.0")
-    implementation("com.squareup:kotlinpoet-ksp:1.12.0")
+    implementation("com.squareup:kotlinpoet:1.17.0")
+    implementation("com.squareup:kotlinpoet-ksp:1.17.0")
 
     testImplementation("junit:junit:4.13.2")
-    testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.4.9")
+    testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.6.0")
 }
 
 afterEvaluate {
