@@ -128,7 +128,7 @@ internal class ConsiderForDowelProcessingTest {
             SourceFile.kotlin(name = "CustomPreviewParamProvider.kt", contents = source)
         val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
 
-        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals(KotlinCompilation.ExitCode.COMPILATION_ERROR, result.exitCode)
         Assert.assertEquals("""
             e: Error occurred in KSP, check log for detail
             e: [ksp] ${temporaryFolder.root.path}/sources/CustomPreviewParamProvider.kt:7: 
@@ -154,7 +154,7 @@ internal class ConsiderForDowelProcessingTest {
             SourceFile.kotlin(name = "CustomPreviewParamProvider.kt", contents = source)
         val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
 
-        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals(KotlinCompilation.ExitCode.COMPILATION_ERROR, result.exitCode)
         Assert.assertEquals("""
             e: Error occurred in KSP, check log for detail
             e: [ksp] ${temporaryFolder.root.path}/sources/CustomPreviewParamProvider.kt:7: 
@@ -181,7 +181,7 @@ internal class ConsiderForDowelProcessingTest {
             SourceFile.kotlin(name = "CustomPreviewParamProvider.kt", contents = source)
         val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
 
-        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals(KotlinCompilation.ExitCode.COMPILATION_ERROR, result.exitCode)
         Assert.assertEquals("""
             e: Error occurred in KSP, check log for detail
             e: [ksp] ${temporaryFolder.root.path}/sources/CustomPreviewParamProvider.kt:7: 
@@ -208,7 +208,7 @@ internal class ConsiderForDowelProcessingTest {
             SourceFile.kotlin(name = "CustomPreviewParamProvider.kt", contents = source)
         val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
 
-        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals(KotlinCompilation.ExitCode.COMPILATION_ERROR, result.exitCode)
         Assert.assertEquals("""
             e: Error occurred in KSP, check log for detail
             e: [ksp] ${temporaryFolder.root.path}/sources/CustomPreviewParamProvider.kt:7: 
@@ -236,7 +236,7 @@ internal class ConsiderForDowelProcessingTest {
             SourceFile.kotlin(name = "CustomPreviewParamProvider.kt", contents = source)
         val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
 
-        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals(KotlinCompilation.ExitCode.COMPILATION_ERROR, result.exitCode)
         Assert.assertEquals("""
             e: Error occurred in KSP, check log for detail
             e: [ksp] ${temporaryFolder.root.path}/sources/CustomPreviewParamProvider.kt:7: 
@@ -264,7 +264,7 @@ internal class ConsiderForDowelProcessingTest {
             SourceFile.kotlin(name = "CustomPreviewParamProvider.kt", contents = source)
         val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
 
-        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals(KotlinCompilation.ExitCode.COMPILATION_ERROR, result.exitCode)
         Assert.assertEquals("""
             e: Error occurred in KSP, check log for detail
             e: [ksp] ${temporaryFolder.root.path}/sources/CustomPreviewParamProvider.kt:7: 
@@ -294,7 +294,7 @@ internal class ConsiderForDowelProcessingTest {
             SourceFile.kotlin(name = "CustomPreviewParamProvider.kt", contents = source)
         val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
 
-        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals(KotlinCompilation.ExitCode.COMPILATION_ERROR, result.exitCode)
         Assert.assertEquals("""
             e: Error occurred in KSP, check log for detail
             e: [ksp] ${temporaryFolder.root.path}/sources/CustomPreviewParamProvider.kt:7: 
@@ -411,7 +411,7 @@ internal class ConsiderForDowelProcessingTest {
             SourceFile.kotlin(name = "CustomPreviewParamProvider.kt", contents = source)
         val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
 
-        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals(KotlinCompilation.ExitCode.COMPILATION_ERROR, result.exitCode)
         Assert.assertEquals("""
             e: Error occurred in KSP, check log for detail
             e: [ksp] ${temporaryFolder.root.path}/sources/CustomPreviewParamProvider.kt:12: 

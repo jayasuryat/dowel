@@ -119,7 +119,7 @@ internal class DowelListProcessingTest {
         val kotlinSource: SourceFile = SourceFile.kotlin(name = "Person.kt", contents = source)
         val result: KotlinCompilation.Result = compile(kotlinSource, PreviewParameterProviderStub)
 
-        Assert.assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+        Assert.assertEquals(KotlinCompilation.ExitCode.COMPILATION_ERROR, result.exitCode)
         Assert.assertEquals("""
             e: Error occurred in KSP, check log for detail
             e: [ksp] ${temporaryFolder.root.path}/sources/Person.kt:6: 
