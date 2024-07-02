@@ -19,6 +19,7 @@ import com.android.tools.lint.detector.api.*
 import com.intellij.lang.jvm.JvmClassKind
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiModifier
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 
@@ -79,8 +80,7 @@ internal class WrongConsiderForDowelUsageDetector : Detector(), SourceCodeScanne
         }
 
         // Class is private in file
-        // The check is not evaluator.isPrivate(parent) because that's how Java representation works
-        if (!evaluator.isPublic(parent)) {
+        if (evaluator.hasModifier(parent, KtTokens.PRIVATE_KEYWORD)) {
 
             context.report(
                 issue = PrivateClassIssue.Definition,
