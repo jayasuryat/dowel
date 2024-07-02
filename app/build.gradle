@@ -6,14 +6,16 @@ plugins {
 
 android {
 
-    compileSdk 33
+    namespace 'com.jayasuryat.dowel.sample'
+
+    compileSdk 34
 
     defaultConfig {
 
         applicationId "com.jayasuryat.dowel.sample"
 
         minSdk 21
-        targetSdk 33
+        targetSdk 34
 
         versionCode 1
         versionName "1.0"
@@ -32,12 +34,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     buildFeatures {
@@ -67,15 +69,15 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
 
     // Core
-    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'androidx.core:core-ktx:1.13.1'
 
     // Compose
-    implementation "androidx.compose.ui:ui:$compose_version"
-    implementation "androidx.compose.material:material:$compose_version"
-    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
-    implementation 'androidx.activity:activity-compose:1.5.1'
+    implementation "androidx.compose.ui:ui:1.6.8"
+    implementation "androidx.compose.material:material:1.6.8"
+    implementation "androidx.compose.ui:ui-tooling-preview:1.6.8"
+    implementation 'androidx.activity:activity-compose:1.9.0'
 
-    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.5")
+    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
 
     // Dowel
     implementation project(":dowel")

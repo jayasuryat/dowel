@@ -20,7 +20,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
       - name: Spotless check
         run: ./gradlew spotlessCheck
 
@@ -34,7 +34,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
       - name: API check
         run: ./gradlew apiCheck
 
@@ -48,7 +48,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
       - name: Run dowel-processor tests
         run: ./gradlew dowel-processor:test
       - name: Run dowel-lint tests
@@ -66,6 +66,6 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: 17
       - name: Build project
         run: ./gradlew assemble

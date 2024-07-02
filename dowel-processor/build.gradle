@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm'
@@ -5,17 +7,17 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 kotlin {
     explicitApi()
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-    kotlinOptions {
-        freeCompilerArgs += '-opt-in=com.jayasuryat.dowel.annotation.internal.DowelInternal'
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        freeCompilerArgs.add("-opt-in=com.jayasuryat.dowel.annotation.internal.DowelInternal")
     }
 }
 
@@ -31,11 +33,11 @@ dependencies {
     implementation("com.google.devtools.ksp:symbol-processing-api:$ksp_api_version")
 
     // Kotlin-Poet
-    implementation("com.squareup:kotlinpoet:1.12.0")
-    implementation("com.squareup:kotlinpoet-ksp:1.12.0")
+    implementation("com.squareup:kotlinpoet:1.17.0")
+    implementation("com.squareup:kotlinpoet-ksp:1.17.0")
 
     testImplementation("junit:junit:4.13.2")
-    testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.4.9")
+    testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.6.0")
 }
 
 afterEvaluate {
